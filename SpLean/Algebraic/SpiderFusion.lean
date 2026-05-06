@@ -70,4 +70,10 @@ theorem Z_spiderFusion (n k : Nat) (α β : Phase) :
   rw [show phaseToComplex (α + β) = phaseToComplex α * phaseToComplex β from
         phaseToComplex_add α β]
 
+/-- Reverse of `Z_spiderFusion`: a single Z-spider with a summed phase is
+    equivalent to two Z-spiders connected by a wire. -/
+theorem Z_spiderUnfusion (n k : Nat) (α β : Phase) :
+    ZX.spider .Z n k (α + β) ≃ZX (ZX.spider .Z n 1 α ⨾ ZX.spider .Z 1 k β) :=
+  (Z_spiderFusion n k α β).symm
+
 end SpLean.Algebraic
