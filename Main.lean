@@ -140,6 +140,19 @@ example : ∃ d', exercise3point7 ≈z d' := by
   zx_unsp 20 ⟨0, 1⟩ ⟨1, 1⟩ [3]
   zx_rfl
 
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- New: spider fusion proven (not axiomatized) on a free-algebra ZX representation
+-- ─────────────────────────────────────────────────────────────────────────────
+-- The graph-style ZXDiagram above uses `axiom *_sound` for each rewrite
+-- rule.  In `SpLean/Algebraic/` we have a parallel free-algebra ADT
+-- (`ZX n m`) with denotational matrix semantics, where spider fusion can be
+-- proven outright as a matrix equality.  See:
+--   #check @SpLean.Algebraic.Z_spiderFusion
+-- The axiom audit below should show only `propext`, `Classical.choice`,
+-- `Quot.sound` — the standard Mathlib three, no project-local axioms.
+#print axioms SpLean.Algebraic.Z_spiderFusion
+
 -- Algebraic-ZX terms can now be rendered too: `ZX.toHtml` converts them into
 -- the same `ZXDiagram` widget shown above.
 open SpLean.Algebraic
