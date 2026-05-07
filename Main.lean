@@ -139,3 +139,17 @@ example : ∃ d', exercise3point7 ≈z d' := by
   zx_sp 20 2
   zx_unsp 20 ⟨0, 1⟩ ⟨1, 1⟩ [3]
   zx_rfl
+
+-- Algebraic-ZX terms can now be rendered too: `ZX.toHtml` converts them into
+-- the same `ZXDiagram` widget shown above.
+open SpLean.Algebraic in
+def algSpider : ZX 1 1 := .spider .Z 1 1 ⟨1, 2⟩
+#html algSpider.toHtml
+
+open SpLean.Algebraic in
+def algFusionLHS : ZX 1 1 := .spider .Z 1 1 ⟨1, 4⟩ ⨾ .spider .Z 1 1 ⟨1, 4⟩
+#html algFusionLHS.toHtml
+
+open SpLean.Algebraic in
+def algStack : ZX 2 2 := .wire ⊗ZX .hadamard
+#html algStack.toHtml
