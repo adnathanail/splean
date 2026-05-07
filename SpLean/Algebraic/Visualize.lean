@@ -138,7 +138,7 @@ def ZX.toZXDiagram {n m : Nat} (z : ZX n m) : ZXDiagram :=
   z.toPositionedDiagram.1
 
 -- == Position-aware JSON emission ==
--- Mirrors `Node.toJson` / `ZXDiagram.toJson` from `LeanSpider/Visualize.lean`,
+-- Mirrors `Node.toJson` / `ZXDiagram.toJson` from `SpLean/Visualize.lean`,
 -- adding `col`/`qubit` per node and a top-level `boxes` array.
 
 private def natJson (n : Nat) : Lean.Json := .num { mantissa := ↑n, exponent := 0 }
