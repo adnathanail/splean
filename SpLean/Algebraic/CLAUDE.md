@@ -53,21 +53,52 @@ tensor products needs real semantics first**:
 
 ## Visualization (`Visualize.lean`)
 
-`ZX.toHtml` renders an algebraic term in the existing `ZXWidget` by first
-lowering it to a `ZXDiagram` via `ZX.toZXDiagram`. The lowering threads a
-private `Frag` (diagram + open `left`/`right` port-id lists) through the
-constructors:
+`ZX.toHtml` renders an algebraic term in the existing `ZXWidget`. The walker
+threads a private `Frag` (diagram + open `left`/`right` port-id lists +
+`(width, height, pos, boxes)`) through the constructors. Every node carries an
+algebraic-grid `(col, qubit)` position emitted alongside the JSON, so the
+widget skips its BFS layout and the visual reflects the term's structure.
+Each `stack`/`compose` subtree also records a `BoxRecord` covering its
+extent; the widget draws translucent rectangles behind the diagram so the
+algebraic nesting is visible at a glance.
 
-- `wire` → one `.wire` node, used as both ports, rendered by the widget as a
-  small black dot (radius `0.2 * node_size`) rather than being spliced out.
-- `hadamard` → one `.hadamard` node, used as both ports.
-- `spider c n m φ` → one node, `left = replicate n id`, `right = replicate m id`
-  (parallel edges to the same node — the widget already draws these as bezier
-  arcs).
-- `stack` → concatenate fragments with id-shifted edges/ports.
-- `compose a b` → wire `a.right` to `b.left` with `zipWith` edges.
+Per-constructor layout:
+
+- `wire` → one `.wire` node at `(0, 0)`, rendered by the widget as a small
+  black dot (radius `0.2 * node_size`). Wires stay as real nodes rather than
+  being spliced out. Width 1, height 1.
+- `hadamard` → one `.hadamard` node at `(0, 0)`. Width 1, height 1.
+- `spider c n m φ` → one node at `(0, 0)` (its top input row); `left = replicate n id`,
+  `right = replicate m id`. Width 1, height `max n m`.
+- `stack a b` → concatenate; shift `b`'s qubits by `a.height`.
+  Width `max a.width b.width`, height `a.height + b.height`.
+- `compose a b` → connect `a.right` to `b.left` and shift `b`'s cols by `a.width`.
+  Width `a.width + b.width`, height `max a.height b.height`.
+
+`stack` and `compose` each emit a `BoxRecord {kind, nodeIds}` listing the ids
+of every node in their subtree (with appropriate shifts on `compose`/`stack`).
+Leaves emit no box. Pixel bounds are computed in `zxViewer.js` from each
+node's live `.x/.y`, so boxes follow drags and don't extend past visible
+nodes (which would otherwise happen on subtrees containing spliced wires).
+The JSON emitter drops boxes whose `nodeIds` are all `none` after splicing.
 
 Boundary `.input`/`.output` nodes are added **only** at the top level by
-`ZX.toZXDiagram`, so internal fragments stay arity-pure during recursion.
-This is rendering-only — there is no proof that `toZXDiagram` preserves
-semantics (would need a `ZXDiagram` denotation, which doesn't exist yet).
+`ZX.toPositionedDiagram`, at `col = -1, qubit = ioId` (inputs) and
+`col = width, qubit = ioId` (outputs). Internal fragments stay arity-pure
+during recursion.
+
+The JSON shape extends `ZXDiagram.toJson` with `col` (Int) and `qubit` (Nat)
+fields per node, plus a top-level `boxes` array of `{kind, nodeIds}` records.
+`zxRender.ts` honours the positions (skipping `autoLayout` whenever any node
+has `col` set) and forwards boxes unchanged, sorted largest-id-count first
+so outer paints behind inner. `zxViewer.js` accepts the box list as an extra
+parameter to `showGraph`, renders them as the first `<g class="boxes">` child
+of the SVG (with `pointer-events: none` so the brush layer still works), and
+recomputes their bounds in `update_boxes()` after every drag tick. The
+widget's `auto_hbox` flag is turned off in the positioned case, so hadamards'
+supplied positions aren't overwritten by neighbour-barycentre repositioning.
+
+`ZX.toZXDiagram` (used by callers that just need the graph) delegates to
+`ZX.toPositionedDiagram` and discards the position list. Rendering-only —
+there is no proof that the lowering preserves semantics (would need a
+`ZXDiagram` denotation, which doesn't exist yet).

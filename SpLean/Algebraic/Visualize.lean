@@ -5,62 +5,118 @@ namespace SpLean.Algebraic
 
 open SpLean
 
-/-- A partially-built diagram together with its currently-open boundary ports.
-    `left[i]` is the `NodeId` carrying the i-th input port of the fragment;
-    `right[i]` similarly for outputs. The same id may appear multiple times
-    (e.g. a single spider with 2 outputs has both `right` entries pointing at it). -/
+/-- The set of node ids inside a `stack` or `compose` subtree, drawn behind
+    the diagram as a bounding rectangle. The widget computes pixel bounds
+    from each node's live position so boxes follow drags and don't extend
+    into spliced-wire empty space. `kind` is "stack" or "compose". -/
+structure BoxRecord where
+  kind    : String
+  nodeIds : List NodeId
+  deriving Repr
+
+/-- A partially-built diagram together with its currently-open boundary ports
+    and the algebraic-grid `(col, qubit)` position of every node it contains.
+    `compose` advances `col`; `stack` advances `qubit`.
+    `boxes` records bounding rectangles for every `stack`/`compose` subtree
+    so the widget can draw them behind the diagram. -/
 private structure Frag where
   diagram : ZXDiagram
   left    : List NodeId
   right   : List NodeId
+  /-- Number of compose-columns this fragment occupies. -/
+  width   : Nat
+  /-- Number of stack-qubits this fragment occupies. -/
+  height  : Nat
+  /-- `(id, col, qubit)` for every node in `diagram`. `col` is `Int` so
+      boundary inputs/outputs can sit at -1 / `width`. -/
+  pos     : List (NodeId × Int × Nat)
+  /-- One entry per `stack`/`compose` subtree, in this fragment's local
+      grid coordinates. Empty for leaves. -/
+  boxes   : List BoxRecord
 
 private def Frag.empty : Frag :=
-  { diagram := { nodes := [], edges := [] }, left := [], right := [] }
+  { diagram := { nodes := [], edges := [] }
+    left := [], right := []
+    width := 0, height := 0, pos := [], boxes := [] }
 
 private def shiftEdge (off : Nat) (e : Edge) : Edge :=
   { src := e.src + off, tgt := e.tgt + off }
 
-/-- Concatenate two fragments side-by-side (parallel composition `stack`). -/
+private def shiftPos (idOff : Nat) (cOff : Int) (qOff : Nat)
+    (p : NodeId × Int × Nat) : NodeId × Int × Nat :=
+  let (id, c, q) := p
+  (id + idOff, c + cOff, q + qOff)
+
+private def shiftBoxIds (idOff : Nat) (b : BoxRecord) : BoxRecord :=
+  { b with nodeIds := b.nodeIds.map (· + idOff) }
+
+/-- Stack `a` on top of `b` (parallel composition `stack`).
+    `b`'s qubits shift down by `a.height`; widths are taken as `max`.
+    Records a "stack" box covering the union of subtree node ids. -/
 private def Frag.append (a b : Frag) : Frag :=
   let off := a.diagram.nodes.length
+  let allIds : List NodeId :=
+    a.pos.map (·.1) ++ (b.pos.map (·.1)).map (· + off)
+  let newBox : List BoxRecord :=
+    if allIds.isEmpty then [] else [{ kind := "stack", nodeIds := allIds }]
   { diagram := { nodes := a.diagram.nodes ++ b.diagram.nodes
                  edges := a.diagram.edges ++ b.diagram.edges.map (shiftEdge off) }
     left    := a.left    ++ b.left.map    (· + off)
-    right   := a.right   ++ b.right.map   (· + off) }
+    right   := a.right   ++ b.right.map   (· + off)
+    width   := Nat.max a.width b.width
+    height  := a.height + b.height
+    pos     := a.pos ++ b.pos.map (shiftPos off 0 a.height)
+    boxes   := a.boxes ++ b.boxes.map (shiftBoxIds off) ++ newBox }
 
-/-- Sequentially compose two fragments: wire `a`'s right ports to `b`'s left ports. -/
+/-- Sequentially compose `a` then `b`.
+    `b`'s columns shift right by `a.width`; heights are taken as `max`.
+    Records a "compose" box covering the union of subtree node ids. -/
 private def Frag.then (a b : Frag) : Frag :=
   let off := a.diagram.nodes.length
   let bLeft  := b.left.map  (· + off)
   let bRight := b.right.map (· + off)
   let bEdges := b.diagram.edges.map (shiftEdge off)
   let connecting := List.zipWith (fun s t => ({ src := s, tgt := t } : Edge)) a.right bLeft
+  let allIds : List NodeId :=
+    a.pos.map (·.1) ++ (b.pos.map (·.1)).map (· + off)
+  let newBox : List BoxRecord :=
+    if allIds.isEmpty then [] else [{ kind := "compose", nodeIds := allIds }]
   { diagram := { nodes := a.diagram.nodes ++ b.diagram.nodes
                  edges := a.diagram.edges ++ bEdges ++ connecting }
     left    := a.left
-    right   := bRight }
+    right   := bRight
+    width   := a.width + b.width
+    height  := Nat.max a.height b.height
+    pos     := a.pos ++ b.pos.map (shiftPos off (a.width : Int) 0)
+    boxes   := a.boxes ++ b.boxes.map (shiftBoxIds off) ++ newBox }
 
-/-- Build a `Frag` from an algebraic `ZX n m` term. Boundary input/output nodes are
-    *not* added here — that's done in `ZX.toZXDiagram`. -/
+/-- Build a positioned `Frag` from an algebraic `ZX n m` term. Boundary
+    input/output nodes are added later by `ZX.toPositionedDiagram`. -/
 private def buildFrag : {n m : Nat} → ZX n m → Frag
   | _, _, .empty    => Frag.empty
   | _, _, .wire     =>
     let (d, id) := Frag.empty.diagram.addNode .wire
-    { diagram := d, left := [id], right := [id] }
+    { diagram := d, left := [id], right := [id]
+      width := 1, height := 1, pos := [(id, 0, 0)], boxes := [] }
   | _, _, .hadamard =>
     let (d, id) := Frag.empty.diagram.addNode .hadamard
-    { diagram := d, left := [id], right := [id] }
+    { diagram := d, left := [id], right := [id]
+      width := 1, height := 1, pos := [(id, 0, 0)], boxes := [] }
   | _, _, .spider c n m φ =>
     let (d, id) := Frag.empty.diagram.addNode (.spider c φ)
-    { diagram := d, left := List.replicate n id, right := List.replicate m id }
+    { diagram := d, left := List.replicate n id, right := List.replicate m id
+      width := 1, height := Nat.max n m, pos := [(id, 0, 0)], boxes := [] }
   | _, _, .stack a b   => Frag.append (buildFrag a) (buildFrag b)
   | _, _, .compose a b => Frag.then   (buildFrag a) (buildFrag b)
 
-/-- Convert an algebraic ZX term to a graph-style `ZXDiagram` for rendering.
-    Adds `n` input boundary nodes and `m` output boundary nodes wired to the
-    fragment's open ports. Wires render as `.wire` nodes (drawn as small dots
-    in the widget). -/
-def ZX.toZXDiagram {n m : Nat} (z : ZX n m) : ZXDiagram :=
+/-- Convert an algebraic ZX term to a positioned diagram: a `ZXDiagram`, a
+    list of `(NodeId, col, qubit)` triples giving the algebraic-grid position
+    of each node, and a list of `BoxRecord`s describing the bounding rectangle
+    of every `stack`/`compose` subtree. Inputs sit at `col = -1`, outputs at
+    `col = width`, each at `qubit = ioId`. Wires render as `.wire` nodes
+    (drawn as small dots in the widget). -/
+def ZX.toPositionedDiagram {n m : Nat} (z : ZX n m) :
+    ZXDiagram × List (NodeId × Int × Nat) × List BoxRecord :=
   let f := buildFrag z
   let inputNodes  : List Node := (List.range n).map (fun i => .input i)
   let outputNodes : List Node := (List.range m).map (fun i => .output i)
@@ -68,10 +124,76 @@ def ZX.toZXDiagram {n m : Nat} (z : ZX n m) : ZXDiagram :=
   let (d₂, outs) := d₁.addNodes outputNodes
   let inEdges  := List.zipWith (fun s t => ({ src := s, tgt := t } : Edge)) ins f.left
   let outEdges := List.zipWith (fun s t => ({ src := s, tgt := t } : Edge)) f.right outs
-  d₂.addEdges (inEdges ++ outEdges)
+  let d₃ := d₂.addEdges (inEdges ++ outEdges)
+  let inPos : List (NodeId × Int × Nat) :=
+    List.zipWith (fun id i => ((id, (-1 : Int), i) : NodeId × Int × Nat)) ins (List.range n)
+  let outPos : List (NodeId × Int × Nat) :=
+    List.zipWith (fun id i => ((id, (f.width : Int), i) : NodeId × Int × Nat)) outs (List.range m)
+  (d₃, f.pos ++ inPos ++ outPos, f.boxes)
+
+/-- The graph-style `ZXDiagram` lowering, identical in result to the previous
+    implementation; positions and boxes are discarded for callers that don't
+    need them. -/
+def ZX.toZXDiagram {n m : Nat} (z : ZX n m) : ZXDiagram :=
+  z.toPositionedDiagram.1
+
+-- == Position-aware JSON emission ==
+-- Mirrors `Node.toJson` / `ZXDiagram.toJson` from `LeanSpider/Visualize.lean`,
+-- adding `col`/`qubit` per node and a top-level `boxes` array.
+
+private def natJson (n : Nat) : Lean.Json := .num { mantissa := ↑n, exponent := 0 }
+private def intJson (n : Int) : Lean.Json := .num { mantissa := n, exponent := 0 }
+
+private def nodeToJsonPositioned (n : Node) (idx : Nat) (col : Int) (qubit : Nat) :
+    Lean.Json :=
+  let posFields : List (String × Lean.Json) := [("col", intJson col), ("qubit", natJson qubit)]
+  match n with
+  | .spider c p =>
+    let color := match c with | .Z => "Z" | .X => "X"
+    .mkObj ([("id", natJson idx), ("type", .str "spider"),
+             ("color", .str color), ("phase", p.toJson)] ++ posFields)
+  | .hadamard =>
+    let phase : Phase := ⟨1, 1⟩
+    .mkObj ([("id", natJson idx), ("type", .str "hadamard"),
+             ("phase", phase.toJson)] ++ posFields)
+  | .wire =>
+    .mkObj ([("id", natJson idx), ("type", .str "wire")] ++ posFields)
+  | .input id =>
+    .mkObj ([("id", natJson idx), ("type", .str "input"), ("ioId", natJson id)] ++ posFields)
+  | .output id =>
+    .mkObj ([("id", natJson idx), ("type", .str "output"), ("ioId", natJson id)] ++ posFields)
+
+private def lookupPos (pos : List (NodeId × Int × Nat)) (id : NodeId) :
+    Option (Int × Nat) :=
+  pos.findSome? (fun (i, c, q) => if i == id then some (c, q) else none)
+
+private def boxToJson (b : BoxRecord) : Lean.Json :=
+  .mkObj [("kind", .str b.kind),
+          ("nodeIds", .arr (b.nodeIds.map natJson).toArray)]
+
+/-- Emit the algebraic-positioned diagram as JSON: same shape as
+    `ZXDiagram.toJson` plus per-node `col`/`qubit` fields and a top-level
+    `boxes` array. -/
+private def algebraicJson (d : ZXDiagram) (pos : List (NodeId × Int × Nat))
+    (boxes : List BoxRecord) : Lean.Json :=
+  let nodes := d.nodes.foldl (init := (#[], 0)) fun (acc, idx) opt =>
+    match opt with
+    | some n =>
+      match lookupPos pos idx with
+      | some (c, q) => (acc.push (nodeToJsonPositioned n idx c q), idx + 1)
+      | none        => (acc.push (n.toJson idx), idx + 1)
+    | none => (acc, idx + 1)
+  let nodes := nodes.1
+  let edges := (d.edges.map Edge.toJson).toArray
+  let boxesJson := (boxes.map boxToJson).toArray
+  .mkObj [("nodes", .arr nodes), ("edges", .arr edges), ("boxes", .arr boxesJson)]
 
 open ProofWidgets in
-/-- Render an algebraic ZX term in the InfoView via the existing `ZXWidget`. -/
-def ZX.toHtml {n m : Nat} (z : ZX n m) : Html := z.toZXDiagram.toHtml
+/-- Render an algebraic ZX term in the InfoView. Positions come from the
+    algebraic structure (`compose` → col, `stack` → qubit), and bounding
+    boxes are emitted for every `stack`/`compose` subtree. -/
+def ZX.toHtml {n m : Nat} (z : ZX n m) : Html :=
+  let (d, pos, boxes) := z.toPositionedDiagram
+  Html.ofComponent ZXWidget ⟨algebraicJson d pos boxes, .null⟩ #[]
 
 end SpLean.Algebraic
