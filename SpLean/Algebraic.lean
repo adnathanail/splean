@@ -4,3 +4,4 @@ import SpLean.Algebraic.Render
 import SpLean.Algebraic.Visualize
 import SpLean.Algebraic.Semantics
 import SpLean.Algebraic.SpiderFusion
+import SpLean.Algebraic.Gates
