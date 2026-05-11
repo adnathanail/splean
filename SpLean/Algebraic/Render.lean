@@ -28,7 +28,12 @@ private unsafe def evalZXHtmlImpl (z : Expr) : MetaM Html := do
   let ty ← inferType z
   let some (nE, mE) := matchZXType? ty
     | throwError "evalZXHtml: expected `ZX n m`, got {ty}"
-  let htmlE ← mkAppOptM ``ZX.toHtml #[some nE, some mE, some z]
+  -- `ZX.toHtml` also takes a phase-label override list; a term rendered by
+  -- `#zx` is closed, so its phases come straight from the diagram and the
+  -- list is empty. `mkAppOptM` does not fill in optional arguments, and a
+  -- partial application would not evaluate at type `Html`.
+  let noLabels : Expr := Lean.toExpr ([] : List (Nat × String))
+  let htmlE ← mkAppOptM ``ZX.toHtml #[some nE, some mE, some z, some noLabels]
   Meta.evalExpr Html (mkConst ``ProofWidgets.Html) htmlE
 
 @[implemented_by evalZXHtmlImpl]
