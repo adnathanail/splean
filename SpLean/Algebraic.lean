@@ -5,4 +5,7 @@ import SpLean.Algebraic.Visualize
 import SpLean.Algebraic.Semantics
 import SpLean.Algebraic.Congruence
 import SpLean.Algebraic.SpiderFusion
+import SpLean.Algebraic.Rewrite
+import SpLean.Algebraic.Tactics
+import SpLean.Algebraic.Visualize
 import SpLean.Algebraic.Gates
