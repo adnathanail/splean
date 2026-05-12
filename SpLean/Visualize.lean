@@ -7,7 +7,10 @@ open Lean Server ProofWidgets
 private def natJson (n : Nat) : Json := .num { mantissa := ↑n, exponent := 0 }
 
 /-- Human-readable phase string used by the widget. gcd + mod-2π normalize
-    via `Phase.simplify`, then format as `π/2`, `-π/4`, `2π/3`, `π`, or `0`. -/
+    via `Phase.simplify`, then format as `π/2`, `-π/4`, `2π/3`, `π`, or `0`.
+    Single source of truth for phase display — both the closed-phase JSON
+    field (`Phase.toJson` below) and the symbolic-phase label walker in
+    `SpLean/Algebraic/Tactics.lean` route through this. -/
 def Phase.format (p : Phase) : String :=
   let p := p.simplify
   if p.num == 0 then "0"
