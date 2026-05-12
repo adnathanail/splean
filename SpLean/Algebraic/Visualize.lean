@@ -5,6 +5,15 @@ namespace SpLean.Algebraic
 
 open SpLean
 
+/-- Bridge: lower an `AlgPhase` (a `ℚ`) to the graph-side `Phase` struct used
+    by `ZXDiagram.Node.spider`. Lossless: `ℚ` already comes in lowest terms,
+    and `Phase` is just `(num, den)` plus a positivity proof — which `ℚ`
+    provides via `Rat.den_pos`. Symbolic phases (free variables) are
+    irrelevant here: they're handled separately by the tactic-driven label
+    mechanism (see `phaseExprToLabel`). -/
+def AlgPhase.toGraphPhase (q : AlgPhase) : Phase :=
+  ⟨q.num, ⟨q.den, q.den_pos⟩⟩
+
 /-- The set of node ids inside a `stack` or `compose` subtree, drawn behind
     the diagram as a bounding rectangle. The widget computes pixel bounds
     from each node's live position so boxes follow drags and don't extend
@@ -119,7 +128,7 @@ private def buildFrag : {n m : Nat} → ZX n m → Frag
     { diagram := d, left := [(id, 0)], right := [(id, 0)]
       width := 1, height := 1, pos := [(id, 0, 0)], boxes := [] }
   | _, _, .spider c n m φ =>
-    let (d, id) := Frag.empty.diagram.addNode (.spider c φ)
+    let (d, id) := Frag.empty.diagram.addNode (.spider c φ.toGraphPhase)
     let mx := Nat.max n m
     -- `centre` is the qubitHalves at the midpoint of slots `0..mx-1`.
     -- `mx - 1` saturates at 0 when `mx = 0` (a 0-leg spider has no ports).
