@@ -51,11 +51,11 @@ private unsafe def tryEvalAlgPhaseImpl (e : Expr) : MetaM (Option AlgPhase) := d
 @[implemented_by tryEvalAlgPhaseImpl]
 private opaque tryEvalAlgPhase (e : Expr) : MetaM (Option AlgPhase)
 
-/-- Format an `AlgPhase` (a `ℚ`) using the same string convention as graph-side
-    `Phase.format`. Routes through `AlgPhase.toGraphPhase` so display stays
-    consistent across both representations. -/
+/-- Format an `AlgPhase` for display. Uses `AlgPhase.format` (raw ℚ) rather
+    than the graph-side `Phase.format`, so the displayed value matches the
+    actual stored ℚ value (no mod-2π reduction). -/
 private def algPhaseFormat (q : AlgPhase) : String :=
-  q.toGraphPhase.format
+  AlgPhase.format q
 
 /-- Render an `AlgPhase`-typed `Expr` as a display string. The walker
     prioritises *evaluation* over surface preservation: any sub-expression
@@ -108,10 +108,8 @@ partial def collectPhaseLabels (z : Expr) (off : Nat := 0) :
   | some ``ZX.spider   =>
       let args := z.getAppArgs
       if args.size = 4 then
-        let phaseE := args[3]!
-        if phaseE.hasFVar then
-          let s ← phaseExprToLabel phaseE
-          return ([(off, s)], off + 1)
+        let s ← phaseExprToLabel args[3]!
+        return ([(off, s)], off + 1)
       return ([], off + 1)
   | some ``ZX.stack    =>
       let args := z.getAppArgs
@@ -278,5 +276,67 @@ elab tk:"zx_alg_fusion " idA:num idB:num : tactic => do
     let goalType ← (← getMainGoal).getType
     let (lhs', rhs) ← parseAlgEquivGoal goalType
     showAlgDiagram tk "After spider fusion" lhs' (some rhs)
+
+/-- Close a goal `ZX.spider c n m α ≃ZX ZX.spider c n m β` whose two phases
+    are concrete `AlgPhase` (ℚ) values differing by `2k` for some integer `k`.
+
+    Strategy: evaluate both phases as ℚ; compute `k := (β - α) / 2` and verify
+    it's an integer. Combine `ZX.spider_phase_mod_two α k` (which gives
+    `spider c n m α ≃ZX spider c n m (α + 2*k)`) with the residual equality
+    `α + 2*k = β` (closed by `unfold phaseLit; push_cast; ring`).
+
+    Fails when either phase is symbolic — for those, write the periodicity
+    application by hand. -/
+elab "zx_mod_two" : tactic => withMainContext do
+  let goal ← getMainGoal
+  let goalType ← goal.getType
+  let (lhs, rhs) ← parseAlgEquivGoal goalType
+  let lhsW ← whnf lhs
+  let rhsW ← whnf rhs
+  let lhsArgs := lhsW.getAppArgs
+  let rhsArgs := rhsW.getAppArgs
+  unless lhsW.getAppFn.constName? == some ``ZX.spider
+       && rhsW.getAppFn.constName? == some ``ZX.spider
+       && lhsArgs.size == 4 && rhsArgs.size == 4 do
+    throwError "zx_mod_two: expected `ZX.spider _ _ _ _ ≃ZX ZX.spider _ _ _ _`, got {goalType}"
+  let cE := lhsArgs[0]!
+  let nE := lhsArgs[1]!
+  let mE := lhsArgs[2]!
+  let αE := lhsArgs[3]!
+  let βE := rhsArgs[3]!
+  let some αVal ← tryEvalAlgPhase αE
+    | throwError "zx_mod_two: could not evaluate LHS phase to a concrete ℚ ({αE})"
+  let some βVal ← tryEvalAlgPhase βE
+    | throwError "zx_mod_two: could not evaluate RHS phase to a concrete ℚ ({βE})"
+  let diff := βVal - αVal
+  let kQ := diff / 2
+  unless kQ.den == 1 do
+    throwError "zx_mod_two: phase difference {diff} is not an integer multiple of 2 \
+                (β − α)/2 = {kQ})"
+  let k : ℤ := kQ.num
+  let kE : Expr := Lean.toExpr k
+  let modProof ← mkAppOptM ``ZX.spider_phase_mod_two
+    #[some cE, some nE, some mE, some αE, some kE]
+  -- Direct application works whenever the kernel reduces `α + 2*k` to `β`.
+  if ← isDefEq (← inferType modProof) goalType then
+    goal.assign modProof
+    return
+  -- Fallback: build the residual `α + 2*k = β` equality and discharge by
+  -- `unfold phaseLit; push_cast; ring`, then bridge via `spider_eq_of_phase_eq`.
+  let modType ← inferType modProof
+  let (_, modRhs) ← parseAlgEquivGoal modType
+  let modRhsArgs := modRhs.getAppArgs
+  let shiftedβ := modRhsArgs[3]!
+  let eqType ← mkAppM ``Eq #[shiftedβ, βE]
+  let eqMVar ← mkFreshExprMVar eqType
+  let congProof ← mkAppOptM ``spider_eq_of_phase_eq
+    #[some cE, some nE, some mE, some shiftedβ, some βE, some eqMVar]
+  let finalProof ← mkAppM ``ZX.equiv_trans #[modProof, congProof]
+  goal.assign finalProof
+  setGoals [eqMVar.mvarId!]
+  evalTactic (← `(tactic|
+    (first
+      | rfl
+      | (unfold SpLean.Algebraic.phaseLit; push_cast; ring))))
 
 end SpLean.Algebraic
