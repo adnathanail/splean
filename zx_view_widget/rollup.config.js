@@ -1,36 +1,8 @@
-import { readdirSync, readFileSync } from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { readdirSync } from 'node:fs'
 import commonjs from '@rollup/plugin-commonjs'
 import resolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import terser from '@rollup/plugin-terser'
-
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
-
-// Imports src .js files (like zxViewer.js) as plain string modules so they can
-// be embedded for eval(). Resolves paths from dist/ back to src/ since tsc
-// compiles there but these files stay in src/.
-const rawAssets = {
-  name: 'raw-assets',
-  resolveId(id, importer) {
-    if (id.endsWith('.js') && importer) {
-      const srcImporter = importer.replace(
-        `${path.sep}dist${path.sep}`,
-        `${path.sep}src${path.sep}`,
-      )
-      const resolved = path.resolve(path.dirname(srcImporter), id)
-      // Only handle .js files that live in src/ (not node_modules)
-      if (!resolved.includes(path.join(__dirname, 'src'))) return null
-      return resolved
-    }
-  },
-  load(id) {
-    if (id.endsWith('.js') && id.includes(path.join(__dirname, 'src'))) {
-      return `export default ${JSON.stringify(readFileSync(id, 'utf8'))};`
-    }
-  },
-}
 
 const production = process.env.NODE_ENV === 'production'
 const outputDir = process.env.OUTPUT_DIR || 'build'
@@ -49,7 +21,6 @@ export default inputs.map(input => ({
   },
   external: ['react', 'react-dom', 'react/jsx-runtime', '@leanprover/infoview'],
   plugins: [
-    rawAssets,
     resolve({ browser: true }),
     replace({
       preventAssignment: true,

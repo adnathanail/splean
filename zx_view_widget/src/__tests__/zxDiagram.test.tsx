@@ -1,5 +1,7 @@
-import { render as rtlRender, screen, waitFor } from '@testing-library/react'
+import { render as rtlRender } from '@testing-library/react'
 import { beforeEach, expect, test, vi } from 'vitest'
+
+vi.mock('@adnathanail/zxcc', () => ({ ZxDiagramElement: class {} }))
 
 const diagram = {
   nodes: [
@@ -13,33 +15,25 @@ const diagram = {
   ],
 }
 
-async function setup() {
-  vi.doMock('../zxViewer.js', () => ({ default: 'function showGraph() {}' }))
-  vi.doMock('d3', () => ({}))
-  const { default: ZXDiagram } = await import('../zxDiagram')
-  return ZXDiagram
-}
-
 beforeEach(() => {
-  vi.resetModules()
+  localStorage.clear()
 })
 
-test('renders D3 container after a successful render', async () => {
-  const ZXDiagram = await setup()
+test('single-diagram mode renders one <zx-diagram> with the diagram forwarded', async () => {
+  const { default: ZXDiagram } = await import('../zxDiagram')
   const { container } = rtlRender(<ZXDiagram diagram={diagram} />)
-  await waitFor(() => {
-    const div = container.querySelector('div[style*="background-color"]')
-    expect(div).toBeInTheDocument()
-  })
+  const els = container.querySelectorAll('zx-diagram')
+  expect(els).toHaveLength(1)
+  expect((els[0] as HTMLElement & { diagram: unknown }).diagram).toBe(diagram)
 })
 
-test('shows an error message when the render call throws', async () => {
-  vi.doMock('../zxRender', () => ({
-    render: () => {
-      throw new Error('TS render error')
-    },
-  }))
-  const ZXDiagram = await setup()
-  rtlRender(<ZXDiagram diagram={diagram} />)
-  await waitFor(() => screen.getByText(/TS render error/))
+test('goal mode renders two <zx-diagram>s plus a layout toggle', async () => {
+  const { default: ZXDiagram } = await import('../zxDiagram')
+  const goal = { ...diagram }
+  const { container } = rtlRender(<ZXDiagram diagram={diagram} goal={goal} />)
+  const els = container.querySelectorAll('zx-diagram')
+  expect(els).toHaveLength(2)
+  expect((els[0] as HTMLElement & { diagram: unknown }).diagram).toBe(diagram)
+  expect((els[1] as HTMLElement & { diagram: unknown }).diagram).toBe(goal)
+  expect(container.querySelector('button')).not.toBeNull()
 })
