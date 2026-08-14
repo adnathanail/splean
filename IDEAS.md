@@ -40,8 +40,10 @@ Things to research
 
 - TensorRocq: Enabling diagrammatic reasoning in Rocq
     - https://arxiv.org/pdf/2604.17592
+    - https://github.com/inQWIRE/TensorRocq
 - VyZX: Formal Verification of a Graphical Quantum Language
     - https://arxiv.org/abs/2311.11571
+    - https://github.com/inQWIRE/VyZX
 - String Diagram Rewrite Theory II: Rewriting with Symmetric Monoidal Structure
     - https://arxiv.org/pdf/2104.14686
     - Frobenius algebra

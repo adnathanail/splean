@@ -1,107 +1,13 @@
-import * as d3 from 'd3'
 import * as React from 'react'
-import {
-  type DiagramData,
-  type RenderBox,
-  type RenderData,
-  render as renderDiagram,
-} from './zxRender'
-import zxViewerJs from './zxViewer.js'
+import { type DiagramData, ZxDiagramElement } from '@adnathanail/zxcc'
 
-// Eval the viewer module once and cache the showGraph function.
-// pyzx's zx_viewer.inline.js reads `_settings_colors` and `d3` from its scope.
-let showGraphFn:
-  | ((
-      tag: HTMLElement,
-      graph: unknown,
-      width: number,
-      height: number,
-      scale: number,
-      node_size: number,
-      auto_hbox: boolean,
-      show_labels: boolean,
-      scalar_str: string,
-      boxes: RenderBox[],
-      labels: Map<number, string>,
-    ) => void)
-  | null = null
-
-function getShowGraph(colors: Record<string, string>) {
-  if (showGraphFn) return showGraphFn
-  const mod: Record<string, unknown> = {}
-  // Inject _settings_colors into the function scope
-  const fn = new Function(
-    'exports',
-    '_settings_colors',
-    'd3',
-    `${zxViewerJs}\nexports.showGraph = showGraph;`,
-  )
-  fn(mod, colors, d3)
-  const show = mod.showGraph as NonNullable<typeof showGraphFn>
-  showGraphFn = show
-  return show
-}
+// Side-effect: touching the class ensures <zx-diagram> is registered even
+// if rollup tree-shakes the named export.
+void ZxDiagramElement
 
 interface ZXWidgetProps {
   diagram: DiagramData
   goal?: DiagramData | null
-}
-
-function ZXPanel({ diagram, label }: { diagram: DiagramData; label?: string }) {
-  const [retryCount, setRetryCount] = React.useState(0)
-  const containerRef = React.useRef<HTMLDivElement>(null)
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: retryCount is intentionally used to force re-runs on retry
-  const { renderData, error } = React.useMemo<{
-    renderData: RenderData | null
-    error: string | null
-  }>(() => {
-    try {
-      return { renderData: renderDiagram(diagram), error: null }
-    } catch (e) {
-      return { renderData: null, error: e instanceof Error ? e.message : String(e) }
-    }
-  }, [diagram, retryCount])
-
-  React.useEffect(() => {
-    if (!renderData || !containerRef.current) return
-    const container = containerRef.current
-    container.innerHTML = ''
-    const show = getShowGraph(renderData.colors)
-    show(
-      container,
-      renderData.graph,
-      renderData.width,
-      renderData.height,
-      renderData.scale,
-      renderData.node_size,
-      renderData.auto_hbox,
-      true, // show_labels
-      '', // scalar_str
-      renderData.boxes,
-      renderData.labels,
-    )
-  }, [renderData])
-
-  return (
-    <div style={{ flex: '1 1 0', minWidth: 0 }}>
-      {label && (
-        <div style={{ fontFamily: 'monospace', fontWeight: 'bold', marginBottom: 4 }}>{label}</div>
-      )}
-      {error ? (
-        <div style={{ fontFamily: 'monospace' }}>
-          <pre style={{ color: 'red', whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0 }}>
-            {error}
-          </pre>
-          <button type="button" onClick={() => setRetryCount(c => c + 1)}>
-            Retry
-          </button>
-        </div>
-      ) : (
-        <div ref={containerRef} style={{ overflow: 'auto', backgroundColor: 'white' }} />
-      )}
-    </div>
-  )
 }
 
 const LAYOUT_KEY = 'zx-widget-layout'
@@ -123,7 +29,6 @@ function usePersistedLayout(): [Layout, (l: Layout) => void] {
     return 'horizontal'
   })
 
-  // Listen for changes from other widget instances
   React.useEffect(() => {
     const handler = (e: StorageEvent) => {
       if (e.key === LAYOUT_KEY && isLayout(e.newValue)) {
@@ -146,6 +51,21 @@ function usePersistedLayout(): [Layout, (l: Layout) => void] {
   return [layout, setLayout]
 }
 
+function ZXPanel({ diagram, label }: { diagram: DiagramData; label?: string }) {
+  const ref = React.useRef<ZxDiagramElement | null>(null)
+  React.useEffect(() => {
+    if (ref.current) ref.current.diagram = diagram
+  }, [diagram])
+  return (
+    <div style={{ flex: '1 1 0', minWidth: 0 }}>
+      {label && (
+        <div style={{ fontFamily: 'monospace', fontWeight: 'bold', marginBottom: 4 }}>{label}</div>
+      )}
+      {React.createElement('zx-diagram', { ref })}
+    </div>
+  )
+}
+
 export default function ZXDiagram({ diagram, goal }: ZXWidgetProps) {
   const [layout, setLayout] = usePersistedLayout()
 
@@ -159,6 +79,7 @@ export default function ZXDiagram({ diagram, goal }: ZXWidgetProps) {
     vertical: '⊘ Hide goal',
     goal_hidden: '↔ Side by side',
   }[layout]
+
   return (
     <div>
       <div style={{ fontFamily: 'monospace', marginBottom: 4 }}>
