@@ -22,37 +22,50 @@ opaque evalString : Expr → MetaM String
 -- == Reflection ==
 
 -- Turning an evaluated `ZXDiagram` back into an `Expr` lets `applyRewrite` put a
--- flat literal in the goal instead of an application tree. `deriving ToExpr` is no
--- help here because Mathlib's `ℕ+` has no instance, so it goes via `Nat.succPNat`.
+-- flat literal in the goal instead of an application tree. This is `MetaM` rather
+-- than a `ToExpr` instance because an `ℕ+` denominator needs `mkNumeral` to
+-- synthesize its `OfNat` instance; without that a phase prints as
+-- `Nat.succPNat 0` instead of `1`, and hard-coding Mathlib's instance names to
+-- build the numeral by hand would be brittle.
 
 instance : ToExpr SpiderColor where
   toTypeExpr := mkConst ``SpiderColor
   toExpr | .Z => mkConst ``SpiderColor.Z | .X => mkConst ``SpiderColor.X
 
-instance : ToExpr PNat where
-  toTypeExpr := mkConst ``PNat
-  toExpr n := mkApp (mkConst ``Nat.succPNat) (toExpr (n.val - 1))
-
-instance : ToExpr Phase where
-  toTypeExpr := mkConst ``Phase
-  toExpr p := mkApp2 (mkConst ``Phase.mk) (toExpr p.num) (toExpr p.den)
-
-instance : ToExpr Node where
-  toTypeExpr := mkConst ``Node
-  toExpr
-    | .spider c p => mkApp2 (mkConst ``Node.spider) (toExpr c) (toExpr p)
-    | .hadamard => mkConst ``Node.hadamard
-    | .wire => mkConst ``Node.wire
-    | .input i => mkApp (mkConst ``Node.input) (toExpr i)
-    | .output i => mkApp (mkConst ``Node.output) (toExpr i)
-
 instance : ToExpr Edge where
   toTypeExpr := mkConst ``Edge
   toExpr e := mkApp2 (mkConst ``Edge.mk) (toExpr e.src) (toExpr e.tgt)
 
-instance : ToExpr ZXDiagram where
-  toTypeExpr := mkConst ``ZXDiagram
-  toExpr d := mkApp2 (mkConst ``ZXDiagram.mk) (toExpr d.nodes) (toExpr d.edges)
+/-- Denominator numerals built so far, keyed by value. `mkNumeral` runs instance
+    synthesis, which dominates reflection if repeated per phase; a diagram uses
+    only a handful of distinct denominators, so build each at most once. -/
+abbrev DenCache := List (Nat × Expr)
+
+def reflectPhase (cache : DenCache) (p : Phase) : MetaM Expr := do
+  let n := p.den.val
+  let den ← match cache.lookup n with
+    | some e => pure e
+    | none   => mkNumeral (mkConst ``PNat) n
+  return mkApp2 (mkConst ``Phase.mk) (toExpr p.num) den
+
+def reflectNode (cache : DenCache) : Node → MetaM Expr
+  | .spider c p => do
+    return mkApp2 (mkConst ``Node.spider) (toExpr c) (← reflectPhase cache p)
+  | .hadamard => return mkConst ``Node.hadamard
+  | .wire     => return mkConst ``Node.wire
+  | .input i  => return mkApp (mkConst ``Node.input) (toExpr i)
+  | .output i => return mkApp (mkConst ``Node.output) (toExpr i)
+
+def reflectDiagram (d : ZXDiagram) : MetaM Expr := do
+  let dens := (d.nodes.filterMap fun o => (o.bind Node.phase?).map (·.den.val)).eraseDups
+  let cache ← dens.mapM fun n => return (n, ← mkNumeral (mkConst ``PNat) n)
+  let nodeTy := mkConst ``Node
+  let nodes ← d.nodes.mapM fun
+    | none   => mkNone nodeTy
+    | some n => do mkSome nodeTy (← reflectNode cache n)
+  let nodesE ← mkListLit (mkApp (mkConst ``Option [levelZero]) nodeTy) nodes
+  let edgesE ← mkListLit (mkConst ``Edge) (d.edges.map toExpr)
+  return mkApp2 (mkConst ``ZXDiagram.mk) nodesE edgesE
 
 -- == Goal parsing ==
 
@@ -91,7 +104,7 @@ def applyRewrite (label : String) (rewriteFn soundAxiom : Name) (args : Array Ex
   -- `whnf` only exposes the `.ok` head; `d₁`'s fields are still unevaluated, and
   -- would nest one rewrite deeper on every tactic line. Evaluate and reflect it
   -- back so the goal holds a flat literal whose size tracks the diagram instead.
-  let d₁ := toExpr (← evalZXDiagram d₁)
+  let d₁ ← reflectDiagram (← evalZXDiagram d₁)
 
   -- New goal: d₁ ≈z rhs
   let newGoalType ← mkAppM ``ZXDiagram.equiv #[d₁, rhs]
