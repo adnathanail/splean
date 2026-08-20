@@ -5,7 +5,7 @@ open Lean Elab Tactic Meta
 
 namespace LeanSpider
 
--- == Evaluation (for visualization only) ==
+-- == Evaluation ==
 
 private unsafe def evalZXDiagramImpl (e : Expr) : MetaM ZXDiagram :=
   Meta.evalExpr ZXDiagram (mkConst ``ZXDiagram) e
@@ -18,6 +18,41 @@ private unsafe def evalStringImpl (e : Expr) : MetaM String :=
 
 @[implemented_by evalStringImpl]
 opaque evalString : Expr → MetaM String
+
+-- == Reflection ==
+
+-- Turning an evaluated `ZXDiagram` back into an `Expr` lets `applyRewrite` put a
+-- flat literal in the goal instead of an application tree. `deriving ToExpr` is no
+-- help here because Mathlib's `ℕ+` has no instance, so it goes via `Nat.succPNat`.
+
+instance : ToExpr SpiderColor where
+  toTypeExpr := mkConst ``SpiderColor
+  toExpr | .Z => mkConst ``SpiderColor.Z | .X => mkConst ``SpiderColor.X
+
+instance : ToExpr PNat where
+  toTypeExpr := mkConst ``PNat
+  toExpr n := mkApp (mkConst ``Nat.succPNat) (toExpr (n.val - 1))
+
+instance : ToExpr Phase where
+  toTypeExpr := mkConst ``Phase
+  toExpr p := mkApp2 (mkConst ``Phase.mk) (toExpr p.num) (toExpr p.den)
+
+instance : ToExpr Node where
+  toTypeExpr := mkConst ``Node
+  toExpr
+    | .spider c p => mkApp2 (mkConst ``Node.spider) (toExpr c) (toExpr p)
+    | .hadamard => mkConst ``Node.hadamard
+    | .wire => mkConst ``Node.wire
+    | .input i => mkApp (mkConst ``Node.input) (toExpr i)
+    | .output i => mkApp (mkConst ``Node.output) (toExpr i)
+
+instance : ToExpr Edge where
+  toTypeExpr := mkConst ``Edge
+  toExpr e := mkApp2 (mkConst ``Edge.mk) (toExpr e.src) (toExpr e.tgt)
+
+instance : ToExpr ZXDiagram where
+  toTypeExpr := mkConst ``ZXDiagram
+  toExpr d := mkApp2 (mkConst ``ZXDiagram.mk) (toExpr d.nodes) (toExpr d.edges)
 
 -- == Goal parsing ==
 
@@ -52,6 +87,11 @@ def applyRewrite (label : String) (rewriteFn soundAxiom : Name) (args : Array Ex
                    liftM (evalString msgReduced : MetaM String)
                  catch _ => pure s!"{label} failed"
       throwError "{msg}"
+
+  -- `whnf` only exposes the `.ok` head; `d₁`'s fields are still unevaluated, and
+  -- would nest one rewrite deeper on every tactic line. Evaluate and reflect it
+  -- back so the goal holds a flat literal whose size tracks the diagram instead.
+  let d₁ := toExpr (← evalZXDiagram d₁)
 
   -- New goal: d₁ ≈z rhs
   let newGoalType ← mkAppM ``ZXDiagram.equiv #[d₁, rhs]
