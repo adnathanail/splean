@@ -37,3 +37,13 @@ test('goal mode renders two <zx-diagram>s plus a layout toggle', async () => {
   expect((els[1] as HTMLElement & { diagram: unknown }).diagram).toBe(goal)
   expect(container.querySelector('button')).not.toBeNull()
 })
+
+test('panels are labelled LHS/RHS, not Current/Goal', async () => {
+  const { default: ZXDiagram } = await import('../zxDiagram')
+  const { container } = rtlRender(<ZXDiagram diagram={diagram} goal={{ ...diagram }} />)
+  // "Goal" is ambiguous inside ProofWidgets' "Main goal type" panel, where the
+  // Lean goal is the whole `≈z` proposition rather than its right-hand side.
+  expect(container.textContent).toContain('LHS')
+  expect(container.textContent).toContain('RHS')
+  expect(container.textContent).not.toContain('Current')
+})

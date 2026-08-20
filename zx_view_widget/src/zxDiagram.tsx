@@ -76,7 +76,7 @@ export default function ZXDiagram({ diagram, goal }: ZXWidgetProps) {
   const nextLayout = LAYOUTS[(LAYOUTS.indexOf(layout) + 1) % LAYOUTS.length]
   const buttonLabel = {
     horizontal: '↕ Stack',
-    vertical: '⊘ Hide goal',
+    vertical: '⊘ Hide RHS',
     goal_hidden: '↔ Side by side',
   }[layout]
 
@@ -102,8 +102,8 @@ export default function ZXDiagram({ diagram, goal }: ZXWidgetProps) {
             alignItems: layout === 'horizontal' ? 'flex-start' : 'stretch',
           }}
         >
-          <ZXPanel diagram={diagram} label="Current" />
-          <ZXPanel diagram={goal} label="Goal" />
+          <ZXPanel diagram={diagram} label="LHS" />
+          <ZXPanel diagram={goal} label="RHS" />
         </div>
       )}
     </div>
