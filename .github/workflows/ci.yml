@@ -18,6 +18,9 @@ jobs:
       - name: Run tests
         run: lake build Tests
 
+      - name: Build demos
+        run: lake build Demos
+
   zx_view_widget:
     runs-on: ubuntu-latest
     defaults:
