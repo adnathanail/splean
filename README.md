@@ -10,6 +10,10 @@ Install the [Lean 4 VS Code extension](https://marketplace.visualstudio.com/item
 
 Create a diagram and view it in the InfoView:
 ```lean
+import LeanSpider.All
+
+open LeanSpider
+
 def zCnotZ : ZXDiagram :=
   .ofList [
       .input 0, .spider .Z ⟨1, 1⟩, .spider .Z ⟨0, 1⟩, .spider .Z ⟨1, 1⟩, .output 0,
@@ -17,7 +21,7 @@ def zCnotZ : ZXDiagram :=
     ]
     [⟨0, 1⟩, ⟨1, 2⟩, ⟨2, 3⟩, ⟨3, 4⟩, ⟨2, 6⟩, ⟨5, 6⟩, ⟨6, 7⟩]
 
-#html zCnotZ.toHtml
+#zx zCnotZ
 ```
 
 ### In proofs

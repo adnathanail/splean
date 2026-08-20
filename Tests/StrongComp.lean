@@ -13,8 +13,8 @@ private def basicChainResult : ZXDiagram :=
   { nodes := [some (.input 0), none, none, some (.output 0),
               some (.spider .X ⟨0, 1⟩), some (.spider .Z ⟨0, 1⟩)]
     edges := [⟨0, 4⟩, ⟨3, 5⟩, ⟨4, 5⟩] }
--- #html basicChain.toHtml
--- #html basicChainResult.toHtml
+-- #zx basicChain
+-- #zx basicChainResult
 
 -- Larger case: Z(0) with 3 neighbors, X(0) with 3 neighbors → complete bipartite K_{3,3}
 private def threeByThree : ZXDiagram :=
@@ -30,32 +30,32 @@ private def threeByThreeResult : ZXDiagram :=
               ⟨8, 11⟩, ⟨8, 12⟩, ⟨8, 13⟩,
               ⟨9, 11⟩, ⟨9, 12⟩, ⟨9, 13⟩,
               ⟨10, 11⟩, ⟨10, 12⟩, ⟨10, 13⟩] }
--- #html threeByThree.toHtml
--- #html threeByThreeResult.toHtml
+-- #zx threeByThree
+-- #zx threeByThreeResult
 
 -- Error: same colour spiders
 private def sameColour : ZXDiagram :=
   .ofList [.input 0, .spider .Z ⟨0, 1⟩, .spider .Z ⟨0, 1⟩, .output 0]
           [⟨0, 1⟩, ⟨1, 2⟩, ⟨2, 3⟩]
--- #html sameColour.toHtml
+-- #zx sameColour
 
 -- Error: non-zero phase
 private def nonZeroPhase : ZXDiagram :=
   .ofList [.input 0, .spider .Z ⟨1, 2⟩, .spider .X ⟨0, 1⟩, .output 0]
           [⟨0, 1⟩, ⟨1, 2⟩, ⟨2, 3⟩]
--- #html nonZeroPhase.toHtml
+-- #zx nonZeroPhase
 
 -- Error: not connected
 private def notConnected : ZXDiagram :=
   .ofList [.input 0, .spider .Z ⟨0, 1⟩, .spider .X ⟨0, 1⟩, .output 0]
           [⟨0, 1⟩, ⟨2, 3⟩]
--- #html notConnected.toHtml
+-- #zx notConnected
 
 -- Error: non-spider node
 private def nonSpider : ZXDiagram :=
   .ofList [.input 0, .spider .Z ⟨0, 1⟩, .output 0]
           [⟨0, 1⟩, ⟨1, 2⟩]
--- #html nonSpider.toHtml
+-- #zx nonSpider
 
 def strongCompTests : TestSeq :=
   test "basic chain" ((basicChain.strongComp 1 2).get! ≈z basicChainResult) $
