@@ -45,7 +45,7 @@ Diagrams reach the InfoView two ways, both defined in `LeanSpider/Panel.lean`:
 - **`ZXPanel`** — a panel widget (`mk_rpc_widget%` over `ZXPanel.rpc`) that reads the main goal and renders a `d₁ ≈z d₂` goal as LHS and RHS side by side. Enable it per section with `show_panel_widgets [local ZXPanel]`, or per proof with `with_panel_widgets [ZXPanel]`. It tracks the cursor, so every step of a proof displays its own diagram with no tactic call.
 - **`zxPresenter`** — an `@[expr_presenter]` covering both a `≈z` goal and a bare `ZXDiagram` term. ProofWidgets' `SelectionPanel` uses it to render subterms shift-clicked in the tactic state; `GoalTypePanel` uses it to render the goal type. Enable either the same way, e.g. `show_panel_widgets [local ProofWidgets.SelectionPanel]`.
 
-Outside a proof, `#html d.toHtml` renders a diagram at a top-level command.
+Outside a proof, the `#zx d` command (also in `Panel.lean`) renders a diagram. It elaborates its argument at type `ZXDiagram`, so a wrong argument gives an ordinary Lean type error. Use it rather than ProofWidgets' `#html`.
 
 Both paths evaluate the `Expr` to a real `ZXDiagram` via `evalZXDiagram` (`Meta.evalExpr`), so they need closed terms. On a goal with free variables or an unassigned metavariable LHS, `ZXPanel` shows "No ZX diagram" and `zxPresenter` throws — which is how `getExprPresentations` knows to omit it. A presenter that cannot render **must** throw rather than return empty HTML.
 

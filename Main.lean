@@ -23,9 +23,9 @@ def zHadXSimplified : ZXDiagram :=
     [⟨0, 2⟩, ⟨1, 2⟩]
 -- Now we've defined two diagrams, you can view them in the InfoView:
 --   Click the ∀ icon at the top right > Toggle InfoView
---   Then move your cursor to a line starting with #html
-#html zHadX.toHtml
-#html zHadXSimplified.toHtml
+--   Then move your cursor to a line starting with #zx
+#zx zHadX
+#zx zHadXSimplified
 
 -- This is a proof that zHadX and zHadXSimplified are equivalent under the rules of the ZX calculus
 --   If you click on each line, you'll see the current state of the graph in the ZXPanel
@@ -43,8 +43,8 @@ theorem zHadXSimp : zHadX ≈z zHadXSimplified := by
 -- This is a lot of axioms... we're working on it!
 
 -- Example (Z ⊗ I)CNOT(Z ⊗ I): Z commutes with CNOT, and cancels with the second Z
-#html zCnotZ.toHtml
-#html cnot.toHtml
+#zx zCnotZ
+#zx cnot
 theorem dozCnotZ : zCnotZ ≈z cnot := by
   zx_sp 1 2
   zx_sp 1 3
@@ -61,8 +61,8 @@ def pppmSimplified : ZXDiagram :=
   ZXDiagram.ofList
     [.input 0, .spider .Z ⟨1, 1⟩, .output 0]
     [⟨0, 1⟩, ⟨1, 2⟩]
-#html piPiPiMinus.toHtml
-#html pppmSimplified.toHtml
+#zx piPiPiMinus
+#zx pppmSimplified
 
 -- Example: 3π ≣ π
 theorem doPppmSimp : piPiPiMinus ≈z pppmSimplified := by
@@ -81,8 +81,8 @@ def ppmSimplified : ZXDiagram :=
   ZXDiagram.ofList
     [.input 0, .output 0]
     [⟨0, 1⟩]
-#html piPiMinus.toHtml
-#html ppmSimplified.toHtml
+#zx piPiMinus
+#zx ppmSimplified
 
 -- Example: Simplifying 2 pi phases to the identity
 theorem doPpmSimp : piPiMinus ≈z ppmSimplified := by
@@ -110,7 +110,7 @@ def exercise3point7 : ZXDiagram :=
       ⟨5, 6⟩, ⟨6, 7⟩, ⟨7, 8⟩, ⟨8, 1⟩, ⟨8, 9⟩, ⟨9, 10⟩, ⟨10, 4⟩, ⟨10, 11⟩,
       ⟨12, 13⟩, ⟨13, 6⟩, ⟨13, 14⟩, ⟨14, 15⟩,
     ]
-#html exercise3point7.toHtml
+#zx exercise3point7
 
 -- A larger example (Exercise 3.7 - Picturing Quantum Systems)
 -- Current challenge: Rendering - with just the graph representation, the code has to guess how is best to lay out the diagram

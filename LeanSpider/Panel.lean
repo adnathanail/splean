@@ -64,4 +64,30 @@ def ZXPanel.rpc (props : PanelWidgetProps) : RequestM (RequestTask Html) :=
 def ZXPanel : Component PanelWidgetProps :=
   mk_rpc_widget% ZXPanel.rpc
 
+/-- Display a `ZXDiagram` in the InfoView at a top-level command:
+
+    ```lean
+    #zx zHadX
+    ```
+
+    The diagram must be closed, since it is evaluated to a concrete value to be
+    drawn. -/
+syntax (name := zxCmd) "#zx " term : command
+
+open Elab Command in
+@[command_elab zxCmd]
+def elabZxCmd : CommandElab := fun
+  | stx@`(#zx $t:term) => do
+    let html ← liftTermElabM do
+      let e ← Term.elabTerm t (mkConst ``ZXDiagram)
+      Term.synthesizeSyntheticMVarsNoPostponing
+      let some html ← zxDiagramHtml? (← instantiateMVars e)
+        | throwError "#zx could not evaluate{indentExpr e}\nto a concrete diagram."
+      return html
+    liftCoreM <| Widget.savePanelWidgetInfo
+      (hash HtmlDisplay.javascript)
+      (return json% { html: $(← rpcEncode html) })
+      stx
+  | stx => throwError "Unexpected syntax {stx}."
+
 end LeanSpider

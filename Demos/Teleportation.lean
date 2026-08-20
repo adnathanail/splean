@@ -21,8 +21,8 @@ def teleportationEnd : ZXDiagram :=
     [.input 0, .output 0]
     [⟨0, 1⟩]
 -- Example of one of the 4 graphs (change the a and b values to see each possible graph)
-#html (teleportationStart 1 1).toHtml
-#html teleportationEnd.toHtml
+#zx (teleportationStart 1 1)
+#zx teleportationEnd
 
 -- Shared proof macro: the same set of rewrites is used to prove each case
 local macro "zx_teleport" : tactic => `(tactic| (
