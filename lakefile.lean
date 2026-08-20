@@ -81,6 +81,11 @@ lean_lib LeanSpider where
 lean_lib Tests where
   globs := #[.submodules `Tests]
 
+-- Built in CI so that a tactic change that breaks a demo proof fails the build,
+-- rather than being found the next time someone opens the file.
+lean_lib Demos where
+  globs := #[.submodules `Demos]
+
 @[default_target]
 lean_exe leanspider where
   root := `Main
