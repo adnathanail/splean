@@ -17,8 +17,7 @@
   "dependencies": {
     "@adnathanail/zxcc": "^0.2.0",
     "@leanprover/infoview": "~0.8.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.2.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.14",
@@ -31,6 +30,7 @@
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "jsdom": "^28.1.0",
+    "react-dom": "^18.2.0",
     "rollup": "^4.17.2",
     "typescript": "^5.0.3",
     "vitest": "^4.0.18"
