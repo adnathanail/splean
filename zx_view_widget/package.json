@@ -15,7 +15,7 @@
     "fix": "biome check --write"
   },
   "dependencies": {
-    "@adnathanail/zxcc": "^0.1.0",
+    "@adnathanail/zxcc": "^0.2.0",
     "@leanprover/infoview": "~0.8.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
