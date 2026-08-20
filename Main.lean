@@ -28,12 +28,10 @@ def zHadXSimplified : ZXDiagram :=
 #html zHadXSimplified.toHtml
 
 -- This is a proof that zHadX and zHadXSimplified are equivalent under the rules of the ZX calculus
---   If you click on each line, you'll see the current state of the graph
+--   If you click on each line, you'll see the current state of the graph in the ZXPanel
 --     (The Tactic state may take up lots of room - you can fold it away by clicking the title)
---   zx_show just displays the current state of the graph
 --   zx_rfl asserts that the goal state and the modified starting state are equal
 theorem zHadXSimp : zHadX ≈z zHadXSimplified := by
-  zx_show
   zx_cc 3
   zx_hh 2 5
   zx_sp 1 3
@@ -48,7 +46,6 @@ theorem zHadXSimp : zHadX ≈z zHadXSimplified := by
 #html zCnotZ.toHtml
 #html cnot.toHtml
 theorem dozCnotZ : zCnotZ ≈z cnot := by
-  zx_show
   zx_sp 1 2
   zx_sp 1 3
   -- If you need to see the raw json, you can use the zx_debug tactic
@@ -69,7 +66,6 @@ def pppmSimplified : ZXDiagram :=
 
 -- Example: 3π ≣ π
 theorem doPppmSimp : piPiPiMinus ≈z pppmSimplified := by
-  zx_show
   -- Using Lean machinery to help us
   --   the repeat tactic is built into lean, and repeatedly applies another tactic until it can't any more
   --   here we are using zx_sp with just 1 argument, which searches for any available neighbouring spider to fuse with
@@ -90,7 +86,6 @@ def ppmSimplified : ZXDiagram :=
 
 -- Example: Simplifying 2 pi phases to the identity
 theorem doPpmSimp : piPiMinus ≈z ppmSimplified := by
-  zx_show
   -- Using a derived rule:
   --   we can combine our axiomatic rewrites into more complex ones
   --   If you hold 'command' and click on the zx_pipi on the line below, you'll see its definition

@@ -42,14 +42,14 @@ private def findFusionPartner (d : ZXDiagram) (a : NodeId) : Option NodeId := do
       | none => false
     | none => false
 
-/-- Fuse two connected spiders of the same color. Shows the resulting diagram.
+/-- Fuse two connected spiders of the same color.
     With one argument, auto-finds a partner. Use `repeat zx_sp n` to fuse all. -/
 syntax "zx_sp" num num : tactic
 syntax "zx_sp" num : tactic
 
 elab_rules : tactic
   | `(tactic| zx_sp $a $b) =>
-    applyRewrite a "Spider fusion"
+    applyRewrite "Spider fusion"
       ``ZXDiagram.spiderFusion ``ZXDiagram.spiderFusion_sound
       #[mkNatLit a.getNat, mkNatLit b.getNat]
   | `(tactic| zx_sp $a) => withMainContext do
@@ -59,7 +59,7 @@ elab_rules : tactic
     let d ← evalZXDiagram lhs
     let some b := findFusionPartner d a.getNat
       | throwError "No fusable neighbor found for node {a.getNat}"
-    applyRewrite a "Spider fusion"
+    applyRewrite "Spider fusion"
       ``ZXDiagram.spiderFusion ``ZXDiagram.spiderFusion_sound
       #[mkNatLit a.getNat, mkNatLit b]
 

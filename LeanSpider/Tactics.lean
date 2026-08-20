@@ -1,8 +1,7 @@
 import LeanSpider.Axioms
 import LeanSpider.Visualize
-import ProofWidgets.Component.HtmlDisplay
 
-open Lean Elab Tactic Meta ProofWidgets
+open Lean Elab Tactic Meta
 
 namespace LeanSpider
 
@@ -29,29 +28,12 @@ def parseEquivGoal (goalType : Expr) : TacticM (Expr × Expr) := do
     | throwError "Goal is not of the form `d ≈z d'`"
   return (lhs, rhs)
 
--- == Visualization ==
-
-/-- Show a ZXDiagram in the InfoView, optionally with the goal diagram side-by-side -/
-def showDiagram (stx : Syntax) (label : String) (e : Expr)
-    (rhs? : Option Expr := none) : TacticM Unit := do
-  let d ← evalZXDiagram e
-  let goal? ← if let some rhs := rhs? then
-    if !rhs.isMVar then
-      let dRhs ← evalZXDiagram rhs
-      pure (some dRhs)
-    else pure none
-  else pure none
-  let html := d.toHtml goal?
-  let msg ← MessageData.ofHtml html label
-  logInfoAt stx msg
-
 -- == Core rewrite tactic ==
 
-/-- Apply a rewrite rule and show the result.
+/-- Apply a rewrite rule, replacing the goal's LHS with the rewritten diagram.
     Evaluates the rewrite via whnf (works because ZXDiagram uses List). -/
-def applyRewrite (stx : Syntax) (label : String)
-    (rewriteFn soundAxiom : Name) (args : Array Expr) : TacticM Unit :=
-    withMainContext do
+def applyRewrite (label : String) (rewriteFn soundAxiom : Name) (args : Array Expr) :
+    TacticM Unit := withMainContext do
   let goal ← getMainGoal
   let goalType ← goal.getType
   let (lhs, rhs) ← parseEquivGoal goalType
@@ -80,18 +62,9 @@ def applyRewrite (stx : Syntax) (label : String)
   let transProof ← mkAppM ``ZXDiagram.equiv_trans #[soundProof, newGoal]
   goal.assign transProof
 
-  -- Set remaining goal and show diagram
   setGoals [newGoal.mvarId!]
-  showDiagram stx label d₁ rhs
 
 -- == General tactics ==
-
-/-- Show the current LHS diagram in the InfoView without modifying the goal. -/
-elab tk:"zx_show" : tactic => withMainContext do
-  let goal ← getMainGoal
-  let goalType ← goal.getType
-  let (lhs, rhs) ← parseEquivGoal goalType
-  showDiagram tk "Current diagram" lhs rhs
 
 /-- Print the JSON for the current LHS and RHS diagrams to the InfoView. -/
 elab "zx_debug" : tactic => withMainContext do
@@ -121,9 +94,9 @@ elab "zx_rfl" : tactic => withMainContext do
     -- Use decide: evaluates normalize on both sides and compares
     evalTactic (← `(tactic| decide))
 
-/-- Start aimless exploration: introduces `∃ d', diagram ≈z d'` into `diagram ≈z ?d'`,
-    then shows the diagram. Apply rewrites freely and close with `zx_rfl`. -/
-elab tk:"zx_explore" : tactic => withMainContext do
+/-- Start aimless exploration: introduces `∃ d', diagram ≈z d'` into `diagram ≈z ?d'`.
+    Apply rewrites freely and close with `zx_rfl`. -/
+elab "zx_explore" : tactic => withMainContext do
   let goal ← getMainGoal
   let goalType ← goal.getType
   -- Expect ∃ d', lhs ≈z d'
@@ -134,8 +107,7 @@ elab tk:"zx_explore" : tactic => withMainContext do
   let goals ← getGoals
   -- Goals are [witness : ZXDiagram, proof : lhs ≈z ?_]. Focus on the proof goal.
   setGoals [goals[1]!]
-  let goalType ← (← getMainGoal).getType
-  let (lhs, rhs) ← parseEquivGoal goalType
-  showDiagram tk "Current diagram" lhs rhs
+  -- Check the existential's body really is a `≈z` goal.
+  let _ ← parseEquivGoal (← (← getMainGoal).getType)
 
 end LeanSpider

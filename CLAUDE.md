@@ -12,7 +12,7 @@ Make changes in new commits, as opposed to modifying existing commits, unless ex
 
 ## Project structure
 
-- `LeanSpider/` — Lean 4 library: ZX diagram types, spider fusion, JSON serialization
+- `LeanSpider/` — Lean 4 library: ZX diagram types, spider fusion, JSON serialization. `Tactics.lean` holds the rewrite tactics, `Panel.lean` the InfoView panel widget and expression presenter.
 - `zx_view_widget/` — TypeScript ProofWidgets widget (React, rollup). A thin shell that hands the Lean diagram JSON to the `<zx-diagram>` web component from [`@adnathanail/zxcc`](https://www.npmjs.com/package/@adnathanail/zxcc), which does the layout and SVG rendering.
 - `Main.lean` — Entry point with example diagrams shown in InfoView
 
@@ -36,7 +36,20 @@ The JS bundle is built by rollup and written to `.lake/build/js/`. zxcc is bundl
 
 ## Widget architecture
 
-`zx_view_widget/src/zxDiagram.tsx` handles only the InfoView shell: the goal/diagram side-by-side layout and its persisted toggle. For each panel it renders a `<zx-diagram>` element and assigns the Lean JSON to its `.diagram` property; zxcc lays the graph out and draws the interactive SVG. Nodes are draggable, H-boxes auto-position at the barycenter of their neighbours, and parallel edges are drawn as bezier arcs.
+`zx_view_widget/src/zxDiagram.tsx` handles only the InfoView shell: the LHS/RHS side-by-side layout and its persisted toggle. For each panel it renders a `<zx-diagram>` element and assigns the Lean JSON to its `.diagram` property; zxcc lays the graph out and draws the interactive SVG. Nodes are draggable, H-boxes auto-position at the barycenter of their neighbours, and parallel edges are drawn as bezier arcs.
+
+## Displaying diagrams in the InfoView
+
+Diagrams reach the InfoView two ways, both defined in `LeanSpider/Panel.lean`:
+
+- **`ZXPanel`** — a panel widget (`mk_rpc_widget%` over `ZXPanel.rpc`) that reads the main goal and renders a `d₁ ≈z d₂` goal as LHS and RHS side by side. Enable it per section with `show_panel_widgets [local ZXPanel]`, or per proof with `with_panel_widgets [ZXPanel]`. It tracks the cursor, so every step of a proof displays its own diagram with no tactic call.
+- **`zxPresenter`** — an `@[expr_presenter]` covering both a `≈z` goal and a bare `ZXDiagram` term. ProofWidgets' `SelectionPanel` uses it to render subterms shift-clicked in the tactic state; `GoalTypePanel` uses it to render the goal type. Enable either the same way, e.g. `show_panel_widgets [local ProofWidgets.SelectionPanel]`.
+
+Outside a proof, `#html d.toHtml` renders a diagram at a top-level command.
+
+Both paths evaluate the `Expr` to a real `ZXDiagram` via `evalZXDiagram` (`Meta.evalExpr`), so they need closed terms. On a goal with free variables or an unassigned metavariable LHS, `ZXPanel` shows "No ZX diagram" and `zxPresenter` throws — which is how `getExprPresentations` knows to omit it. A presenter that cannot render **must** throw rather than return empty HTML.
+
+Tactics do not log diagrams. `zx_debug` is the one tactic that writes to the InfoView, printing raw diagram JSON (`includeNones := true`) for debugging.
 
 ## Lean tips
 

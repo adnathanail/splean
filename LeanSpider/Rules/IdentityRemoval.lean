@@ -24,12 +24,12 @@ namespace LeanSpider
 axiom ZXDiagram.identityRemoval_sound (d : ZXDiagram) (a : NodeId) (d' : ZXDiagram) :
   d.identityRemoval a = .ok d' → d ≈z d'
 
-/-- Remove an identity (phase-0, degree-2) spider. Shows the resulting diagram. -/
+/-- Remove an identity (phase-0, degree-2) spider. -/
 syntax "zx_id" num : tactic
 
 elab_rules : tactic
   | `(tactic| zx_id $a) =>
-    applyRewrite a "Identity removal"
+    applyRewrite "Identity removal"
       ``ZXDiagram.identityRemoval ``ZXDiagram.identityRemoval_sound
       #[mkNatLit a.getNat]
 

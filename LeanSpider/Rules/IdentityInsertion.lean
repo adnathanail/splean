@@ -32,7 +32,7 @@ elab_rules : tactic
       | "X" => pure (mkConst ``SpiderColor.X)
       | "Z" => pure (mkConst ``SpiderColor.Z)
       | s => throwError "Expected X or Z, got {s}"
-    applyRewrite a "Identity insertion"
+    applyRewrite "Identity insertion"
       ``ZXDiagram.identityInsertion ``ZXDiagram.identityInsertion_sound
       #[mkNatLit a.getNat, mkNatLit b.getNat, colorExpr]
 

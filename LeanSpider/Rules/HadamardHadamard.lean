@@ -27,12 +27,12 @@ namespace LeanSpider
 axiom ZXDiagram.hadamardHadamard_sound (d : ZXDiagram) (a b : NodeId) (d' : ZXDiagram) :
   d.hadamardHadamard a b = .ok d' → d ≈z d'
 
-/-- Remove two connected degree-2 Hadamards. Shows the resulting diagram. -/
+/-- Remove two connected degree-2 Hadamards. -/
 syntax "zx_hh" num num : tactic
 
 elab_rules : tactic
   | `(tactic| zx_hh $a $b) =>
-    applyRewrite a "Hadamard Hadamard"
+    applyRewrite "Hadamard Hadamard"
       ``ZXDiagram.hadamardHadamard ``ZXDiagram.hadamardHadamard_sound
       #[mkNatLit a.getNat, mkNatLit b.getNat]
 

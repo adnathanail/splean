@@ -48,13 +48,12 @@ namespace LeanSpider
 axiom ZXDiagram.strongComp_sound (d : ZXDiagram) (a b : NodeId) (d' : ZXDiagram) :
   d.strongComp a b = .ok d' → d ≈z d'
 
-/-- Apply strong complementarity to two connected opposite-color phase-0 spiders.
-    Shows the resulting diagram. -/
+/-- Apply strong complementarity to two connected opposite-color phase-0 spiders. -/
 syntax "zx_sc" num num : tactic
 
 elab_rules : tactic
   | `(tactic| zx_sc $a $b) =>
-    applyRewrite a "Strong complementarity"
+    applyRewrite "Strong complementarity"
       ``ZXDiagram.strongComp ``ZXDiagram.strongComp_sound
       #[mkNatLit a.getNat, mkNatLit b.getNat]
 
