@@ -7,6 +7,11 @@ open LeanSpider.Examples
 -- Show the current diagram in a panel alongside the tactic state
 show_panel_widgets [local ZXPanel]
 
+-- Abbreviate deep subterms in the Tactic state as `⋯`, so the goal stays short.
+-- Hover a `⋯` to see what it stands for. Lower the threshold to elide more.
+set_option pp.deepTerms false
+set_option pp.deepTerms.threshold 1
+
 def main : IO Unit :=
   IO.println "Open Main.lean in VS Code to see the ZX diagram in the InfoView."
 

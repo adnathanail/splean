@@ -59,6 +59,16 @@ import ProofWidgets.Component.Panel.GoalTypePanel
 show_panel_widgets [local ZXPanel, local ProofWidgets.GoalTypePanel]
 ```
 
+### Hiding big tactic states
+
+For any reasonably sized diagram, the 'native' display of the tactic state can get quite large, and push the interactive viewer off the screen.
+To have this automatically folded up, use the below, and tweak the number to your desired collapse level:
+
+```lean
+set_option pp.deepTerms false
+set_option pp.deepTerms.threshold 2
+```
+
 ## Development
 
 ### Prek
