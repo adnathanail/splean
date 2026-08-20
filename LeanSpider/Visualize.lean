@@ -14,7 +14,7 @@ def Phase.format (p : Phase) : String :=
   else
     let ns := if p.num == 1 then "" else if p.num == -1 then "-"
               else toString p.num
-    let ds := if p.den == 1 then "" else s!"/{p.den}"
+    let ds := if p.den.val == 1 then "" else s!"/{p.den.val}"
     s!"{ns}π{ds}"
 
 def Phase.toJson (p : Phase) : Json := .str p.format
