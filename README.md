@@ -8,12 +8,15 @@
 
 Install the [Lean 4 VS Code extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4)
 
-Create a diagram and view it in the InfoView:
+At the top of your file:
 ```lean
 import LeanSpider.All
 
 open LeanSpider
+```
 
+Create a diagram and view it in the InfoView:
+```lean
 def zCnotZ : ZXDiagram :=
   .ofList [
       .input 0, .spider .Z ⟨1, 1⟩, .spider .Z ⟨0, 1⟩, .spider .Z ⟨1, 1⟩, .output 0,
@@ -26,12 +29,19 @@ def zCnotZ : ZXDiagram :=
 
 ### In proofs
 
-To view the current state of a proof as a diagram:
+To view the current state of a specific proof as a diagram:
 ```lean
-import LeanSpider.All
+theorem zHadXSimp : zHadX ≈z zHadXSimplified := by
+  with_panel_widgets [ZXPanel]
+    zx_cc 3
+    zx_hh 2 5
+    zx_sp 1 3
+    zx_id 1
+    zx_rfl
+```
 
-open LeanSpider
-
+To have the state shown as a diagram for all proofs in a file, at the top add:
+```lean
 show_panel_widgets [local ZXPanel]
 ```
 

@@ -45,12 +45,14 @@ def zxPresenter : ExprPresenter where
 @[server_rpc_method]
 def ZXPanel.rpc (props : PanelWidgetProps) : RequestM (RequestTask Html) :=
   RequestM.asTask do
-    let html? : Option Html ← (do
-      let some g := props.goals[0]? | return none
-      g.ctx.val.runMetaM {} do
-        g.mvarId.withContext do
-          zxEquivHtml? (← g.mvarId.getType))
-    return html?.getD (Html.text "No ZX diagram.")
+    -- No goal means no proof in progress, e.g. the cursor is on a `#zx` line.
+    -- Render nothing at all, rather than a panel announcing it has nothing to
+    -- show directly above the diagram that `#zx` is already drawing.
+    let some g := props.goals[0]? | return .text ""
+    let html? ← g.ctx.val.runMetaM {} do
+      g.mvarId.withContext do
+        zxEquivHtml? (← g.mvarId.getType)
+    return html?.getD (.text "No ZX diagram.")
 
 /-- Renders the current `≈z` goal as a diagram, following the cursor through a
     proof. Enable for a section with
