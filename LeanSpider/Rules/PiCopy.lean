@@ -23,7 +23,7 @@ def ZXDiagram.piCopy (d: ZXDiagram) (a b : NodeId) : Except String ZXDiagram := 
   -- Remove A, negate B's phase, rewire
   let d := d.removeEdgesOf a
   let d := d.removeNode a
-  let d := d.setNode b (Node.spider colorB ⟨-phaseB.num, phaseB.den⟩)
+  let d := d.setNode b (Node.spider colorB (-phaseB))
   let d := d.removeEdgesOf b
   let d := d.addEdge (Edge.mk c b)
   -- Add pi spiders on each of B's other legs
