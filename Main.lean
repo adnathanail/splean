@@ -46,8 +46,9 @@ theorem zHadXSimp : zHadX ≈z zHadXSimplified := by
   zx_rfl
 -- We can view which axioms were used for this proof, by putting the cursor on the line below
 #print axioms zHadXSimp
--- You'll see 1 to do with equivalence of propositions, 1 to do with equivalences of diagrams, and 4 for the 4 ZX calculus rules used
--- This is a lot of axioms... we're working on it!
+-- You'll see 2 of Lean's own foundational axioms (propext and Quot.sound, pulled in by
+--   the decidability machinery behind zx_rfl), and 4 for the 4 ZX calculus rules used
+-- The 4 rule axioms are the ones we owe a proof of... we're working on it!
 
 -- Example (Z ⊗ I)CNOT(Z ⊗ I): Z commutes with CNOT, and cancels with the second Z
 #zx zCnotZ
