@@ -1,5 +1,7 @@
 import LeanSpider.ZXDiagram
 
+namespace LeanSpider.Examples
+
 -- Z CNOT Z
 def zCnotZ : ZXDiagram :=
   .ofList [
@@ -10,3 +12,5 @@ def zCnotZ : ZXDiagram :=
 def cnot : ZXDiagram :=
   .ofList [.input 0, .spider .Z ⟨0, 1⟩, .output 0, .input 1, .spider .X ⟨0, 1⟩, .output 1]
     [⟨0, 1⟩, ⟨1, 2⟩, ⟨1, 4⟩, ⟨3, 4⟩, ⟨4, 5⟩]
+
+end LeanSpider.Examples
