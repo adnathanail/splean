@@ -33,6 +33,13 @@ The JS bundle is built by rollup and written to `.lake/build/js/`. zxcc is bundl
 - Phases cross the wire as display-ready strings (`π/2`, `-π/4`, `0`) — `Phase.format` in `LeanSpider/Visualize.lean` is the single source of truth; the widget prints them verbatim
 - JSON wire format from Lean to the widget: `{"nodes": [...], "edges": [{"src": id, "tgt": id}]}`
 - Layout and rendering both live in the separate [zxcc](https://github.com/adnathanail/zxcc) repo, not here — change them there and release a new version.
+- Demo diagrams live in `LeanSpider.Examples`, not the root namespace, so that `open LeanSpider` doesn't take names like `cnot` out of a user's hands. Keep new example data there.
+
+## Rewrite tactics
+
+`applyRewrite` in `LeanSpider/Tactics.lean` reduces a rule application with `whnf`, which exposes the `Except.ok` head but leaves the diagram's fields unevaluated. It then evaluates that diagram with `evalZXDiagram` and reflects the value back into an `Expr` with `reflectDiagram`, so the goal holds a flat literal rather than an application tree that grows with each tactic line.
+
+`reflectDiagram`/`reflectNode`/`reflectPhase` mirror the `Node` and `Phase` definitions by hand and must be updated alongside them — a new constructor or field will otherwise reflect wrongly or fail to compile. They are `MetaM` rather than a `ToExpr` instance because an `ℕ+` denominator needs `mkNumeral` to synthesize its `OfNat` instance; that synthesis is cached per distinct denominator, since repeating it per phase measurably slows elaboration.
 
 ## Widget architecture
 
