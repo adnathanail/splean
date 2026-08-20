@@ -20,6 +20,31 @@ def zCnotZ : ZXDiagram :=
 #html zCnotZ.toHtml
 ```
 
+### In proofs
+
+To view the current state of a proof as a diagram:
+```lean
+import LeanSpider.All
+
+open LeanSpider
+
+show_panel_widgets [local ZXPanel]
+```
+
+### Other InfoWindow options
+
+To enable the `Selection Panel` (allows you to shift click sub-expressions in the InfoWindow, to view them separately)
+```lean
+import ProofWidgets.Component.Panel.SelectionPanel
+show_panel_widgets [local ZXPanel, local ProofWidgets.SelectionPanel]
+```
+
+To enable the `Goal Panel` (displays the main goal of a proof in a separate section in the InfoWindow)
+```lean
+import ProofWidgets.Component.Panel.GoalTypePanel
+show_panel_widgets [local ZXPanel, local ProofWidgets.GoalTypePanel]
+```
+
 ## Development
 
 ### Prek

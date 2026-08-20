@@ -5,6 +5,7 @@ import LeanSpider.ZXDiagram
 import LeanSpider.Axioms
 import LeanSpider.Visualize
 import LeanSpider.Tactics
+import LeanSpider.Panel
 import LeanSpider.Rules.SpiderFusion
 import LeanSpider.Rules.IdentityRemoval
 import LeanSpider.Rules.HadamardHadamard
