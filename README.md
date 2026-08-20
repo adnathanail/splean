@@ -1,6 +1,6 @@
 # LeanSpider
 
-[![CI](https://github.com/adnathanail/zx-lean/actions/workflows/ci.yml/badge.svg)](https://github.com/adnathanail/zx-lean/actions/workflows/ci.yml)
+[![CI](https://github.com/adnathanail/LeanSpider/actions/workflows/ci.yml/badge.svg)](https://github.com/adnathanail/LeanSpider/actions/workflows/ci.yml)
 [![prek](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json)](https://github.com/j178/prek)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org)
 
@@ -33,7 +33,7 @@ prek --install
 
 The InfoView widget lives in `zx_view_widget/src/`.
 
-It is a React component written in TypeScript, bundled with rollup. Layout and graph-JSON conversion are implemented in `zxRender.ts`, and rendering uses a vendored copy of pyzx's D3 viewer.
+It is a React component wrapping the [zxcc](https://github.com/adnathanail/zxcc) web component.
 
 `lake` handles `npm install` and the JS bundle automatically:
 
