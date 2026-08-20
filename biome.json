@@ -14,7 +14,6 @@
       "zx_view_widget/package.json",
       "zx_view_widget/tsconfig.json",
       "biome.json",
-      "!zx_view_widget/src/zxViewer.js",
       "!zx_view_widget/dist/**",
       "!zx_view_widget/build/**",
       "!zx_view_widget/node_modules/**"

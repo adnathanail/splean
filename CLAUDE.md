@@ -29,7 +29,7 @@ The JS bundle is built by rollup and written to `.lake/build/js/`. zxcc is bundl
 - `ZXDiagram` uses `List (Option Node)` for nodes (list indices are node IDs) and `List Edge` for edges.
 - Construct diagrams with `ZXDiagram.ofList` (list indices become IDs) or `ZXDiagram.addNode`/`ZXDiagram.addEdge`
 - Look up nodes with `d.getNode? id`, not direct list indexing
-- ZXDiagram nodes: `.input ioId`, `.output ioId`, `.spider color phase`, `.hadamard` where phase is a `Phase` (num/den)
+- ZXDiagram nodes: `.input ioId`, `.output ioId`, `.spider color phase`, `.hadamard`, `.wire` where phase is a `Phase` (`num : Int`, `den : ℕ+`)
 - Phases cross the wire as display-ready strings (`π/2`, `-π/4`, `0`) — `Phase.format` in `LeanSpider/Visualize.lean` is the single source of truth; the widget prints them verbatim
 - JSON wire format from Lean to the widget: `{"nodes": [...], "edges": [{"src": id, "tgt": id}]}`
 - Layout and rendering both live in the separate [zxcc](https://github.com/adnathanail/zxcc) repo, not here — change them there and release a new version.

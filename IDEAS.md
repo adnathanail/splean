@@ -4,9 +4,6 @@
 - Simplification routines as tactics
 - To/from circuit form
 - Is the custom insertion sort slow?
-- Better layouts
-    - _auto_layout skips vertices unreachable from inputs (zxRender.py ~line 100)
-        - The BFS starts from inputs — disconnected spiders get no row/qubit assignment and default to position 0, causing visual overlap.
 - Interactive rewrites
 - Prove rewrites
 - Add normal forms
