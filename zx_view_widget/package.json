@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@adnathanail/zxcc": "^0.2.0",
-    "@leanprover/infoview": "~0.8.3",
+    "@leanprover/infoview": "~0.13.0",
     "react": "^18.2.0"
   },
   "devDependencies": {
