@@ -2,6 +2,14 @@
 
 Lean 4 project for ZX-calculus diagrams with interactive visualization via ProofWidgets.
 
+## Committing
+
+Sometimes this repository is managed with GitButler.
+Check whether you are on the `gitbutler/workspace` branch; if so, use the `but` CLI to interact with it.
+Make changes in new commits, as opposed to modifying existing commits, unless explicitly told to.
+
+**Do not add attributions to yourself in commit messages**
+
 ## Project structure
 
 - `LeanSpider/` — Lean 4 library: ZX diagram types, spider fusion, JSON serialization
