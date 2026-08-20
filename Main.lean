@@ -2,6 +2,9 @@ import LeanSpider.All
 
 open LeanSpider
 
+-- Show the current diagram in a panel alongside the tactic state
+show_panel_widgets [local ZXPanel]
+
 def main : IO Unit :=
   IO.println "Open Main.lean in VS Code to see the ZX diagram in the InfoView."
 
