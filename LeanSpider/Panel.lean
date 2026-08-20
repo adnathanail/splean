@@ -115,7 +115,10 @@ open Elab Command in
 def elabZxCmd : CommandElab := fun
   | stx@`(#zx $t:term) => do
     let html ← liftTermElabM do
-      let e ← Term.elabTerm t (mkConst ``ZXDiagram)
+      -- `elabTermEnsuringType`, not `elabTerm`: the latter takes the expected type
+      -- only as a hint, so `#zx d.toJson` would elaborate fine and then fail with
+      -- "could not evaluate", hiding the actual type error.
+      let e ← Term.elabTermEnsuringType t (mkConst ``ZXDiagram)
       Term.synthesizeSyntheticMVarsNoPostponing
       let some html ← zxDiagramHtml? (← instantiateMVars e)
         | throwError "#zx could not evaluate{indentExpr e}\nto a concrete diagram."
