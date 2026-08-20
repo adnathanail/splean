@@ -42,17 +42,41 @@ def zxPresenter : ExprPresenter where
     if let some html ← zxDiagramHtml? e then return html
     throwError "Not a ZX diagram or `≈z` goal."
 
+/-- How many goals to draw at once. A case split can leave many goals live, and a
+    wall of diagrams is less use than a few; the rest are reported as a count. -/
+def maxPanelGoals : Nat := 6
+
+/-- A goal's `case` name, shown above its diagram so that the cases of a split can
+    be told apart. -/
+private def goalHeading (g : Widget.InteractiveGoal) : Html :=
+  .element "div"
+    #[("style", Json.mkObj [("fontFamily", "monospace"), ("fontWeight", "bold"),
+                            ("marginTop", "8px")])]
+    #[.text (g.userName?.getD "goal")]
+
 @[server_rpc_method]
 def ZXPanel.rpc (props : PanelWidgetProps) : RequestM (RequestTask Html) :=
   RequestM.asTask do
     -- No goal means no proof in progress, e.g. the cursor is on a `#zx` line.
     -- Render nothing at all, rather than a panel announcing it has nothing to
     -- show directly above the diagram that `#zx` is already drawing.
-    let some g := props.goals[0]? | return .text ""
-    let html? ← g.ctx.val.runMetaM {} do
-      g.mvarId.withContext do
-        zxEquivHtml? (← g.mvarId.getType)
-    return html?.getD (.text "No ZX diagram.")
+    if props.goals.isEmpty then return .text ""
+    let shown := props.goals.extract 0 maxPanelGoals
+    let mut out : Array Html := #[]
+    for g in shown do
+      let html? ← g.ctx.val.runMetaM {} do
+        g.mvarId.withContext do
+          zxEquivHtml? (← g.mvarId.getType)
+      if let some html := html? then
+        -- Only label when there is more than one diagram; a heading above a lone
+        -- diagram is noise.
+        if shown.size > 1 then out := out.push (goalHeading g)
+        out := out.push html
+    if out.isEmpty then return .text "No ZX diagram."
+    let omitted := props.goals.size - shown.size
+    if omitted > 0 then
+      out := out.push (.text s!"… and {omitted} further goal(s) not drawn.")
+    return .element "div" #[] out
 
 /-- Renders the current `≈z` goal as a diagram, following the cursor through a
     proof. Enable for a section with
