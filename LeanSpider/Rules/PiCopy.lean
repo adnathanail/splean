@@ -37,12 +37,12 @@ namespace LeanSpider
 axiom ZXDiagram.piCopy_sound (d : ZXDiagram) (a b : NodeId) (d' : ZXDiagram) :
   d.piCopy a b = .ok d' → d ≈z d'
 
-/-- Push an arity-2 pi spider through an adjacent spider of the opposite colour, inverting the second spider's phase. Shows the resulting diagram. -/
+/-- Push an arity-2 pi spider through an adjacent spider of the opposite colour, inverting the second spider's phase. -/
 syntax "zx_pi" num num : tactic
 
 elab_rules : tactic
   | `(tactic| zx_pi $a $b) =>
-    applyRewrite a "Pi Copy"
+    applyRewrite "Pi Copy"
       ``ZXDiagram.piCopy ``ZXDiagram.piCopy_sound
       #[mkNatLit a.getNat, mkNatLit b.getNat]
 

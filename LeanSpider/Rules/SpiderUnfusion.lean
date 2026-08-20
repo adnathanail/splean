@@ -52,7 +52,7 @@ elab_rules : tactic
     let rewireList ← rewire.getElems.toList.foldrM
       (fun n acc => mkAppM ``List.cons #[mkNatLit n.getNat, acc])
       nilExpr
-    applyRewrite a "Spider unfusion"
+    applyRewrite "Spider unfusion"
       ``ZXDiagram.spiderUnfusion ``ZXDiagram.spiderUnfusion_sound
       #[mkNatLit a.getNat, α, β, rewireList]
 

@@ -27,7 +27,7 @@ def teleportationEnd : ZXDiagram :=
 -- Shared proof macro: the same set of rewrites is used to prove each case
 local macro "zx_teleport" : tactic => `(tactic| (
   simp only [teleportationStart, ZXDiagram.ofList]
-  zx_show; zx_cc 3; zx_hh 2 9; zx_sp 1 3
+  zx_cc 3; zx_hh 2 9; zx_sp 1 3
   zx_sp 4 5; zx_sp 4 6; zx_id 4; zx_sp 1 7; zx_id 1
   zx_rfl))
 

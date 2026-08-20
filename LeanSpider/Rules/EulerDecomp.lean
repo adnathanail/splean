@@ -90,7 +90,7 @@ syntax "zx_eu" num num : tactic
 
 elab_rules : tactic
   | `(tactic| zx_eu $a $v) =>
-    applyRewrite a "Euler Decomposition"
+    applyRewrite "Euler Decomposition"
       ``ZXDiagram.eulerDecomp ``ZXDiagram.eulerDecomp_sound
       #[mkNatLit a.getNat, mkNatLit v.getNat]
 
