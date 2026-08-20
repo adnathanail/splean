@@ -7,6 +7,15 @@ open Lean Server Elab Meta ProofWidgets
 
 namespace LeanSpider
 
+/-- "Cannot be drawn" is a `none`, but an interrupt or a blown recursion depth is
+    not an answer about the diagram: the first aborts a superseded request when the
+    user edits the file, the second means we ran out of stack rather than out of
+    diagram. Both must propagate, or a cancelled request resolves with a misleading
+    "No ZX diagram." -/
+private def asRenderFailure (ex : Exception) : MetaM (Option Html) := do
+  if ex.isInterrupt || ex.isMaxRecDepth then throw ex
+  return none
+
 /-- Render a goal `d₁ ≈z d₂` as the current diagram with the goal diagram alongside.
     Returns `none` if `e` is not a ZX equivalence, or if a side still contains
     metavariables or free variables (so cannot be evaluated to a concrete diagram). -/
@@ -18,14 +27,15 @@ def zxEquivHtml? (e : Expr) : MetaM (Option Html) := do
     -- An unassigned RHS (e.g. from `zx_explore`) means there is no goal to show yet.
     let goal? ← if rhs.hasExprMVar then pure none else some <$> evalZXDiagram rhs
     return some (dLhs.toHtml goal?)
-  catch _ => return none
+  catch ex => asRenderFailure ex
 
 /-- Render a bare `ZXDiagram`-valued term, e.g. a subterm selected with shift-click. -/
 def zxDiagramHtml? (e : Expr) : MetaM (Option Html) := do
   let e ← instantiateMVars e
-  if !(← inferType e).isConstOf ``ZXDiagram then return none
-  try return some (← evalZXDiagram e).toHtml
-  catch _ => return none
+  try
+    if !(← inferType e).isConstOf ``ZXDiagram then return none
+    return some (← evalZXDiagram e).toHtml
+  catch ex => asRenderFailure ex
 
 /-- Presents `≈z` goals and `ZXDiagram` subterms as diagrams. Surfaced by
     `ProofWidgets.GoalTypePanel` and, for shift-click selections,
