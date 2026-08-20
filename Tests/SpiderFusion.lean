@@ -1,7 +1,7 @@
 import LSpec
 import LeanSpider.All
 
-open LSpec LeanSpider
+open LSpec LeanSpider LeanSpider.Examples
 
 -- Test merging two spiders
 private def twoSpiders : ZXDiagram :=
