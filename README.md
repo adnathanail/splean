@@ -1,7 +1,6 @@
-# <img width="32" height="32" alt="SpLean logo" src="./splean-logo-32@4x.png" /> LeanSpider
-# LeanSpider
+# <img width="32" height="32" alt="SpLean logo" src="./splean-logo-32@4x.png" /> SpLean
 
-[![CI](https://github.com/adnathanail/LeanSpider/actions/workflows/ci.yml/badge.svg)](https://github.com/adnathanail/LeanSpider/actions/workflows/ci.yml)
+[![CI](https://github.com/adnathanail/splean/actions/workflows/ci.yml/badge.svg)](https://github.com/adnathanail/splean/actions/workflows/ci.yml)
 [![prek](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json)](https://github.com/j178/prek)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org)
 
@@ -11,9 +10,9 @@ Install the [Lean 4 VS Code extension](https://marketplace.visualstudio.com/item
 
 At the top of your file:
 ```lean
-import LeanSpider.All
+import SpLean.All
 
-open LeanSpider
+open SpLean
 ```
 
 Create a diagram and view it in the InfoView:

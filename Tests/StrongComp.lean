@@ -1,7 +1,7 @@
 import LSpec
-import LeanSpider.All
+import SpLean.All
 
-open LSpec LeanSpider
+open LSpec SpLean
 
 -- Basic: two opposite-color phase-0 spiders in a chain
 --   in → Z(0) → X(0) → out

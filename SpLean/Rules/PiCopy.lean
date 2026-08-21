@@ -1,5 +1,5 @@
-import LeanSpider.Axioms
-import LeanSpider.Tactics
+import SpLean.Axioms
+import SpLean.Tactics
 
 open Lean Elab Tactic Meta
 
@@ -32,7 +32,7 @@ def ZXDiagram.piCopy (d: ZXDiagram) (a b : NodeId) : Except String ZXDiagram := 
   let d := d.addEdges (bOtherNeighbors.zipWith (Edge.mk · ·) piIds)
   return d.normalize
 
-namespace LeanSpider
+namespace SpLean
 
 axiom ZXDiagram.piCopy_sound (d : ZXDiagram) (a b : NodeId) (d' : ZXDiagram) :
   d.piCopy a b = .ok d' → d ≈z d'
@@ -46,4 +46,4 @@ elab_rules : tactic
       ``ZXDiagram.piCopy ``ZXDiagram.piCopy_sound
       #[mkNatLit a.getNat, mkNatLit b.getNat]
 
-end LeanSpider
+end SpLean

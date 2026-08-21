@@ -3,7 +3,7 @@
 import Lake
 open Lake DSL System
 
-package LeanSpider where
+package SpLean where
   version := v!"0.1.0"
 
 require mathlib from git
@@ -74,8 +74,8 @@ target widgetJsAll pkg : Unit := do
       pkg.runNpmCommand #["clean-install"]
       pkg.runNpmCommand #["run", "build-lake"]
 
-lean_lib LeanSpider where
-  globs := #[.submodules `LeanSpider]
+lean_lib SpLean where
+  globs := #[.submodules `SpLean]
   needs := #[widgetJsAll]
 
 lean_lib Tests where
@@ -87,5 +87,5 @@ lean_lib Demos where
   globs := #[.submodules `Demos]
 
 @[default_target]
-lean_exe leanspider where
+lean_exe splean where
   root := `Main

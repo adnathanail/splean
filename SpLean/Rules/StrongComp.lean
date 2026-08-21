@@ -1,5 +1,5 @@
-import LeanSpider.Axioms
-import LeanSpider.Tactics
+import SpLean.Axioms
+import SpLean.Tactics
 
 open Lean Elab Tactic Meta
 
@@ -43,7 +43,7 @@ def ZXDiagram.strongComp (d : ZXDiagram) (a b : NodeId) : Except String ZXDiagra
   let d := d.addEdges bipartiteEdges
   return d.normalize
 
-namespace LeanSpider
+namespace SpLean
 
 axiom ZXDiagram.strongComp_sound (d : ZXDiagram) (a b : NodeId) (d' : ZXDiagram) :
   d.strongComp a b = .ok d' → d ≈z d'
@@ -57,4 +57,4 @@ elab_rules : tactic
       ``ZXDiagram.strongComp ``ZXDiagram.strongComp_sound
       #[mkNatLit a.getNat, mkNatLit b.getNat]
 
-end LeanSpider
+end SpLean

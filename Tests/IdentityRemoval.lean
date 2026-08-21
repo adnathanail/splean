@@ -1,7 +1,7 @@
 import LSpec
-import LeanSpider.All
+import SpLean.All
 
-open LSpec LeanSpider
+open LSpec SpLean
 
 -- Identity removal (Z spider)
 private def justPhaseFreeZSpider : ZXDiagram :=

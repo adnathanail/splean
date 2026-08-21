@@ -1,9 +1,9 @@
-import LeanSpider.Axioms
-import LeanSpider.Visualize
+import SpLean.Axioms
+import SpLean.Visualize
 
 open Lean Elab Tactic Meta
 
-namespace LeanSpider
+namespace SpLean
 
 -- == Evaluation ==
 
@@ -163,4 +163,4 @@ elab "zx_explore" : tactic => withMainContext do
   -- Check the existential's body really is a `≈z` goal.
   let _ ← parseEquivGoal (← (← getMainGoal).getType)
 
-end LeanSpider
+end SpLean

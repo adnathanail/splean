@@ -1,11 +1,11 @@
-import LeanSpider.Tactics
+import SpLean.Tactics
 import ProofWidgets.Component.OfRpcMethod
 import ProofWidgets.Component.Panel.Basic
 import ProofWidgets.Presentation.Expr
 
 open Lean Server Elab Meta ProofWidgets
 
-namespace LeanSpider
+namespace SpLean
 
 /-- "Cannot be drawn" is a `none`, but an interrupt or a blown recursion depth is
     not an answer about the diagram: the first aborts a superseded request when the
@@ -129,4 +129,4 @@ def elabZxCmd : CommandElab := fun
       stx
   | stx => throwError "Unexpected syntax {stx}."
 
-end LeanSpider
+end SpLean
