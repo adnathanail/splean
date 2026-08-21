@@ -62,10 +62,13 @@ tensor products needs real semantics first**:
 `ZX.toHtml` renders an algebraic term in the existing `ZXWidget`.
 `Visualize.lean` is the pure part (term → positioned diagram → `Html`);
 `Render.lean` is the `MetaM` part that turns a `ZX n m` *`Expr`* into
-`Html`, so `#zx myAlgTerm` displays algebraic terms at the top level the
-same way it displays a `ZXDiagram` (`#html t.toHtml` is no longer used).
-Arity is recovered from `Meta.inferType`: the term itself isn't evaluable
-because `ZX n m` is index-dependent, but the `Html` application is. The walker
+`Html` (`evalAlgHtml`, `zxTermHtml?`, and the phase-label walkers), so
+`#zx myAlgTerm` displays algebraic terms at the top level the same way it
+displays a `ZXDiagram` (`#html t.toHtml` is no longer used). It imports
+only `Visualize.lean`, so both the tactics and `SpLean/Panel.lean` can use
+it. Arity is recovered from `Meta.inferType`: the term itself isn't
+evaluable because `ZX n m` is index-dependent, but the `Html` application
+is. The walker
 threads a private `Frag` (diagram + open `left`/`right` port lists, each port
 paired with the qubit-in-halves at which it enters/leaves the body, +
 `(width, height, pos, boxes)`) through the constructors. Every node carries
@@ -176,7 +179,7 @@ pick two node IDs, apply a rule, get back a residual `≃ZX` goal.
    target subtrees the proof piece is `ZX.equiv_refl`. At the leaf,
    raw `Z_spiderFusion` is applied and the summed phase stays as `α + β`
    — phase simplification is delegated entirely to the user's residual
-   tactic. `tryEvalAlgPhase` (in `Tactics.lean`) still exists for use by
+   tactic. `tryEvalAlgPhase` (in `Render.lean`) still exists for use by
    the renderer's `phaseExprToLabel` walker but is not used by
    `buildFusionProof`.
 3. `applyZxAlgFusion` combines the constructed proof with the residual
@@ -217,9 +220,10 @@ for a new `zx_alg_<rule>` tactic:
 `zx_alg_fusion` logs an InfoView widget after rewriting, showing the new
 LHS in the `Current` panel and the user's RHS in the `Goal` panel
 (hidden when RHS is an unassigned metavariable) — mirrors the graph-side
-`zx_sp` flow. Wired via `showAlgDiagram` in `Tactics.lean`, which builds
-an `Expr` calling `ZX.toHtml` / `ZX.toHtmlPair` (in `Visualize.lean`)
-and `Meta.evalExpr`s it to `Html`. Arity is recovered from
+`zx_sp` flow. Wired via `showAlgDiagram` in `Tactics.lean`, which calls
+`evalAlgHtml` in `Render.lean`: that builds an `Expr` applying
+`ZX.toHtml` / `ZX.toHtmlPair` (in `Visualize.lean`) and `Meta.evalExpr`s
+it to `Html`. Arity is recovered from
 `Meta.inferType` on the LHS `Expr` (the term itself isn't evaluable
 because `ZX n m` is index-dependent, but the `Html` application is).
 Render failures degrade to a warning so visualization can't block a

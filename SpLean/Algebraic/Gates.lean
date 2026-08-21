@@ -1,15 +1,16 @@
 import SpLean.Algebraic.ZX
+import SpLean.Panel
 import SpLean.Algebraic.Visualize
 -- import SpLean.Algebraic.Semantics
 
 open SpLean.Algebraic
 
 def GateCNOT : ZX 2 2 := (.spider .Z 1 2 ⊗ .wire) × (.wire ⊗ .spider .X 2 1)
-#html GateCNOT.toHtml
+#zx GateCNOT
 
 -- TODO
 -- def GateCNOT2 : ZX 2 2 := (.wire ⊗ .spider .X 1 2) × (.spider .Z 2 1 ⊗ .wire)
--- #html GateCNOT2.toHtml
+-- #zx GateCNOT2
 
 -- -- WIP: needs real `stack`/`X-spider` semantics first; see Algebraic/CLAUDE.md.
 -- theorem x : GateCNOT ≃ZX GateCNOT2 := by
@@ -19,7 +20,7 @@ def GateCNOT : ZX 2 2 := (.spider .Z 1 2 ⊗ .wire) × (.wire ⊗ .spider .X 2 1
 
 
 def GateNOTC : ZX 2 2 := (.spider .X 1 2 ⊗ .wire) × (.wire ⊗ .spider .Z 2 1)
-#html GateNOTC.toHtml
+#zx GateNOTC
 
 def GateCX : ZX 2 2 :=
   (
@@ -27,4 +28,4 @@ def GateCX : ZX 2 2 :=
     (.wire ⊗ .hadamard ⊗ .wire)
   ) ×
   (.wire ⊗ .spider .Z 2 1)
-#html GateCX.toHtml
+#zx GateCX

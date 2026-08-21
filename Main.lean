@@ -153,8 +153,8 @@ example : ∃ d', exercise3point7 ≈z d' := by
 -- `Quot.sound` — the standard Mathlib three, no project-local axioms.
 #print axioms SpLean.Algebraic.Z_spiderFusion
 
--- Algebraic-ZX terms can now be rendered too: `ZX.toHtml` converts them into
--- the same `ZXDiagram` widget shown above.
+-- Algebraic-ZX terms can now be rendered too: `#zx` accepts them as well as
+-- graph-style diagrams, drawing them in the same widget shown above.
 open SpLean.Algebraic
 def algSpider : ZX 1 1 := .spider .Z 1 1 (phaseLit 1 2)
 #zx algSpider

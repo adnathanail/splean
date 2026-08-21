@@ -61,9 +61,9 @@ Tactics do not log diagrams. `zx_debug` is the one tactic that writes to the Inf
 ## Two ZX representations
 
 - **`ZXDiagram`** (`SpLean/ZXDiagram.lean`) — graph-style: nodes + edges. Used by all rewrite rules in `Rules/*` and the `≈z` equivalence. Tactics in `SpLean/Tactics.lean` (`zx_show`, `zx_sp`, etc.) operate on this.
-- **`ZX n m`** (`SpLean/Algebraic/ZX.lean`) — free-algebra ADT indexed by arity, with denotational matrix semantics in `Algebraic/Semantics.lean`. Used to *prove* rules (rather than axiomatise them) — see `Algebraic/SpiderFusion.lean`. A parallel graph-style tactic (`zx_alg_fusion idA idB`) lives in `SpLean/Algebraic/Tactics.lean` and uses the same node-ID scheme as the renderer — see `SpLean/Algebraic/CLAUDE.md`.
+- **`ZX n m`** (`SpLean/Algebraic/ZX.lean`) — free-algebra ADT indexed by arity, with denotational matrix semantics in `Algebraic/Semantics.lean`. Used to *prove* rules (rather than axiomatise them) — see `Algebraic/SpiderFusion.lean`. The `MetaM` side of rendering an algebraic term (`evalAlgHtml`, phase-label collection) lives in `SpLean/Algebraic/Render.lean`, apart from the tactics so `Panel.lean` can render `ZX` terms without depending on the algebraic proofs. A parallel graph-style tactic (`zx_alg_fusion idA idB`) lives in `SpLean/Algebraic/Tactics.lean` and uses the same node-ID scheme as the renderer — see `SpLean/Algebraic/CLAUDE.md`.
 
-Both are renderable in the InfoView: `ZXDiagram.toHtml` directly, `ZX.toHtml` via `ZX.toPositionedDiagram` (lowers to a graph and emits per-node `(col, qubit)` positions from the algebraic structure — `compose` advances col, `stack` advances qubit; `wire` is spliced into a plain edge). Each `stack`/`compose` subtree also records a bounding rectangle that the widget draws behind the diagram. See `SpLean/Algebraic/CLAUDE.md` for details.
+Both are renderable in the InfoView (and both by `#zx`): `ZXDiagram.toHtml` directly, `ZX.toHtml` via `ZX.toPositionedDiagram` (lowers to a graph and emits per-node `(col, qubit)` positions from the algebraic structure — `compose` advances col, `stack` advances qubit; `wire` is spliced into a plain edge). Each `stack`/`compose` subtree also records a bounding rectangle that the widget draws behind the diagram. See `SpLean/Algebraic/CLAUDE.md` for details.
 
 ## Lean tips
 
