@@ -1,5 +1,6 @@
 import SpLean.Axioms
 import SpLean.Visualize
+import Mathlib.Tactic.Linter.UnusedTacticExtension
 
 open Lean Elab Tactic Meta
 
@@ -132,6 +133,11 @@ elab "zx_debug" : tactic => withMainContext do
     let rhsJson := dRhs.toJson (includeNones := true)
     msg := msg ++ s!"\n\nRHS:\n{rhsJson.pretty}"
   logInfo msg
+
+-- `zx_debug` only logs; leaving the goal untouched is the whole point of it, so
+-- Mathlib's `unusedTactic` linter would otherwise flag every use as doing nothing.
+-- The `!` makes the exemption persist into files importing this one.
+#allow_unused_tactic! SpLean.tacticZx_debug
 
 /-- Close a `d₁ ≈z d₂` goal by normalization (both sides normalize to the same diagram). -/
 elab "zx_rfl" : tactic => withMainContext do
