@@ -1,4 +1,4 @@
-# <img width="32" height="32" alt="SpLean logo" src="./splean-logo-32@4x.png" /> SpLean
+# [<img width="32" height="32" alt="SpLean logo" src="./splean-logo-32@4x.png" />](https://github.com/adnathanail/drawing-with-zx) SpLean
 
 [![CI](https://github.com/adnathanail/splean/actions/workflows/ci.yml/badge.svg)](https://github.com/adnathanail/splean/actions/workflows/ci.yml)
 [![prek](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json)](https://github.com/j178/prek)
