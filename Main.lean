@@ -144,19 +144,19 @@ example : ∃ d', exercise3point7 ≈z d' := by
 -- the same `ZXDiagram` widget shown above.
 open SpLean.Algebraic
 def algSpider : ZX 1 1 := .spider .Z 1 1 ⟨1, 2⟩
-#html algSpider.toHtml
+#zx algSpider
 
 def algFusionLHS : ZX 1 1 := .spider .Z 1 1 ⟨1, 4⟩ × .spider .Z 1 1 ⟨1, 4⟩
-#html algFusionLHS.toHtml
+#zx algFusionLHS
 
 def algStack : ZX 2 2 := .wire ⊗ .hadamard
-#html algStack.toHtml
+#zx algStack
 
 def algCnot : ZX 2 2 := (.spider .Z 1 2 ⊗ .wire) × (.wire ⊗ .spider .X 2 1)
-#html algCnot.toHtml
+#zx algCnot
 
 def algNotc : ZX 2 2 := (.spider .X 1 2 ⊗ .wire) × (.wire ⊗ .spider .Z 2 1)
-#html algNotc.toHtml
+#zx algNotc
 
 def algCx : ZX 2 2 :=
   (
@@ -164,21 +164,21 @@ def algCx : ZX 2 2 :=
     (.wire ⊗ .hadamard ⊗ .wire)
   ) ×
   (.wire ⊗ .spider .Z 2 1)
-#html algCx.toHtml
+#zx algCx
 
 def algLayoutTest1 : ZX 4 4 := algCnot ⊗ algCnot
-#html algLayoutTest1.toHtml
+#zx algLayoutTest1
 
 def algLayoutTest2 : ZX 2 2 := algCnot × algCnot
-#html algLayoutTest2.toHtml
+#zx algLayoutTest2
 
 def algLayoutTest3 : ZX 3 3 := (algCnot ⊗ .wire) × (.wire ⊗ algCnot)
-#html algLayoutTest3.toHtml
+#zx algLayoutTest3
 
 def algLayoutTest4a : ZX 2 4 := (.spider .Z 1 3 ⊗ .wire)
 def algLayoutTest4b : ZX 4 2 := (.wire ⊗ .spider .Z 3 1)
 def algLayoutTest4 : ZX 2 2 := (.spider .Z 1 3 ⊗ .wire) × (.wire ⊗ .spider .X 3 1)
-#html algLayoutTest4.toHtml
+#zx algLayoutTest4
 
 def algExercise3point7a : ZX 2 3 :=
   (.wire ⊗ .wire ⊗ .spider .Z 0 1) ×
@@ -187,4 +187,4 @@ def algExercise3point7b : ZX 3 3 := .wire ⊗ .hadamard ⊗ .spider .X 1 1 ⟨1,
 def algExercise3point7c : ZX 3 2 := (algNotc ⊗ .spider .X 1 0)
 def algExercise3point7d : ZX 2 2 := (.wire ⊗ .hadamard) × algCx
 def algExercise3point7 : ZX 2 2 := ((algExercise3point7a × algExercise3point7b) × algExercise3point7c) × algExercise3point7d
-#html algExercise3point7.toHtml
+#zx algExercise3point7
