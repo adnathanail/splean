@@ -1,5 +1,5 @@
-import LeanSpider.Axioms
-import LeanSpider.Tactics
+import SpLean.Axioms
+import SpLean.Tactics
 
 open Lean Elab Tactic Meta
 
@@ -17,7 +17,7 @@ def ZXDiagram.identityInsertion (d : ZXDiagram) (a b : NodeId) (color : SpiderCo
   let d := d.addEdge (Edge.mk c b)
   return d.normalize
 
-namespace LeanSpider
+namespace SpLean
 
 axiom ZXDiagram.identityInsertion_sound (d : ZXDiagram) (a b : NodeId)
     (color : SpiderColor) (d' : ZXDiagram) :
@@ -36,4 +36,4 @@ elab_rules : tactic
       ``ZXDiagram.identityInsertion ``ZXDiagram.identityInsertion_sound
       #[mkNatLit a.getNat, mkNatLit b.getNat, colorExpr]
 
-end LeanSpider
+end SpLean

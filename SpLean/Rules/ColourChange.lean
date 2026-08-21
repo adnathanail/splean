@@ -1,5 +1,5 @@
-import LeanSpider.Axioms
-import LeanSpider.Tactics
+import SpLean.Axioms
+import SpLean.Tactics
 
 open Lean Elab Tactic Meta
 
@@ -21,7 +21,7 @@ def ZXDiagram.colourChange (d: ZXDiagram) (a : NodeId) : Except String ZXDiagram
   let d := d.addEdges (aNeighbors.zipWith (Edge.mk . .) hadIds)
   return d
 
-namespace LeanSpider
+namespace SpLean
 
 axiom ZXDiagram.colourChange_sound (d : ZXDiagram) (a : NodeId) (d' : ZXDiagram) :
   d.colourChange a = .ok d' → d ≈z d'
@@ -35,4 +35,4 @@ elab_rules : tactic
       ``ZXDiagram.colourChange ``ZXDiagram.colourChange_sound
       #[mkNatLit a.getNat]
 
-end LeanSpider
+end SpLean

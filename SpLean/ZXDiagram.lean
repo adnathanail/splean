@@ -1,4 +1,4 @@
-import LeanSpider.Utils
+import SpLean.Utils
 import Mathlib.Data.PNat.Basic
 
 inductive SpiderColor where

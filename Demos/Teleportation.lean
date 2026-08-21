@@ -1,6 +1,6 @@
-import LeanSpider.All
+import SpLean.All
 
-open LeanSpider
+open SpLean
 
 show_panel_widgets [local ZXPanel]
 

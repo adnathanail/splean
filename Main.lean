@@ -1,8 +1,8 @@
-import LeanSpider.All
+import SpLean.All
 
-open LeanSpider
--- zCnotZ and cnot below come from LeanSpider/Examples.lean
-open LeanSpider.Examples
+open SpLean
+-- zCnotZ and cnot below come from SpLean/Examples.lean
+open SpLean.Examples
 
 -- Show the current diagram in a panel alongside the tactic state
 show_panel_widgets [local ZXPanel]

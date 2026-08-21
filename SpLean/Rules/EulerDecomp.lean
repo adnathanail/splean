@@ -1,5 +1,5 @@
-import LeanSpider.Axioms
-import LeanSpider.Tactics
+import SpLean.Axioms
+import SpLean.Tactics
 
 open Lean Elab Tactic Meta
 
@@ -79,7 +79,7 @@ def ZXDiagram.eulerDecomp (d : ZXDiagram) (a : NodeId) (variant : Nat) : Except 
     return d
   | _ => throw s!"Variant must be 1-6, got {variant}"
 
-namespace LeanSpider
+namespace SpLean
 
 axiom ZXDiagram.eulerDecomp_sound (d : ZXDiagram) (a : NodeId) (variant : Nat) (d' : ZXDiagram) :
   d.eulerDecomp a variant = .ok d' → d ≈z d'
@@ -94,4 +94,4 @@ elab_rules : tactic
       ``ZXDiagram.eulerDecomp ``ZXDiagram.eulerDecomp_sound
       #[mkNatLit a.getNat, mkNatLit v.getNat]
 
-end LeanSpider
+end SpLean

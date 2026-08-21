@@ -1,7 +1,7 @@
 import LSpec
-import LeanSpider.All
+import SpLean.All
 
-open LSpec LeanSpider
+open LSpec SpLean
 
 -- Colour change a Z spider to X, surrounded by Hadamards
 private def zSpider : ZXDiagram :=

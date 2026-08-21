@@ -1,7 +1,7 @@
 import LSpec
-import LeanSpider.All
+import SpLean.All
 
-open LSpec LeanSpider
+open LSpec SpLean
 
 -- Two adjacent Hadamards cancel
 private def twoHadamards : ZXDiagram :=
