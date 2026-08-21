@@ -1,3 +1,4 @@
+# <img width="32" height="32" alt="SpLean logo" src="./splean-logo-32@4x.png" /> LeanSpider
 # LeanSpider
 
 [![CI](https://github.com/adnathanail/LeanSpider/actions/workflows/ci.yml/badge.svg)](https://github.com/adnathanail/LeanSpider/actions/workflows/ci.yml)
