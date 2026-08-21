@@ -1,7 +1,7 @@
 import LSpec
-import LeanSpider.Algebraic.Tactics
+import SpLean.Algebraic.Tactics
 
-/-! Unit tests for `LeanSpider.Algebraic.phaseExprToLabel` — the MetaM
+/-! Unit tests for `SpLean.Algebraic.phaseExprToLabel` — the MetaM
     walker that converts an `AlgPhase`-typed `Expr` into its display string.
     Tests run at compile time via `#guard_msgs in #eval`; any divergence
     from the expected output fails the `lake build Tests` run.
@@ -112,4 +112,4 @@ open LSpec in
 def phaseLabelTests : TestSeq :=
   test "phaseExprToLabel module loaded" True
 
-end LeanSpider.Tests.PhaseLabel
+end SpLean.Tests.PhaseLabel
