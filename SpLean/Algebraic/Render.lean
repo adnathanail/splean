@@ -25,7 +25,10 @@ private def matchZXType? (ty : Expr) : Option (Expr × Expr) :=
     arity comes from `inferType`, which is why this can't be a plain
     `evalExpr` at a fixed type. -/
 private unsafe def evalZXHtmlImpl (z : Expr) : MetaM Html := do
-  let ty ← inferType z
+  -- `whnf` here to match `zxTermHtml?`'s gate below: a type that only reduces to
+  -- `ZX n m` would otherwise pass that check and then fail this one, replacing
+  -- `#zx`'s explanatory error with this internal one.
+  let ty ← whnf (← inferType z)
   let some (nE, mE) := matchZXType? ty
     | throwError "evalZXHtml: expected `ZX n m`, got {ty}"
   let htmlE ← mkAppOptM ``ZX.toHtml #[some nE, some mE, some z]
