@@ -7,8 +7,8 @@ open SpLean
 
 /-- The set of node ids inside a `stack` or `compose` subtree, drawn behind
     the diagram as a bounding rectangle. The widget computes pixel bounds
-    from each node's live position so boxes follow drags and don't extend
-    into spliced-wire empty space. `kind` is "stack" or "compose". -/
+    from each node's live position so boxes follow drags. `kind` is
+    "stack" or "compose". -/
 structure BoxRecord where
   kind    : String
   nodeIds : List NodeId

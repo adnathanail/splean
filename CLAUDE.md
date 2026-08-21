@@ -31,7 +31,7 @@ The JS bundle is built by rollup and written to `.lake/build/js/`. zxcc is bundl
 - Look up nodes with `d.getNode? id`, not direct list indexing
 - ZXDiagram nodes: `.input ioId`, `.output ioId`, `.spider color phase`, `.hadamard`, `.wire` where phase is a `Phase` (`num : Int`, `den : ℕ+`)
 - Phases cross the wire as display-ready strings (`π/2`, `-π/4`, `0`) — `Phase.format` in `SpLean/Visualize.lean` is the single source of truth; the widget prints them verbatim
-- JSON wire format from Lean to the widget: `{"nodes": [...], "edges": [{"src": id, "tgt": id}]}`
+- JSON wire format from Lean to the widget: `{"nodes": [...], "edges": [{"src": id, "tgt": id}]}`. Algebraic terms extend this: each node also carries `col`/`qubit` (which makes zxcc skip its own layout), plus a top-level `boxes` array of `{kind, nodeIds}`.
 - Layout and rendering both live in the separate [zxcc](https://github.com/adnathanail/zxcc) repo, not here — change them there and release a new version.
 - Demo diagrams live in `SpLean.Examples`, not the root namespace, so that `open SpLean` doesn't take names like `cnot` out of a user's hands. Keep new example data there.
 
@@ -61,9 +61,9 @@ Tactics do not log diagrams. `zx_debug` is the one tactic that writes to the Inf
 ## Two ZX representations
 
 - **`ZXDiagram`** (`SpLean/ZXDiagram.lean`) — graph-style: nodes + edges. Used by all rewrite rules in `Rules/*` and the `≈z` equivalence.
-- **`ZX n m`** (`SpLean/Algebraic/ZX.lean`) — free-algebra ADT indexed by arity, with denotational matrix semantics in `Algebraic/Semantics.lean`. Used to *prove* rules (rather than axiomatise them) — see `Algebraic/SpiderFusion.lean`.
+- **`ZX n m`** (`SpLean/Algebraic/ZX.lean`) — free-algebra ADT indexed by arity. On this branch it exists for rendering only; the denotational matrix semantics that will let rules be *proved* rather than axiomatised live on the stacked `algebraic-semantics` branch.
 
-Both are renderable in the InfoView: `ZXDiagram.toHtml` directly, `ZX.toHtml` via `ZX.toPositionedDiagram` (lowers to a graph and emits per-node `(col, qubit)` positions from the algebraic structure — `compose` advances col, `stack` advances qubit; `wire` is spliced into a plain edge). Each `stack`/`compose` subtree also records a bounding rectangle that the widget draws behind the diagram. See `SpLean/Algebraic/CLAUDE.md` for details.
+Both are renderable in the InfoView: `ZXDiagram.toHtml` directly, `ZX.toHtml` via `ZX.toPositionedDiagram` (lowers to a graph and emits per-node `(col, qubit)` positions from the algebraic structure — `compose` advances col, `stack` advances qubit; a `wire` stays a real `.wire` node so the boxes around it are non-empty). Each `stack`/`compose` subtree also records a bounding rectangle that the widget draws behind the diagram. See `SpLean/Algebraic/CLAUDE.md` for details.
 
 ## Lean tips
 
