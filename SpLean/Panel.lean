@@ -1,4 +1,5 @@
 import SpLean.Tactics
+import SpLean.Algebraic.Render
 import ProofWidgets.Component.OfRpcMethod
 import ProofWidgets.Component.Panel.Basic
 import ProofWidgets.Presentation.Expr
@@ -100,14 +101,22 @@ def ZXPanel.rpc (props : PanelWidgetProps) : RequestM (RequestTask Html) :=
 def ZXPanel : Component PanelWidgetProps :=
   mk_rpc_widget% ZXPanel.rpc
 
-/-- Display a `ZXDiagram` in the InfoView at a top-level command:
+/-- Display a ZX diagram in the InfoView at a top-level command:
 
     ```lean
-    #zx zHadX
+    #zx zHadX          -- graph-style `ZXDiagram`
+    #zx algCnot        -- algebraic `ZX n m`
     ```
 
-    The diagram must be closed, since it is evaluated to a concrete value to be
-    drawn. -/
+    Both representations are accepted, so `#zx` replaces ProofWidgets'
+    `#html d.toHtml` for either one. The term must be closed, since it is
+    evaluated to a concrete value to be drawn.
+
+    Unlike the `ZXDiagram`-only form this had before, the argument is
+    elaborated without an expected type — `ZX n m` is arity-indexed, so
+    there is no single type to ensure against. Notation that needs an
+    expected type (`.spider .Z 1 1`, anonymous constructors) therefore
+    needs an ascription: `#zx (.spider .Z 1 1 : ZX 1 1)`. -/
 syntax (name := zxCmd) "#zx " term : command
 
 open Elab Command in
@@ -115,14 +124,17 @@ open Elab Command in
 def elabZxCmd : CommandElab := fun
   | stx@`(#zx $t:term) => do
     let html ← liftTermElabM do
-      -- `elabTermEnsuringType`, not `elabTerm`: the latter takes the expected type
-      -- only as a hint, so `#zx d.toJson` would elaborate fine and then fail with
-      -- "could not evaluate", hiding the actual type error.
-      let e ← Term.elabTermEnsuringType t (mkConst ``ZXDiagram)
+      let e ← Term.elabTerm t none
       Term.synthesizeSyntheticMVarsNoPostponing
-      let some html ← zxDiagramHtml? (← instantiateMVars e)
-        | throwError "#zx could not evaluate{indentExpr e}\nto a concrete diagram."
-      return html
+      let e ← instantiateMVars e
+      if let some html ← zxDiagramHtml? e then return html
+      if let some html ← Algebraic.zxTermHtml? e then return html
+      -- Neither branch fired: either the term has the wrong type entirely,
+      -- or it is a diagram that could not be evaluated (open term, symbolic
+      -- phase). Report the type so the two cases are told apart.
+      throwError "#zx expects a `ZXDiagram` or an algebraic `ZX n m` term, \
+        and needs it closed enough to evaluate. Got{indentExpr e}\nof type\
+        {indentExpr (← inferType e)}"
     liftCoreM <| Widget.savePanelWidgetInfo
       (hash HtmlDisplay.javascript)
       (return json% { html: $(← rpcEncode html) })

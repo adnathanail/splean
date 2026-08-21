@@ -51,9 +51,15 @@ tensor products needs real semantics first**:
   Note `simp` happens to apply `mul_ite` first, which controls which condition
   ends up "outside" in the resulting AND.
 
-## Visualization (`Visualize.lean`)
+## Visualization (`Visualize.lean`, `Render.lean`)
 
-`ZX.toHtml` renders an algebraic term in the existing `ZXWidget`. The walker
+`ZX.toHtml` renders an algebraic term in the existing `ZXWidget`.
+`Visualize.lean` is the pure part (term → positioned diagram → `Html`);
+`Render.lean` is the `MetaM` part that turns a `ZX n m` *`Expr`* into
+`Html`, so `#zx myAlgTerm` displays algebraic terms at the top level the
+same way it displays a `ZXDiagram` (`#html t.toHtml` is no longer used).
+Arity is recovered from `Meta.inferType`: the term itself isn't evaluable
+because `ZX n m` is index-dependent, but the `Html` application is. The walker
 threads a private `Frag` (diagram + open `left`/`right` port lists, each port
 paired with the qubit-in-halves at which it enters/leaves the body, +
 `(width, height, pos, boxes)`) through the constructors. Every node carries
