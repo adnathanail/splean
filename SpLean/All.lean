@@ -17,3 +17,4 @@ import SpLean.Rules.StrongComp
 import SpLean.Rules.IdentityInsertion
 import SpLean.DerivedRules.PiPi
 import SpLean.Examples
+import SpLean.Algebraic
