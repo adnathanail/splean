@@ -1,90 +1,67 @@
 # SpLean.Algebraic
 
-A free-algebra ZX representation (`ZX n m`, indexed by input/output arity) with
-a denotational interpretation into complex matrices over Mathlib. Lives
-*alongside* the graph-style `ZXDiagram`. There is a one-way `ZX → ZXDiagram`
-translation for **rendering only** (`Visualize.lean` — see below); the
-`Rules/*` rewrite machinery still operates on `ZXDiagram` directly.
+A free-algebra ZX representation (`ZX n m`, indexed by input/output arity),
+living *alongside* the graph-style `ZXDiagram`. There is a one-way
+`ZX → ZXDiagram` translation for **rendering only** (`Visualize.lean` — see
+below); the `Rules/*` rewrite machinery still operates on `ZXDiagram` directly.
 
-## Why this module exists
+## Scope on this branch
 
-`SpLean/Axioms.lean` defines `≈z` as syntactic equality after compaction,
-which is too weak to prove rewrite-rule soundness — every rewrite rule in
-`SpLean/Rules/` is therefore axiomatised. This module gives a *semantic*
-equivalence (`≃ZX` = matrix equality) so rewrite rules can be proven outright.
-`Z_spiderFusion` in `SpiderFusion.lean` is the first such proof; its axiom
-audit is `[propext, Classical.choice, Quot.sound]` only.
+This module is currently **structure and rendering only** — `ZX.lean` (the
+ADT), `Visualize.lean` (pure lowering to a positioned diagram), and
+`Render.lean` (the `MetaM` glue for `#zx`). There is no denotational semantics
+here: no `ZX.sem`, no `≃ZX`, no `Semantics.lean`, no `SpiderFusion.lean`.
+
+Those live on the stacked `algebraic-semantics` branch, and are the *reason*
+this module exists: `SpLean/Axioms.lean` defines `≈z` as syntactic equality
+after compaction, which is too weak to prove rewrite-rule soundness, so every
+rule in `SpLean/Rules/` is axiomatised. A semantic equivalence (matrix
+equality) is what lets those rules be proved outright. Do not document that
+work as present here — check what the branch actually contains before writing
+about semantics.
 
 ## Conventions
 
-- **Composition order**: `compose a b` reads "first `a`, then `b`", so
-  `⟦a × b⟧ = ⟦b⟧ * ⟦a⟧` (matrices act right-to-left).
-- **Index convention**: `Matrix (Fin (2^m)) (Fin (2^n)) ℂ` — rows are outputs,
-  columns are inputs. All-zeros basis vector at index `0`, all-ones at `2^k - 1`.
-- **`Z_spiderMatrix` is a *sum* of two indicators, not nested `if`s.** Required
-  for the `n = m = 0` corner case where both indices collide at `0` (a 0-leg
-  spider is the scalar `1 + e^{iφ}`, not `1`).
+- **Composition order**: `compose a b` reads "first `a`, then `b`". Written
+  `a × b`; stacking is `a ⊗ b`. Both are `scoped` notation, so a file needs
+  `open SpLean.Algebraic` (see `Main.lean`).
+- **`spider c n m φ`** takes its phase last and defaults it to `⟨0, 1⟩`, so a
+  phase-free spider is just `.spider .Z 1 2`.
 - **`Phase.den : ℕ+`**, so `den = 0` is ruled out at the type level.
-  `phaseToComplex_add` and the spider-fusion theorems carry no `den ≠ 0`
-  hypothesis.
-
-## Current placeholder semantics (deliberate, not `sorry`)
-
-`ZX.sem` returns `0` for `hadamard`, `spider .X _ _ _`, and `stack _ _`. The
-Z-spider-fusion proof never pattern-matches these branches, so they don't
-affect its correctness — but **any new theorem touching H, X-spiders, or
-tensor products needs real semantics first**:
-
-- `stack`: Kronecker product with `Fin (2^(n+p)) ≃ Fin (2^n) × Fin (2^p)`
-  reindexing (via `finProdFinEquiv` and `Nat.pow_add`).
-- `spider .X`: Hadamard sandwich of the Z-spider — depends on `stack` for
-  `H^⊗n`.
-- `hadamard`: `![![1, 1], ![1, -1]] / √2`.
-
-## Proof tactics that worked here
-
-- For `Fin.sum_univ_two` over `Fin (2^1)`: use `show (∑ s : Fin 2, …)` to coerce
-  the index type — the lemma won't unify against `Fin (2^1)` directly even
-  though they're defeq.
-- Collapsing `(if h₁ then a else 0) * (if h₂ then b else 0)` to a single
-  AND-indicator: `simp only [mul_ite, ite_mul, mul_one, mul_zero, zero_mul, ← ite_and]`.
-  Note `simp` happens to apply `mul_ite` first, which controls which condition
-  ends up "outside" in the resulting AND.
 
 ## Visualization (`Visualize.lean`, `Render.lean`)
 
 `ZX.toHtml` renders an algebraic term in the existing `ZXWidget`.
 `Visualize.lean` is the pure part (term → positioned diagram → `Html`);
-`Render.lean` is the `MetaM` part that turns a `ZX n m` *`Expr`* into
-`Html`, so `#zx myAlgTerm` displays algebraic terms at the top level the
-same way it displays a `ZXDiagram` (`#html t.toHtml` is no longer used).
-Arity is recovered from `Meta.inferType`: the term itself isn't evaluable
-because `ZX n m` is index-dependent, but the `Html` application is. The walker
-threads a private `Frag` (diagram + open `left`/`right` port lists, each port
-paired with the qubit-in-halves at which it enters/leaves the body, +
-`(width, height, pos, boxes)`) through the constructors. Every node carries
-an algebraic-grid `(col, qubitHalves)` position emitted alongside the JSON,
-so the widget skips its BFS layout and the visual reflects the term's
+`Render.lean` is the `MetaM` part that turns a `ZX n m` *`Expr`* into `Html`,
+so `#zx myAlgTerm` displays algebraic terms at the top level the same way it
+displays a `ZXDiagram`. Arity is recovered from `Meta.inferType`: the term
+itself isn't evaluable because `ZX n m` is index-dependent, but the `Html`
+application is.
+
+The walker threads a private `Frag` (diagram + open `left`/`right` port lists,
+each port paired with the qubit-in-halves at which it enters/leaves the body,
++ `(width, height, pos, boxes)`) through the constructors. Every node carries
+an algebraic-grid `(col, qubitHalves)` position emitted alongside the JSON, so
+the renderer skips its own layout and the visual reflects the term's
 structure. Each `stack`/`compose` subtree also records a `BoxRecord` covering
-its extent; the widget draws translucent rectangles behind the diagram so
-the algebraic nesting is visible at a glance.
+its extent, drawn as a translucent rectangle behind the diagram so the
+algebraic nesting is visible at a glance.
 
 Qubit positions are stored internally as `2 ×` the actual qubit (i.e.
 "halves") so a spider with mismatched arity (e.g. `Z 1→2`) can sit on a
-half-row at the centre of its span. The structural `Frag.height` stays a
-count of integer slots; `stack` shifts the lower fragment's qubits by
+half-row at the centre of its span. The structural `Frag.height` stays a count
+of integer slots; `stack` shifts the lower fragment's qubits by
 `2 * a.height`. JSON emission divides by two — `qubit` is a real number
-(e.g. `0.5`, `1`, `1.5`) on the wire, and `zxRender.ts` already accepts
-`qubit?: number` unchanged.
+(e.g. `0.5`, `1`, `1.5`) on the wire.
 
 Per-constructor layout (all qubit values are halves; `centre = max(n, m) - 1`
 is the midpoint of slots `0..max-1` in halves):
 
-- `wire` → one `.wire` node at `(col 0, q 0)`, rendered by the widget as a
-  small black dot (radius `0.2 * node_size`). Wires stay as real nodes so
-  that `stack`/`compose` boxes around them are non-empty and the visual
-  extent of a subtree matches its algebraic shape. `left = right = [(id, 0)]`,
-  width 1, height 1.
+- `wire` → one `.wire` node at `(col 0, q 0)`, drawn as a small dot. Wires
+  stay as real nodes so that `stack`/`compose` boxes around them are
+  non-empty and the visual extent of a subtree matches its algebraic shape.
+  `left = right = [(id, 0)]`, width 1, height 1.
 - `hadamard` → one `.hadamard` node at `(col 0, q 0)`. `left = right = [(id, 0)]`,
   width 1, height 1.
 - `spider c n m φ` → one node at `(col 0, q centre)` (centre of its span).
@@ -100,10 +77,9 @@ is the midpoint of slots `0..max-1` in halves):
 
 `stack` and `compose` each emit a `BoxRecord {kind, nodeIds}` listing the ids
 of every node in their subtree (with appropriate shifts on `compose`/`stack`).
-Leaves emit no box. Pixel bounds are computed in `zxViewer.js` from each
-node's live `.x/.y`, so boxes follow drags and don't extend past visible
-nodes (which would otherwise happen on subtrees containing spliced wires).
-The JSON emitter drops boxes whose `nodeIds` are all `none` after splicing.
+Leaves emit no box. `algebraicJson` emits every box verbatim — it does no
+filtering. Pixel bounds are computed by the renderer from each node's live
+position, so boxes follow drags.
 
 Boundary `.input`/`.output` nodes are added **only** at the top level by
 `ZX.toPositionedDiagram`. Each boundary inherits the qubit of the body port
@@ -117,16 +93,24 @@ Internal fragments stay arity-pure during recursion.
 The JSON shape extends `ZXDiagram.toJson` with `col` (Int) and `qubit`
 (real number, possibly half-integer) fields per node, plus a top-level
 `boxes` array of `{kind, nodeIds}` records.
-`zxRender.ts` honours the positions (skipping `autoLayout` whenever any node
-has `col` set) and forwards boxes unchanged, sorted largest-id-count first
-so outer paints behind inner. `zxViewer.js` accepts the box list as an extra
-parameter to `showGraph`, renders them as the first `<g class="boxes">` child
-of the SVG (with `pointer-events: none` so the brush layer still works), and
-recomputes their bounds in `update_boxes()` after every drag tick. The
-widget's `auto_hbox` flag is turned off in the positioned case, so hadamards'
-supplied positions aren't overwritten by neighbour-barycentre repositioning.
+
+## Where the drawing actually happens
+
+Layout and SVG rendering are **not in this repo** — they live in the
+[zxcc](https://github.com/adnathanail/zxcc) web component, consumed as the
+`@adnathanail/zxcc` npm package by `zx_view_widget/`. This module's only job
+is to emit JSON that zxcc understands (`DiagramData` in its `types.d.ts`:
+`col`, `qubit`, `boxes`, `labels`, …). zxcc skips its BFS auto-layout whenever
+any node carries `col`, turns off H-box barycentre repositioning in that case
+so supplied positions aren't overwritten, and sorts boxes largest-first so
+outer ones paint behind inner ones.
+
+Changing how any of that *looks* means changing zxcc and releasing a new
+version, not editing anything here.
+
+## Not proved
 
 `ZX.toZXDiagram` (used by callers that just need the graph) delegates to
 `ZX.toPositionedDiagram` and discards the position list. Rendering-only —
-there is no proof that the lowering preserves semantics (would need a
+there is no proof that the lowering preserves semantics (that would need a
 `ZXDiagram` denotation, which doesn't exist yet).
