@@ -56,3 +56,28 @@ theorem z_sem_ghz_state (f : Wires 0) : ghzState.sem f = (![1, 0, 0, 0, 0, 0, 0,
   rw [wiresVec3, ZX.sem, zSpiderSem, Phase.angle]
   simp [Fin.forall_fin_succ]
   cases g 0 <;> cases g 1 <;> cases g 2 <;> norm_num
+
+-- ## Arity-n GHZ state (Leanstral)
+abbrev nGhzState (n : ℕ) : ZX 0 n := .spider .Z 0 n ⟨0, 1⟩
+#zx nGhzState 7
+theorem z_sem_nGhz_state (f : Wires 0) (n : ℕ) (hn : n ≥ 1) : (nGhzState n).sem f =
+    (λ g => if (∀ j : Fin n, g j = false) ∨ (∀ j : Fin n, g j = true) then (1 : ℂ) else 0) := by
+  ext x
+  rw [nGhzState, ZX.sem, zSpiderSem, Phase.angle]
+  simp [Complex.exp_zero]
+  have hpos : 0 < n := Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp hn)
+  by_cases hA : ∀ j : Fin n, x j = false
+  · by_cases hB : ∀ j : Fin n, x j = true
+    · exfalso
+      have h0 : Fin n := ⟨0, hpos⟩
+      have h_eq0 := hA h0
+      have h_eq1 := hB h0
+      rw [h_eq0] at h_eq1
+      exact Bool.false_ne_true h_eq1
+    · rw [if_pos hA, if_neg hB, if_pos (Or.inl hA)]
+      norm_num
+  · by_cases hB : ∀ j : Fin n, x j = true
+    · rw [if_neg hA, if_pos hB, if_pos (Or.inr hB)]
+      norm_num
+    · rw [if_neg hA, if_neg hB, if_neg (fun h => h.elim hA hB)]
+      norm_num
