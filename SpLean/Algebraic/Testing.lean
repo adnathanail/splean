@@ -78,6 +78,14 @@ theorem z_sem_plus_state_one_ampl (f : Wires 0) :
     plusState.sem f (fun _ => true) = 1 := by
   rw [ZX.sem, zSpiderSem, Phase.angle]
   norm_num
+-- We can prove both with one theorem by splitting on the output wire indicator
+theorem z_sem_plus_state (f : Wires 0) (g : Wires 1) :
+    plusState.sem f g = 1 := by
+  rw [ZX.sem, zSpiderSem, Phase.angle]
+  simp only [Fin.forall_fin_one]
+  -- cases hg : g 0 <;> simp <;> rw [hg] <;> simp
+  -- cases hg : g 0 <;> simp [Fin.forall_fin_one, hg]
+  split_ifs with h1 h2 <;> simp_all
 
 -- (Zπ)- = √2|-⟩ = |0⟩ - |1⟩
 --   no input wires so `f : Wires 0`
