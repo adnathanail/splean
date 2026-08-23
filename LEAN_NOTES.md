@@ -24,3 +24,11 @@ Tactic to clear denominators in algebraic expressions.
 `norm_num`
 Tactic to 'normalise' (simplify) numerical expressions
 https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/NormNum/Core.html
+
+## Commands
+
+Show type signature
+```lean
+#check yourDefinitionHere
+```
+

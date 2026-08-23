@@ -1,15 +1,10 @@
-import SpLean.Algebraic.Semantics
-import SpLean.Panel
+import SemanticsTesting.Utils
 
 open SpLean.Algebraic
 
 /--
   X-basis states (pqs eq 3.3)
 -/
-
--- Boundary assignments of a single wire
-abbrev zeroAmpl : Wires 1 := fun _ => false
-abbrev oneAmpl : Wires 1 := fun _ => true
 
 -- TODO track scalar factors
 -- (Z0)- = √2|+⟩ = |0⟩ + |1⟩
