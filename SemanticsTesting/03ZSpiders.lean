@@ -35,20 +35,24 @@ theorem z_sem_minus_state (f : Wires 0) : minusState.sem f = (![1, -1] : Fin 2 �
   | false => norm_num [h]
   | true => norm_num [h]
 
-/-! ## Bell state -/
+/--
+  # GHZ states (pqs p83)
+-/
 
+-- ## Bell state
 abbrev bellState : ZX 0 2 := .spider .Z 0 2 ⟨0, 1⟩
 #zx bellState
-
 theorem z_sem_bell_state (f : Wires 0) : bellState.sem f = (![1, 0, 0, 1] : Fin 4 → ℂ) := by
   ext g
   rw [wiresVec2, ZX.sem, zSpiderSem, Phase.angle]
-  match h0 : g 0 with
-  | false =>
-      match h1 : g 1 with
-      | false => simp [h0, h1]
-      | true => simp [h0, h1]
-  | true =>
-      match h1 : g 1 with
-      | false => simp [h0, h1]
-      | true => simp [h0, h1]
+  simp [Fin.forall_fin_succ]
+  cases g 0 <;> cases g 1 <;> norm_num
+
+-- ## GHZ state
+abbrev ghzState : ZX 0 3 := .spider .Z 0 3 ⟨0, 1⟩
+#zx ghzState
+theorem z_sem_ghz_state (f : Wires 0) : ghzState.sem f = (![1, 0, 0, 0, 0, 0, 0, 1] : Fin 8 → ℂ) := by
+  ext g
+  rw [wiresVec3, ZX.sem, zSpiderSem, Phase.angle]
+  simp [Fin.forall_fin_succ]
+  cases g 0 <;> cases g 1 <;> cases g 2 <;> norm_num

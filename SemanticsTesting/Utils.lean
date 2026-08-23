@@ -32,7 +32,7 @@ def vec2 (a b c d : ℂ) : Wires 2 → ℂ := λ g =>
 
 `Wires n → ℂ` is isomorphic to `Fin (2^n) → ℂ` since `Wires n` has `2^n` elements.
 We provide a noncomputable bijection-based conversion for arbitrary `n`, and
-  computable direct-indexing versions for `n=1` and `n=2`.
+  computable direct-indexing versions for `n ∈ {1, 2, 3}`.
 -/
 
 /-- Convert a Mathlib-style vector `Fin (2^n) → ℂ` to `Wires n → ℂ`.
@@ -54,6 +54,21 @@ def wiresVec2 (v : Fin 4 → ℂ) : Wires 2 → ℂ := λ g =>
     if g 1 then v 2 else v 0
 
 instance : Coe (Fin 4 → ℂ) (Wires 2 → ℂ) := ⟨wiresVec2⟩
+
+/-- Computable version for `n=3`: `Fin 8 → ℂ` to `Wires 3 → ℂ`. -/
+def wiresVec3 (v : Fin 8 → ℂ) : Wires 3 → ℂ := λ g =>
+  if g 0 then
+    if g 1 then
+      if g 2 then v 7 else v 3
+    else
+      if g 2 then v 5 else v 1
+  else
+    if g 1 then
+      if g 2 then v 6 else v 2
+    else
+      if g 2 then v 4 else v 0
+
+instance : Coe (Fin 8 → ℂ) (Wires 3 → ℂ) := ⟨wiresVec3⟩
 
 /-! ### 2x2 matrix helpers -/
 
