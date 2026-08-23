@@ -7,6 +7,27 @@ open SpLean.Algebraic
 noncomputable abbrev eiTheta (θ : ℝ) : ℂ := Complex.exp (θ * Complex.I)
 noncomputable abbrev rootTwo : ℂ := Real.sqrt 2
 
+-- Boundary assignments of a single wire. `abbrev`, not `def`, so `simp` and
+-- `norm_num` can still see through to `false`/`true`.
+abbrev zeroAmpl : Wires 1 := fun _ => false
+abbrev oneAmpl : Wires 1 := fun _ => true
+
+/-! ### Explicit vector helpers
+
+`vec1 a b` is a length-1 vector `(a, b)` for the two basis states of a single wire.
+`vec2 a b c d` is a length-2 vector for the four basis states of two wires. -/
+
+/-- Length-1 vector: `(a, b)` for `|0⟩, |1⟩`. -/
+def vec1 (a b : ℂ) : Wires 1 → ℂ := λ g => if g 0 then b else a
+
+/-- Length-2 vector: `(a, b, c, d)` for `|00⟩, |10⟩, |01⟩, |11⟩`.
+`g 0` is LSB, `g 1` is MSB. -/
+def vec2 (a b c d : ℂ) : Wires 2 → ℂ := λ g =>
+  if g 0 then
+    if g 1 then d else b
+  else
+    if g 1 then c else a
+
 /-! ### Mathlib-style vector conversion
 
 `Wires n → ℂ` is isomorphic to `Fin (2^n) → ℂ` since `Wires n` has `2^n` elements.
@@ -33,3 +54,12 @@ def wiresVec2 (v : Fin 4 → ℂ) : Wires 2 → ℂ := λ g =>
     if g 1 then v 2 else v 0
 
 instance : Coe (Fin 4 → ℂ) (Wires 2 → ℂ) := ⟨wiresVec2⟩
+
+/-! ### 2x2 matrix helpers -/
+
+/-- Computable conversion from a Mathlib 2x2 matrix to `Wires 1 → Wires 1 → ℂ`.
+`f 0` is the row index, `g 0` the column index (both as `Bool → Fin 2`). -/
+def wiresMat2 (M : Matrix (Fin 2) (Fin 2) ℂ) : Wires 1 → Wires 1 → ℂ := λ f g =>
+  M (if f 0 then 1 else 0) (if g 0 then 1 else 0)
+
+instance : Coe (Matrix (Fin 2) (Fin 2) ℂ) (Wires 1 → Wires 1 → ℂ) := ⟨wiresMat2⟩
