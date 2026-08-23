@@ -40,14 +40,14 @@ theorem scalar_sem_alpha (α : Phase) (f g : Wires 0) :
 
 -- -- Phaseless X spider linked to α-phase Z spider = √2
 -- abbrev redCircleAnyGreen (α : Phase) : ZX 0 0 := (.spider .X 0 1 ⟨0, 1⟩) × (.spider .Z 1 0 α)
--- #zx redCircleAnyGreen ⟨1, 4⟩  -- TODO display parametric phases
+-- #zx redCircleAnyGreen ⟨1, 4⟩
 -- theorem scalar_sem_sqrt_two (α : Phase) (f g : Wires 0) :
 --     (redCircleAnyGreen α).sem f g = rootTwo := by
 --   rw [ZX.sem]
 
 -- -- π-phase X spider linked to α-phase Z spider = √2 e^{iα}
 -- abbrev redPiCircleAnyGreen (α : Phase) : ZX 0 0 := (.spider .X 0 1 ⟨1, 1⟩) × (.spider .Z 1 0 α)
--- #zx redPiCircleAnyGreen ⟨1, 4⟩  -- TODO display parametric phases
+-- #zx redPiCircleAnyGreen ⟨1, 4⟩
 -- theorem scalar_sem_sqrt_two_e_i_alpha (α : Phase) (f g : Wires 0) :
 --     (redPiCircleAnyGreen α).sem f g = rootTwo * eiTheta α.angle := by
 --   rw [ZX.sem]
@@ -60,20 +60,36 @@ theorem scalar_sem_alpha (α : Phase) (f g : Wires 0) :
 --   rw [ZX.sem]
 
 /--
-  Z-spiders
+  X-basis states (pqs eq 3.3)
 -/
 
--- √2|+⟩ = |0⟩ + |1⟩
+-- TODO track scalar factors
+-- (Z0)- = √2|+⟩ = |0⟩ + |1⟩
 --   no input wires so `f : Wires 0`
 --   one output `g : Wires 1`
 --     |0⟩ and |1⟩ both have amplitude 1
 abbrev plusState : ZX 0 1 := .spider .Z 0 1 ⟨0, 1⟩
 #zx plusState
 theorem z_sem_plus_state_zero_ampl (f : Wires 0) :
-  plusState.sem f (fun _ => false) = 1 := by
+    plusState.sem f (fun _ => false) = 1 := by
   rw [ZX.sem, zSpiderSem, Phase.angle]
   norm_num
 theorem z_sem_plus_state_one_ampl (f : Wires 0) :
-  plusState.sem f (fun _ => true) = 1 := by
+    plusState.sem f (fun _ => true) = 1 := by
   rw [ZX.sem, zSpiderSem, Phase.angle]
   norm_num
+
+-- (Zπ)- = √2|-⟩ = |0⟩ - |1⟩
+--   no input wires so `f : Wires 0`
+--   one output `g : Wires 1`
+--     |0⟩ has amplitude 1, |1⟩ has amplitude -1
+abbrev minusState : ZX 0 1 := .spider .Z 0 1 ⟨1, 1⟩
+#zx minusState
+theorem z_sem_minus_state_zero_ampl (f : Wires 0) :
+    minusState.sem f (fun _ => false) = 1 := by
+  rw [ZX.sem, zSpiderSem, Phase.angle]
+  norm_num
+theorem z_sem_minus_state_one_ampla (f : Wires 0) :
+    minusState.sem f (fun _ => true) = -1 := by
+  rw [ZX.sem, zSpiderSem, Phase.angle]
+  norm_num [Complex.exp_pi_mul_I]
