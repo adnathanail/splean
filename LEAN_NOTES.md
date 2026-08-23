@@ -32,3 +32,40 @@ Show type signature
 #check yourDefinitionHere
 ```
 
+## Tips
+
+To see what rewrites a `simp` (or `simp` wrapper like `norm_num`) used:
+```lean
+-- Must go after imports
+set_option trace.Meta.Tactic.simp.rewrite true
+```
+
+## Keywords
+
+Proof things
+```lean
+def emptyDiagram : ZX 0 0 := .empty
+abbrev emptyDiagram : ZX 0 0 := .empty
+theorem myTheorem (f g : Wires 0) : greenCircle.sem f g = 2 := by
+  rfl
+example myTheorem (f g : Wires 0) : greenCircle.sem f g = 2 := by
+```
+
+Data type things
+```lean
+inductive ZX : Nat → Nat → Type
+  | empty    : ZX 0 0
+  | wire     : ZX 1 1
+  | hadamard : ZX 1 1
+  | spider   (c : SpiderColor) (n m : Nat) (φ : Phase := ⟨0, 1⟩) : ZX n m
+  | stack    {n m p q : Nat} : ZX n m → ZX p q → ZX (n + p) (m + q)
+  | compose  {n m k : Nat} : ZX n m → ZX m k → ZX n k
+structure ZXWidgetProps where
+  diagram : Json      -- JSON representation of ZXDiagram
+  goal : Json := .null -- optional goal diagram (null = not shown)
+  deriving RpcEncodable
+```
+
+open, namespace, section, end
+
+noncomputable, private, protected, partial, unsafe and the doc comment are declaration modifiers (declModifiers)
