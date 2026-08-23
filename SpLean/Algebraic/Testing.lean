@@ -59,3 +59,21 @@ theorem scalar_sem_alpha (α : Phase) (f g : Wires 0) :
 --     redCircleTripleLinkGreenCircle.sem f g = 1 / rootTwo := by
 --   rw [ZX.sem]
 
+/--
+  Z-spiders
+-/
+
+-- √2|+⟩ = |0⟩ + |1⟩
+--   no input wires so `f : Wires 0`
+--   one output `g : Wires 1`
+--     |0⟩ and |1⟩ both have amplitude 1
+abbrev plusState : ZX 0 1 := .spider .Z 0 1 ⟨0, 1⟩
+#zx plusState
+theorem z_sem_plus_state_zero_ampl (f : Wires 0) :
+  plusState.sem f (fun _ => false) = 1 := by
+  rw [ZX.sem, zSpiderSem, Phase.angle]
+  norm_num
+theorem z_sem_plus_state_one_ampl (f : Wires 0) :
+  plusState.sem f (fun _ => true) = 1 := by
+  rw [ZX.sem, zSpiderSem, Phase.angle]
+  norm_num
