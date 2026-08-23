@@ -83,7 +83,7 @@ theorem z_sem_nGhz_state (f : Wires 0) (n : ℕ) (hn : n ≥ 1) : (nGhzState n).
       norm_num
 
 /--
-  # Z-spiders (pqs eq 3.3)
+  # Z-spiders (pqs eq 3.2)
 -/
 abbrev zIdentity : ZX 1 1 := .spider .Z 1 1 ⟨0, 1⟩
 #zx zIdentity
@@ -91,5 +91,23 @@ theorem z_sem_z_identity : zIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, zSpiderSem, wiresMat2, Phase.angle]
+  simp [Fin.forall_fin_one]
+  cases f 0 <;> cases g 0 <;> norm_num
+
+abbrev zGate : ZX 1 1 := .spider .Z 1 1 ⟨1, 1⟩
+#zx zGate
+theorem z_sem_z_gate : zGate.sem = (!![1, 0; 0, -1] : Matrix (Fin 2) (Fin 2) ℂ) := by
+  apply funext; intro f
+  apply funext; intro g
+  rw [ZX.sem, zSpiderSem, wiresMat2, Phase.angle]
+  simp [Fin.forall_fin_one]
+  cases f 0 <;> cases g 0 <;> norm_num
+
+abbrev zRotation (α : Phase) : ZX 1 1 := .spider .Z 1 1 α
+#zx zRotation ⟨1, 4⟩
+theorem z_sem_z_rotation (α : Phase) : (zRotation α).sem = (!![1, 0; 0, Complex.exp (α.angle * Complex.I)] : Matrix (Fin 2) (Fin 2) ℂ) := by
+  apply funext; intro f
+  apply funext; intro g
+  rw [ZX.sem, zSpiderSem, wiresMat2]
   simp [Fin.forall_fin_one]
   cases f 0 <;> cases g 0 <;> norm_num
