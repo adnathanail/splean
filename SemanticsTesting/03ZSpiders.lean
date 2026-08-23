@@ -81,3 +81,15 @@ theorem z_sem_nGhz_state (f : Wires 0) (n : ℕ) (hn : n ≥ 1) : (nGhzState n).
       norm_num
     · rw [if_neg hA, if_neg hB, if_neg (fun h => h.elim hA hB)]
       norm_num
+
+/--
+  # Z-spiders (pqs eq 3.3)
+-/
+abbrev zIdentity : ZX 1 1 := .spider .Z 1 1 ⟨0, 1⟩
+#zx zIdentity
+theorem z_sem_z_identity : zIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin 2) ℂ) := by
+  apply funext; intro f
+  apply funext; intro g
+  rw [ZX.sem, zSpiderSem, wiresMat2, Phase.angle]
+  simp [Fin.forall_fin_one]
+  cases f 0 <;> cases g 0 <;> norm_num
