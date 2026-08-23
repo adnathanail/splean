@@ -89,6 +89,10 @@ lean_lib Tests where
 lean_lib Demos where
   globs := #[.submodules `Demos]
 
+-- Testing Algebraic diagram semantics
+lean_lib SemanticsTesting where
+  globs := #[.submodules `SemanticsTesting]
+
 @[default_target]
 lean_exe splean where
   root := `Main

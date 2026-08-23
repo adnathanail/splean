@@ -1,5 +1,4 @@
-import SpLean.Algebraic.Semantics
-import SpLean.Panel
+import SemanticsTesting.Utils
 
 open SpLean.Algebraic
 

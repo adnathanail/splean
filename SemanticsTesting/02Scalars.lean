@@ -1,10 +1,6 @@
-import SpLean.Algebraic.Semantics
-import SpLean.Panel
+import SemanticsTesting.Utils
 
 open SpLean.Algebraic
-
-noncomputable abbrev eiTheta (θ : ℝ) : ℂ := Complex.exp (θ * Complex.I)
-noncomputable abbrev rootTwo : ℂ := Real.sqrt 2
 
 /--
   Scalars (pqs 3.1.4)
