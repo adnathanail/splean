@@ -50,7 +50,7 @@ def xSpiderSem (α : ℝ) {n m : ℕ} (f : Wires n) (g : Wires m) : ℂ :=
 /-- Denotation of an algebraic ZX term as a boundary tensor. -/
 def ZX.sem : {n m : ℕ} → ZX n m → Wires n → Wires m → ℂ
   | _, _, .empty, _, _ => 1
-  | _, _, .wire, f, g => 0
+  | _, _, .wire, f, g => if f 0 = g 0 then 1 else 0
   | _, _, .hadamard, f, g => hadSem (f 0) (g 0)
   | _, _, .spider .Z _ _ φ, f, g => zSpiderSem φ.angle f g
   | _, _, .spider .X _ _ φ, f, g => xSpiderSem φ.angle f g
