@@ -89,17 +89,22 @@ def parse_simp(lines, idx):
     if end_line is None:
         sys.exit(f"error: unterminated `[` in simp call at line {idx + 1}")
     args = [a.strip() for a in "".join(buf).split(",") if a.strip()]
-    return end_line + 1, args, m.start(), end_col
+    # Keep whatever brackets the call on its own line, so a `simp` embedded in a
+    # tactic combinator (`· simp [...]`, `cases h <;> simp [...] <;> ring`)
+    # survives rewriting rather than having its neighbours dropped.
+    prefix_text = lines[idx][:m.start()]
+    suffix_text = lines[end_line][end_col + 1:]
+    return end_line + 1, args, prefix_text, suffix_text
 
 
-def render(lines, start, end, simp_idx, simp_span_end, indent_col, args, suffix):
+def render(lines, start, end, simp_idx, simp_span_end, prefix_text, suffix_text,
+           args, suffix):
     """Re-emit the declaration with `args` as the simp list and a renamed head."""
     out = []
     for i in range(start, end):
         if i == simp_idx:
-            pad = " " * indent_col
-            out.append(f"{pad}simp only [{', '.join(args)}]\n" if args
-                       else f"{pad}skip\n")
+            call = f"simp only [{', '.join(args)}]" if args else "skip"
+            out.append(prefix_text + call + suffix_text)
         elif simp_idx < i < simp_span_end:
             continue  # swallowed by the rewritten simp line
         elif i == start and suffix:
@@ -130,6 +135,9 @@ def main():
     ap.add_argument("file")
     ap.add_argument("line", type=int, help="1-indexed line of the simp call")
     ap.add_argument("--keep", help="comma-separated lemmas; verify just this set")
+    ap.add_argument("--greedy", action="store_true",
+                    help="batch pass, then drop the removable lemmas cumulatively "
+                         "(one compile each) until no more can go")
     args_cli = ap.parse_args()
 
     with open(args_cli.file) as f:
@@ -138,7 +146,7 @@ def main():
     if not 0 <= idx < len(lines):
         sys.exit(f"error: {args_cli.file} has no line {args_cli.line}")
 
-    simp_span_end, simp_args, indent_col, _ = parse_simp(lines, idx)
+    simp_span_end, simp_args, prefix_text, suffix_text = parse_simp(lines, idx)
     start, end = find_decl(lines, idx)
     prefix = "".join(lines[:start])
 
@@ -146,17 +154,22 @@ def main():
     os.makedirs(scratch, exist_ok=True)
     out_path = os.path.join(scratch, "minimise_simp_probe.lean")
 
-    if args_cli.keep is not None:
-        keep = [a.strip() for a in args_cli.keep.split(",") if a.strip()]
-        body = render(lines, start, end, idx, simp_span_end, indent_col, keep, "")
+    def check(keep):
+        """Compile the declaration with exactly `keep`; return (ok, output)."""
+        body = render(lines, start, end, idx, simp_span_end,
+                      prefix_text, suffix_text, keep, "")
         header = prefix + "set_option linter.unusedSimpArgs true\n"
         with open(out_path, "w") as f:
             f.write(header + body)
         output = compile_lean(out_path)
         # Ignore anything the untouched prefix reports; only the variant matters.
         body_start = header.count("\n") + 1
-        bad = {b for b in error_lines(output, out_path) if b >= body_start}
-        if bad:
+        return (not any(b >= body_start for b in error_lines(output, out_path)), output)
+
+    if args_cli.keep is not None:
+        keep = [a.strip() for a in args_cli.keep.split(",") if a.strip()]
+        good, output = check(keep)
+        if not good:
             print(f"FAIL: {len(keep)} lemma(s) are not enough.\n")
             print(output.strip())
             return 1
@@ -173,7 +186,7 @@ def main():
     for i, dropped in enumerate(simp_args):
         keep = [a for a in simp_args if a != dropped]
         header = f"-- DROP {dropped}\n"
-        body = render(lines, start, end, idx, simp_span_end, indent_col, keep, f"_v{i}")
+        body = render(lines, start, end, idx, simp_span_end, prefix_text, suffix_text, keep, f"_v{i}")
         chunks.append(header + body)
         marks.append((cursor, dropped, cursor + 1 + body.count("\n")))
         cursor += 1 + body.count("\n")
@@ -187,6 +200,27 @@ def main():
     removable, needed = [], []
     for lo, lemma, hi in marks:
         (needed if any(lo <= b < hi for b in bad) else removable).append(lemma)
+
+    if args_cli.greedy:
+        # Removals interact, so drop cumulatively: a lemma that looked removable
+        # on its own may become load-bearing once its substitutes are gone.
+        cur = list(simp_args)
+        print(f"greedy: starting from {len(cur)}, "
+              f"{len(removable)} candidate(s) to try\n")
+        for c in removable:
+            trial = [x for x in cur if x != c]
+            if check(trial)[0]:
+                cur = trial
+                print(f"  dropped {c}  -> {len(cur)}")
+            else:
+                print(f"  kept    {c}  (became necessary once others went)")
+        print(f"\n{len(simp_args)} -> {len(cur)} lemmas:")
+        print("  simp only [" + ", ".join(cur) + "]")
+        if len(cur) > 12:
+            print(f"\nNOTE: {len(cur)} lemmas is a lot. A list this long is worse to read\n"
+                  "than the `simp [...]` it replaces. Consider a helper lemma instead —\n"
+                  "see the judgement notes in SKILL.md.")
+        return 0
 
     print(f"{len(simp_args)} lemmas tested in one compile ({out_path})\n")
     print(f"LOAD-BEARING ({len(needed)}) — dropping any one breaks the proof:")
