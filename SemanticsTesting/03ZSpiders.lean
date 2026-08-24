@@ -45,7 +45,7 @@ abbrev bellState : ZX 0 2 := .spider .Z 0 2 ⟨0, 1⟩
 theorem z_sem_bell_state (f : Wires 0) : bellState.sem f = (![1, 0, 0, 1] : Fin 4 → ℂ) := by
   ext g
   rw [wiresVec2, ZX.sem, zSpiderSem, Phase.angle]
-  simp [Fin.forall_fin_succ]
+  simp only [Fin.forall_fin_succ, Fin.succ_zero_eq_one, Matrix.cons_val]
   cases g 0 <;> cases g 1 <;> norm_num
 
 -- ## GHZ state
