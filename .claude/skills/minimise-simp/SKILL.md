@@ -58,6 +58,14 @@ Paste that in as `simp only [...]`. It will be long — for the Bell state it is
 19 lemmas — and most of it is redundant. `simp?` reports every rewrite that
 fired, not every rewrite that mattered.
 
+**If the `simp` sits in a combinator chain** (`cases h <;> simp [...]`, or a `·`
+focus block), it runs once per branch and `simp?` prints *one suggestion per
+branch*, each different. Paste in the **union** of them — that is the smallest
+list guaranteed to cover every branch — then minimise from there. With several
+such call sites in a file, convert them to `simp?` one at a time: the
+suggestions carry no line numbers, so doing them all at once makes them
+impossible to map back.
+
 ### 2. Take the free win from the linter
 
 If the file compiles with
@@ -116,9 +124,19 @@ python3 .claude/skills/minimise-simp/scripts/minimise_simp.py <file.lean> <line>
   --keep Fin.forall_fin_succ,Fin.succ_zero_eq_one,Matrix.cons_val
 ```
 
-`OK` means done. `FAIL` means some interaction is at play — add back the
-individually-removable lemmas until it passes, then re-run the batch pass on
-that smaller list and iterate. Each round costs one compile.
+`OK` means done — that is the common case, and it is one compile.
+
+`FAIL` means removals interact: a lemma that was droppable on its own became
+necessary once its substitutes went. Rather than iterating by hand, use
+
+```sh
+python3 .claude/skills/minimise-simp/scripts/minimise_simp.py <file.lean> <line> --greedy
+```
+
+which runs the batch pass and then drops the removable lemmas **cumulatively**,
+re-checking after each (one compile per candidate) and keeping any that turn out
+to be load-bearing after all. It reports the final list and warns when the
+result is too long to be worth applying.
 
 ### 5. Apply and check the real file
 
@@ -140,8 +158,20 @@ Expect no errors and no unused-argument warnings.
 - Don't chase the last lemma at the cost of readability. A four-lemma list that
   names the real reasoning steps beats a three-lemma one held together by an
   accident of rewrite order.
-- If a proof is genuinely load-bearing on most of a long list, that is a signal
-  the statement wants a helper lemma in `SemanticsTesting/Utils.lean` instead.
+- **Know when to walk away.** If a proof is load-bearing on most of a long list,
+  stop and leave the original `simp` alone. The X-spider proofs in
+  `SemanticsTesting/05Spiders.lean` are the worked counter-example: `simp?`
+  suggests ~40 lemmas per call site, `--greedy` gets one of them only from 35
+  down to 27, and 27 opaque lemma names are plainly worse to read than the
+  `simp [zSpiderSem, hadSem, Phase.angle]` they would replace — which at least
+  names the three definitional unfoldings actually being done. Roughly: above a
+  dozen lemmas, the robustness win no longer pays for the readability loss.
+  Report the numbers and recommend a helper lemma in
+  `SemanticsTesting/Utils.lean` that does the unfolding once, rather than
+  applying the list.
+- A minimisation that only shaves a few lemmas off a long list is telling you
+  the simp call is doing real multi-step normalisation, not incidental
+  tidying. That is a refactor signal, not a tuning opportunity.
 
 ## Manual fallback
 

@@ -25,7 +25,7 @@ lemma x_sem_zero_state_ampl (f : Wires 0) (b : Bool) :
 theorem x_sem_zero_state (f : Wires 0) : zeroState.sem f = (![rootTwo, 0] : Fin 2 → ℂ) := by
   ext g
   rw [wiresVec1, wires1_eq_const g]
-  cases g 0 <;> simp [x_sem_zero_state_ampl f]
+  cases g 0 <;> simp only [x_sem_zero_state_ampl f, Matrix.cons_val_zero, Matrix.cons_val_one]
 
 -- ## 1 state
 -- (Xπ)- = √2|1⟩
@@ -44,7 +44,7 @@ lemma x_sem_one_state_ampl (f : Wires 0) (b : Bool) :
 theorem x_sem_one_state (f : Wires 0) : oneState.sem f = (![0, rootTwo] : Fin 2 → ℂ) := by
   ext g
   rw [wiresVec1, wires1_eq_const g]
-  cases g 0 <;> simp [x_sem_one_state_ampl f]
+  cases g 0 <;> simp only [x_sem_one_state_ampl f, Matrix.cons_val_zero, Matrix.cons_val_one]
 
 /--
   # X-spiders (pqs eq 3.5)
