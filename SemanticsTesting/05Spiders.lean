@@ -60,3 +60,16 @@ theorem x_sem_x_identity : xIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin
   rw [wires1_eq_const f, wires1_eq_const g]
   cases f 0 <;> cases g 0 <;> simp [zSpiderSem, hadSem, Phase.angle] <;>
     (norm_cast; rw [two_times_one_over_root_two_sq_eq_one])
+
+abbrev xGate : ZX 1 1 := .spider .X 1 1 ⟨1, 1⟩
+#zx xGate
+theorem x_sem_x_gate : xGate.sem = (!![0, 1; 1, 0] : Matrix (Fin 2) (Fin 2) ℂ) := by
+  -- same as x_sem_x_identity
+  apply funext; intro f
+  apply funext; intro g
+  rw [ZX.sem, xSpiderSem, wiresMat2]
+  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
+  simp only [Finset.sum_pair (show zeroAmpl ≠ oneAmpl from by decide)]
+  rw [wires1_eq_const f, wires1_eq_const g]
+  cases f 0 <;> cases g 0 <;> simp [zSpiderSem, hadSem, Phase.angle] <;>
+    (norm_cast; rw [two_times_one_over_root_two_sq_eq_one])
