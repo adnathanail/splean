@@ -42,13 +42,18 @@ def zSpiderSem (α : ℝ) {n m : ℕ} (f : Wires n) (g : Wires m) : ℂ :=
 def hadSem (a b : Bool) : ℂ :=
   if a && b then -((Real.sqrt 2 : ℝ) : ℂ)⁻¹ else ((Real.sqrt 2 : ℝ) : ℂ)⁻¹
 
+/-- Tensor of an X spider: a Z spider conjugated by Hadamards on every wire. -/
+def xSpiderSem (α : ℝ) {n m : ℕ} (f : Wires n) (g : Wires m) : ℂ :=
+  ∑ f' : Wires n, ∑ g' : Wires m,
+    (∏ i, hadSem (f i) (f' i)) * zSpiderSem α f' g' * (∏ j, hadSem (g' j) (g j))
+
 /-- Denotation of an algebraic ZX term as a boundary tensor. -/
 def ZX.sem : {n m : ℕ} → ZX n m → Wires n → Wires m → ℂ
   | _, _, .empty, _, _ => 1
   | _, _, .wire, f, g => 0
   | _, _, .hadamard, f, g => hadSem (f 0) (g 0)
   | _, _, .spider .Z _ _ φ, f, g => zSpiderSem φ.angle f g
-  | _, _, .spider .X _ _ φ, f, g => 0
+  | _, _, .spider .X _ _ φ, f, g => xSpiderSem φ.angle f g
   | _, _, .stack a b, f, g => 0
   | _, _, .compose a b, f, h => 0
 
