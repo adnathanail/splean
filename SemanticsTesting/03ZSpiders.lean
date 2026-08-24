@@ -54,7 +54,7 @@ abbrev ghzState : ZX 0 3 := .spider .Z 0 3 ⟨0, 1⟩
 theorem z_sem_ghz_state (f : Wires 0) : ghzState.sem f = (![1, 0, 0, 0, 0, 0, 0, 1] : Fin 8 → ℂ) := by
   ext g
   rw [wiresVec3, ZX.sem, zSpiderSem, Phase.angle]
-  simp [Fin.forall_fin_succ]
+  simp only [Fin.forall_fin_succ, Fin.succ_zero_eq_one, Fin.succ_one_eq_two, Matrix.cons_val]
   cases g 0 <;> cases g 1 <;> cases g 2 <;> norm_num
 
 -- ## Arity-n GHZ state (Leanstral)
@@ -64,7 +64,7 @@ theorem z_sem_nGhz_state (f : Wires 0) (n : ℕ) (hn : n ≥ 1) : (nGhzState n).
     (λ g => if (∀ j : Fin n, g j = false) ∨ (∀ j : Fin n, g j = true) then (1 : ℂ) else 0) := by
   ext x
   rw [nGhzState, ZX.sem, zSpiderSem, Phase.angle]
-  simp [Complex.exp_zero]
+  simp only [IsEmpty.forall_iff, true_and]
   have hpos : 0 < n := Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp hn)
   by_cases hA : ∀ j : Fin n, x j = false
   · by_cases hB : ∀ j : Fin n, x j = true
@@ -91,7 +91,7 @@ theorem z_sem_z_identity : zIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, zSpiderSem, wiresMat2, Phase.angle]
-  simp [Fin.forall_fin_one]
+  simp only [Fin.forall_fin_one]
   cases f 0 <;> cases g 0 <;> norm_num
 
 abbrev zGate : ZX 1 1 := .spider .Z 1 1 ⟨1, 1⟩
@@ -100,7 +100,7 @@ theorem z_sem_z_gate : zGate.sem = (!![1, 0; 0, -1] : Matrix (Fin 2) (Fin 2) ℂ
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, zSpiderSem, wiresMat2, Phase.angle]
-  simp [Fin.forall_fin_one]
+  simp only [Fin.forall_fin_one]
   cases f 0 <;> cases g 0 <;> norm_num
 
 abbrev zRotation (α : Phase) : ZX 1 1 := .spider .Z 1 1 α
@@ -109,5 +109,5 @@ theorem z_sem_z_rotation (α : Phase) : (zRotation α).sem = (!![1, 0; 0, Comple
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, zSpiderSem, wiresMat2]
-  simp [Fin.forall_fin_one]
+  simp only [Fin.forall_fin_one]
   cases f 0 <;> cases g 0 <;> norm_num
