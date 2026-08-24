@@ -16,11 +16,9 @@ lemma x_sem_zero_state_ampl (f : Wires 0) (b : Bool) :
   rw [ZX.sem, xSpiderSem, Fintype.sum_unique, rootTwo]
   rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
   rw [Finset.sum_pair (by decide)]
-  cases b
-  · simp [zSpiderSem, hadSem, Phase.angle]
-    norm_cast
-    rw [two_times_one_over_root_two_eq_root_two]
-  · simp [zSpiderSem, hadSem, Phase.angle]
+  simp only [hadSem, zSpiderSem, Phase.angle]
+  cases b <;> norm_num [two_times_one_over_root_two_eq_root_two_complex]
+
 -- Then use it in the proof against a vector
 theorem x_sem_zero_state (f : Wires 0) : zeroState.sem f = (![rootTwo, 0] : Fin 2 → ℂ) := by
   ext g
@@ -36,11 +34,8 @@ lemma x_sem_one_state_ampl (f : Wires 0) (b : Bool) :
   rw [ZX.sem, xSpiderSem, Fintype.sum_unique, rootTwo]
   rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
   rw [Finset.sum_pair (by decide)]
-  cases b
-  · simp [zSpiderSem, hadSem, Phase.angle]
-  · simp [zSpiderSem, hadSem, Phase.angle]
-    norm_cast
-    rw [two_times_one_over_root_two_eq_root_two]
+  simp only [hadSem, zSpiderSem, Phase.angle]
+  cases b <;> norm_num [two_times_one_over_root_two_eq_root_two_complex]
 theorem x_sem_one_state (f : Wires 0) : oneState.sem f = (![0, rootTwo] : Fin 2 → ℂ) := by
   ext g
   rw [wiresVec1, wires1_eq_const g]

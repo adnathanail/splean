@@ -8,23 +8,27 @@ noncomputable abbrev eiTheta (θ : ℝ) : ℂ := Complex.exp (θ * Complex.I)
 noncomputable abbrev rootTwo : ℂ := Real.sqrt 2
 
 -- Common lemmas
-lemma two_times_one_over_root_two_eq_root_two : (√2)⁻¹ + (√2)⁻¹ = √2 := by
+lemma two_times_one_over_root_two_eq_root_two :
+    (√2)⁻¹ + (√2)⁻¹ = √2 := by
   field_simp
   norm_num
+lemma two_times_one_over_root_two_eq_root_two_complex :
+    ((√2 : ℝ) : ℂ)⁻¹ + ((√2 : ℝ) : ℂ)⁻¹ = √2 := by
+  norm_cast
+  rw [two_times_one_over_root_two_eq_root_two]
 
-lemma one_over_root_two_sq_eq_half : (√2)⁻¹ * (√2)⁻¹ = 1/2 := by
+lemma one_over_root_two_sq_eq_half :
+    (√2)⁻¹ * (√2)⁻¹ = 1/2 := by
   rw [← mul_inv, Real.mul_self_sqrt (by norm_num)]
   norm_num
-
-lemma two_times_one_over_root_two_sq_eq_one : (√2)⁻¹ * (√2)⁻¹ + (√2)⁻¹ * (√2)⁻¹ = 1 := by
-  rw [one_over_root_two_sq_eq_half]
-  norm_num
-
--- `hadSem` builds its entries as `((√2 : ℝ) : ℂ)⁻¹`, so the ℂ-level statement is
--- what the spider proofs actually need to rewrite with.
 lemma one_over_root_two_sq_eq_half_complex :
     ((√2 : ℝ) : ℂ)⁻¹ * ((√2 : ℝ) : ℂ)⁻¹ = 1/2 := by
   norm_cast
+  rw [one_over_root_two_sq_eq_half]
+  norm_num
+
+lemma two_times_one_over_root_two_sq_eq_one :
+    (√2)⁻¹ * (√2)⁻¹ + (√2)⁻¹ * (√2)⁻¹ = 1 := by
   rw [one_over_root_two_sq_eq_half]
   norm_num
 
