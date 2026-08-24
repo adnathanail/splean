@@ -40,6 +40,36 @@ To see what rewrites a `simp` (or `simp` wrapper like `norm_num`) used:
 set_option trace.Meta.Tactic.simp.rewrite true
 ```
 
+Sometimes theorems statements are hard to discern in the mess of a file.
+Using [this VS Code extension](https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-highlight), you can set custom highglight regexes.
+Put this in your `.vscode/settings.json`:
+
+```json
+{
+  "highlight.enabled": true,
+  // Highlight extension: box around Lean theorem/lemma statements
+  // (from the `theorem` keyword up to, but not including, the `:=`).
+  "highlight.regexes": {
+      "\\b(?:theorem|lemma)\\b[\\s\\S]*?(?=:=)": {
+          "regexFlags": "g",
+          "filterFileRegex": ".*\\.lean",
+          "decorations": [
+              {
+                // rgba hex, partially transparent to allow selection to show through
+                  "backgroundColor": "#00880055",
+                  "borderRadius": "3px"
+              }
+          ]
+      }
+  },
+  "highlight.decorations": {
+      "rangeBehavior": 3
+  }
+}
+```
+
+Note that because this uses a regex not a full parser, if you have a `:=` somewhere in your theorem statement, the highglight will end there :/
+
 ## Keywords
 
 Proof things
