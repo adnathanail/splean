@@ -79,9 +79,11 @@ theorem x_sem_x_rotation (α : Phase) :
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, xSpiderSem, wiresMat2]
+  rw [wires1_eq_const f, wires1_eq_const g]
   rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
   simp only [Finset.sum_pair (show zeroAmpl ≠ oneAmpl from by decide)]
-  rw [wires1_eq_const f, wires1_eq_const g]
+  simp only [zSpiderSem, hadSem, Bool.and_true, Bool.false_eq_true]
+  cases f 0 <;> cases g 0 <;>
+  norm_num <;>
   -- `mul_right_comm` pulls the two `(√2)⁻¹` factors flanking `e^{iα}` together.
-  cases f 0 <;> cases g 0 <;> simp [zSpiderSem, hadSem, Phase.angle] <;>
-    rw [mul_right_comm, one_over_root_two_sq_eq_half_complex] <;> ring
+  rw [mul_right_comm, one_over_root_two_sq_eq_half_complex] <;> ring
