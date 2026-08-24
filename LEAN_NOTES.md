@@ -47,16 +47,16 @@ Put this in your `.vscode/settings.json`:
 ```json
 {
   "highlight.enabled": true,
-  // Highlight extension: box around Lean theorem/lemma statements
-  // (from the `theorem` keyword up to, but not including, the `:=`).
   "highlight.regexes": {
-      "\\b(?:theorem|lemma)\\b[\\s\\S]*?(?=:=)": {
+      // Box around Lean theorem/lemma statements
+      //   (from the `theorem` keyword up to, but not including, the `:=`).
+      "(?<!--[^\\n]*)(?<!/-(?:(?!-/)[\\s\\S])*)\\b(?:theorem|lemma)\\b[\\s\\S]*?(?=:=)": {
           "regexFlags": "g",
           "filterFileRegex": ".*\\.lean",
           "decorations": [
               {
-                // rgba hex, partially transparent to allow selection to show through
-                  "backgroundColor": "#00880055",
+                  // rgba hex, partially transparent to allow selection to show through
+                  "backgroundColor": "#fa8ce655",
                   "borderRadius": "3px"
               }
           ]
