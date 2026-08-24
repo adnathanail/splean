@@ -7,10 +7,19 @@ open SpLean.Algebraic
 noncomputable abbrev eiTheta (θ : ℝ) : ℂ := Complex.exp (θ * Complex.I)
 noncomputable abbrev rootTwo : ℂ := Real.sqrt 2
 
+-- Common lemmas
+lemma two_times_one_over_root_two_eq_root_two : (√2)⁻¹ + (√2)⁻¹ = √2 := by
+  field_simp
+  norm_num
+
 -- Boundary assignments of a single wire. `abbrev`, not `def`, so `simp` and
 -- `norm_num` can still see through to `false`/`true`.
 abbrev zeroAmpl : Wires 1 := fun _ => false
 abbrev oneAmpl : Wires 1 := fun _ => true
+
+/-- A single-wire boundary assignment is the constant function at its one bit. -/
+lemma wires1_eq_const (g : Wires 1) : g = fun _ => g 0 :=
+  funext fun i => by rw [Fin.fin_one_eq_zero i]
 
 /-! ### Explicit vector helpers
 
