@@ -45,3 +45,18 @@ theorem x_sem_one_state (f : Wires 0) : oneState.sem f = (![0, rootTwo] : Fin 2 
   ext g
   rw [wiresVec1, wires1_eq_const g]
   cases g 0 <;> simp [x_sem_one_state_ampl f]
+
+/--
+  # X-spiders (pqs eq 3.5)
+-/
+abbrev xIdentity : ZX 1 1 := .spider .X 1 1 ⟨0, 1⟩
+#zx xIdentity
+theorem x_sem_x_identity : xIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin 2) ℂ) := by
+  apply funext; intro f
+  apply funext; intro g
+  rw [ZX.sem, xSpiderSem, wiresMat2]
+  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
+  simp only [Finset.sum_pair (show zeroAmpl ≠ oneAmpl from by decide)]
+  rw [wires1_eq_const f, wires1_eq_const g]
+  cases f 0 <;> cases g 0 <;> simp [zSpiderSem, hadSem, Phase.angle] <;>
+    (norm_cast; rw [two_times_one_over_root_two_sq_eq_one])

@@ -12,6 +12,10 @@ lemma two_times_one_over_root_two_eq_root_two : (√2)⁻¹ + (√2)⁻¹ = √2
   field_simp
   norm_num
 
+lemma two_times_one_over_root_two_sq_eq_one : (√2)⁻¹ * (√2)⁻¹ + (√2)⁻¹ * (√2)⁻¹ = 1 := by
+  rw [← mul_inv, Real.mul_self_sqrt (by norm_num)]
+  norm_num
+
 -- Boundary assignments of a single wire. `abbrev`, not `def`, so `simp` and
 -- `norm_num` can still see through to `false`/`true`.
 abbrev zeroAmpl : Wires 1 := fun _ => false
