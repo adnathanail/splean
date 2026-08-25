@@ -51,24 +51,6 @@ theorem two_x_gates_sem : twoXGates.sem = identityMatrix := by
 
 -- ## Hadamard decomp
 
-noncomputable abbrev eToTheIPiOverFour := Complex.exp (Real.pi / 4 * Complex.I)
-noncomputable abbrev eToTheMinusIPiOverFour := Complex.exp (-Real.pi / 4 * Complex.I)
-noncomputable abbrev eIPiOvFourTimesOneOverRootTwo := eToTheIPiOverFour * rootTwo⁻¹
-
-lemma exp_mul_two_inv_pi_i_eq_i :
-  Complex.exp (2⁻¹ * ↑Real.pi * Complex.I) = Complex.I := by
-  rw [
-    Complex.exp_mul_I,
-    inv_eq_one_div,
-    mul_comm,
-    mul_div,
-    mul_one,
-    Complex.cos_pi_div_two,
-    zero_add,
-    Complex.sin_pi_div_two,
-    one_mul
-  ]
-
 lemma z_rotation_matrix_values (f g : Wires 1) :
     (ZX.spider .Z 1 1 (⟨1, 2⟩ : Phase)).sem f g =
       if (f 0 = false) ∧ (g 0 = false) then 1
@@ -78,7 +60,7 @@ lemma z_rotation_matrix_values (f g : Wires 1) :
   -- Use Z phase gate semantics proof
   rw [z_sem_z_rotation, wiresMat2]
   -- Split into the four corners of the matrix and simplify
-  cases f 0 <;> cases g 0 <;> simp [Phase.angle, exp_mul_two_inv_pi_i_eq_i]
+  cases f 0 <;> cases g 0 <;> simp [Phase.angle, inv_mul_eq_div]
 
 
 lemma x_rotation_matrix_values (f g : Wires 1) :
