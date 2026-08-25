@@ -17,19 +17,19 @@ lemma two_times_one_over_root_two_eq_root_two_complex :
   norm_cast
   rw [two_times_one_over_root_two_eq_root_two]
 
-lemma one_over_root_two_sq_eq_half :
+lemma one_over_root_two_times_itself_eq_half :
     (√2)⁻¹ * (√2)⁻¹ = 1/2 := by
   rw [← mul_inv, Real.mul_self_sqrt (by norm_num)]
   norm_num
-lemma one_over_root_two_sq_eq_half_complex :
+lemma one_over_root_two_times_itself_eq_half_complex :
     ((√2 : ℝ) : ℂ)⁻¹ * ((√2 : ℝ) : ℂ)⁻¹ = 1/2 := by
   norm_cast
-  rw [one_over_root_two_sq_eq_half]
+  rw [one_over_root_two_times_itself_eq_half]
   norm_num
 
 lemma two_times_one_over_root_two_sq_eq_one :
     (√2)⁻¹ * (√2)⁻¹ + (√2)⁻¹ * (√2)⁻¹ = 1 := by
-  rw [one_over_root_two_sq_eq_half]
+  rw [one_over_root_two_times_itself_eq_half]
   norm_num
 
 -- Boundary assignments of a single wire. `abbrev`, not `def`, so `simp` and

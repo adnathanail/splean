@@ -86,4 +86,4 @@ theorem x_sem_x_rotation (α : Phase) :
   cases f 0 <;> cases g 0 <;>
   norm_num <;>
   -- `mul_right_comm` pulls the two `(√2)⁻¹` factors flanking `e^{iα}` together.
-  rw [mul_right_comm, one_over_root_two_sq_eq_half_complex] <;> ring
+  rw [mul_right_comm, one_over_root_two_times_itself_eq_half_complex] <;> ring
