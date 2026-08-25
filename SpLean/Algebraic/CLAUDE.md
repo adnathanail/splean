@@ -23,7 +23,7 @@ about semantics.
 ## Conventions
 
 - **Composition order**: `compose a b` reads "first `a`, then `b`". Written
-  `a × b`; stacking is `a ⊗ b`. Both are `scoped` notation, so a file needs
+  `a ≫ b`; stacking is `a ⊗ b`. Both are `scoped` notation, so a file needs
   `open SpLean.Algebraic` (see `Main.lean`).
 - **`spider c n m φ`** takes its phase last and defaults it to `⟨0, 1⟩`, so a
   phase-free spider is just `.spider .Z 1 2`.
