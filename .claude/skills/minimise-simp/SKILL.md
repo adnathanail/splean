@@ -1,6 +1,6 @@
 ---
 name: minimise-simp
-description: Replace a `simp` in a Lean proof with a minimal `simp only [...]`. Use when a proof in this repo closes with a bare `simp`/`norm_num`, when asked to make a proof robust, deterministic, or faster to elaborate, or when asked to tighten, minimise, or pin down a simp call.
+description: Replace a `simp` in a Lean proof with a minimal `simp only [...]`. Use when asked to make a proof robust, deterministic, or faster to elaborate, or to tighten, minimise, or pin down a simp call. Most urgent for a *non-terminal* `simp` (one whose goal a later tactic consumes), worthwhile for a terminal one too when the minimal list comes out short.
 ---
 
 # Minimising simp calls
@@ -26,6 +26,62 @@ build` does **not** cover it; if a mathlib bump changes the suggested lemma
 lists, this file will not fail CI, and the stage-3 and stage-4 lists in it may
 drift out of date. Re-run the command above before trusting its exact lemma
 names.
+
+## First: terminal or not?
+
+Two questions decide what to do, and they are independent:
+
+1. **Is the `simp` non-terminal** — does a later tactic consume the goal it
+   leaves? That sets how *urgent* this is.
+2. **How long is the minimal list** once you have it? That sets whether
+   `simp only` is the right answer at all.
+
+|                  | short minimal set (≲ a dozen)      | long minimal set                          |
+|------------------|------------------------------------|-------------------------------------------|
+| **non-terminal** | apply `simp only` — **do this**    | restructure: `have` / `suffices` / helper |
+| **terminal**     | apply `simp only` — nice to have   | leave the `simp` alone                    |
+
+**Non-terminal is the case that actually bites.** A mathlib bump changes what
+`simp` does, the goal comes out a different shape, and the tactics after it
+break:
+
+> The behaviour of `simp` changes over time as `simp` lemmas are added to (or
+> removed from) the library. This means that proofs that use `simp` can break,
+> and, unless you know how the set of `simp` lemmas has changed, it can be
+> difficult to fix a proof. […] it is easier to maintain Lean code when every
+> `simp` closes a goal completely.
+>
+> — [mathlib docs: non-terminal simps](https://leanprover-community.github.io/extras/simp.html#non-terminal-simps)
+
+**A terminal `simp` cannot break a later tactic**, because there isn't one — the
+worst case is that it stops closing the goal, which is a loud, local failure.
+So minimising it is a genuine improvement (deterministic, self-documenting,
+faster to elaborate) but never urgent. Do it when the answer comes out short;
+don't fight for it.
+
+Note that "terminal" means *closes its own goal*, not *last line of the file*:
+
+```lean
+cases b <;> norm_num [h]        -- simp above it is NON-terminal: minimise
+cases g 0 <;> simp [h]          -- terminal (closes both branches)
+· simp [a, b]                   -- terminal within its bullet
+· simp [a, b]                   -- but NON-terminal if norm_cast/rw follow in the bullet
+cases f 0 <;> simp [a] <;> ring -- NON-terminal: `ring` consumes simp's output
+```
+
+### Restructuring beats a long list
+
+When a **non-terminal** `simp` minimises to something long, `simp only` is the
+wrong fix. These make it terminal instead, which is what you actually want:
+
+- `have h : P := by ...; simp` — the `simp` closes the `have`'s goal, and the
+  stated `P` pins the shape rather than leaving it to whatever simp produces.
+- `suffices h : P by simpa` — when `simp` would reduce the goal to `P`, state
+  `P` and let `simpa` close it.
+- `simpa using h` — in place of `simp at ⊢ h; exact h`.
+
+A stated intermediate goal documents the proof and survives mathlib changes
+better than a 27-lemma list, because the *statement* does the pinning.
 
 ## Checking a file
 
@@ -159,16 +215,17 @@ Expect no errors and no unused-argument warnings.
   names the real reasoning steps beats a three-lemma one held together by an
   accident of rewrite order.
 - **Know when to walk away.** If a proof is load-bearing on most of a long list,
-  stop and leave the original `simp` alone. The X-spider proofs in
+  stop: leave a terminal `simp` alone, and restructure a non-terminal one. The X-spider proofs in
   `SemanticsTesting/05Spiders.lean` are the worked counter-example: `simp?`
   suggests ~40 lemmas per call site, `--greedy` gets one of them only from 35
   down to 27, and 27 opaque lemma names are plainly worse to read than the
   `simp [zSpiderSem, hadSem, Phase.angle]` they would replace — which at least
   names the three definitional unfoldings actually being done. Roughly: above a
   dozen lemmas, the robustness win no longer pays for the readability loss.
-  Report the numbers and recommend a helper lemma in
-  `SemanticsTesting/Utils.lean` that does the unfolding once, rather than
-  applying the list.
+  Report the numbers and recommend restructuring instead — a helper lemma in
+  `SemanticsTesting/Utils.lean` that does the unfolding once, or a
+  `have h : P := by ...` / `suffices h : P by simpa` that makes the `simp`
+  terminal. Any of those beats applying the list.
 - A minimisation that only shaves a few lemmas off a long list is telling you
   the simp call is doing real multi-step normalisation, not incidental
   tidying. That is a refactor signal, not a tuning opportunity.
