@@ -14,9 +14,7 @@ abbrev zeroState : ZX 0 1 := .spider .X 0 1 ⟨0, 1⟩
 lemma x_sem_zero_state_ampl (f : Wires 0) (b : Bool) :
     zeroState.sem f (fun _ => b) = if b then 0 else rootTwo := by
   rw [ZX.sem, xSpiderSem, Fintype.sum_unique]
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  rw [Finset.sum_pair (by decide)]
-  simp only [hadSem, zSpiderSem, Phase.angle]
+  simp only [sum_wires1, hadSem, zSpiderSem, Phase.angle]
   cases b <;> norm_num [two_times_one_over_root_two_eq_root_two_complex]
 
 -- Then use it in the proof against a vector
@@ -33,9 +31,7 @@ abbrev oneState : ZX 0 1 := .spider .X 0 1 ⟨1, 1⟩
 lemma x_sem_one_state_ampl (f : Wires 0) (b : Bool) :
     oneState.sem f (fun _ => b) = if b then rootTwo else 0 := by
   rw [ZX.sem, xSpiderSem, Fintype.sum_unique, rootTwo]
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  rw [Finset.sum_pair (by decide)]
-  simp only [hadSem, zSpiderSem, Phase.angle]
+  simp only [sum_wires1, hadSem, zSpiderSem, Phase.angle]
   cases b <;> norm_num [two_times_one_over_root_two_eq_root_two_complex]
 theorem x_sem_one_state (f : Wires 0) : oneState.sem f = (![0, rootTwo] : Fin 2 → ℂ) := by
   unfold wiresVec1
@@ -53,8 +49,7 @@ theorem x_sem_x_identity : xIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, xSpiderSem]
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  simp only [Finset.sum_pair (show zeroAmpl ≠ oneAmpl from by decide)]
+  simp only [sum_wires1]
   rw [wires1_eq_const f, wires1_eq_const g]
   cases f 0 <;> cases g 0 <;> simp [zSpiderSem, hadSem, Phase.angle]
     <;> norm_cast  -- Make everything into reals
@@ -69,8 +64,7 @@ theorem x_sem_x_gate : xGate.sem = (!![0, 1; 1, 0] : Matrix (Fin 2) (Fin 2) ℂ)
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, xSpiderSem]
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  simp only [Finset.sum_pair (show zeroAmpl ≠ oneAmpl from by decide)]
+  simp only [sum_wires1]
   rw [wires1_eq_const f, wires1_eq_const g]
   cases f 0 <;> cases g 0 <;> simp [zSpiderSem, hadSem, Phase.angle] <;> norm_cast <;> ring_nf <;> norm_num
 
@@ -86,9 +80,7 @@ theorem x_sem_x_rotation (α : Phase) :
   apply funext; intro g
   rw [ZX.sem, xSpiderSem]
   rw [wires1_eq_const f, wires1_eq_const g]
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  simp only [Finset.sum_pair (show zeroAmpl ≠ oneAmpl from by decide)]
-  simp only [zSpiderSem, hadSem, Bool.and_true, Bool.false_eq_true]
+  simp only [sum_wires1, zSpiderSem, hadSem, Bool.and_true, Bool.false_eq_true]
   cases f 0 <;> cases g 0 <;>
   norm_num <;>
   -- `mul_right_comm` pulls the two `(√2)⁻¹` factors flanking `e^{iα}` together.

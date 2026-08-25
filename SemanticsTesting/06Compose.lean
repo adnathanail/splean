@@ -24,10 +24,7 @@ theorem two_z_gates_sem : twoZGates.sem = identityMatrix := by
   unfold wiresMat2
   apply funext; intro f
   apply funext; intro g
-  rw [ZX.sem]
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  rw [Finset.sum_pair (by decide)]
-  simp [ZX.sem, zSpiderSem, Phase.angle]
+  simp only [ZX.sem, sum_wires1, vec1Bits, zSpiderSem, Phase.angle, Fin.forall_fin_one]
   cases f 0 <;> cases g 0 <;> simp
 
 abbrev twoXGates : ZX 1 1 := (.spider .X 1 1 ⟨1, 1⟩) ≫ (.spider .X 1 1 ⟨1, 1⟩)
@@ -38,18 +35,14 @@ sum twice over. -/
 lemma x_gate_ampl (f g : Wires 1) :
     (ZX.spider .X 1 1 (⟨1, 1⟩ : Phase)).sem f g = if f 0 = g 0 then 0 else 1 := by
   rw [ZX.sem, xSpiderSem]
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  simp only [Finset.sum_pair (show zeroAmpl ≠ oneAmpl from by decide)]
-  simp only [zSpiderSem, hadSem, Phase.angle]
+  simp only [sum_wires1, zSpiderSem, hadSem, Phase.angle]
   cases hf : f 0 <;> cases hg : g 0 <;>
     norm_num [hf, hg, one_over_root_two_times_itself_eq_half_complex]
 theorem two_x_gates_sem : twoXGates.sem = identityMatrix := by
   unfold wiresMat2
   apply funext; intro f
   apply funext; intro g
-  rw [ZX.sem]
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  rw [Finset.sum_pair (by decide)]
+  rw [ZX.sem, sum_wires1]
   rw [x_gate_ampl, x_gate_ampl, x_gate_ampl, x_gate_ampl]
   cases hf : f 0 <;> cases hg : g 0 <;> norm_num
 
@@ -103,21 +96,14 @@ theorem hadamard_euler_decomp_sem : hadamardEulerDecomp.sem = hadamardUnnorm := 
   apply funext; intro g
   -- Unfold definitions
   rw [ZX.sem, Matrix.of_apply]
-  -- a) Show that the sum is only over two possible values
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  -- b) Replace 2 element sum with addition
-  rw [Finset.sum_pair (by decide)]
+  -- Expand the sum over `Wires 1` into its two terms
+  simp only [sum_wires1]
   -- Use Zπ/2 matrix values lemma
   rw [z_rotation_matrix_values, z_rotation_matrix_values]
   -- Unfold ZX compositions into sums over wire indices
   rw [ZX.sem, ZX.sem]
-  -- a)
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  -- b) * 2
-  rw [Finset.sum_pair (by decide)]
-  rw [Finset.sum_pair (by decide)]
-  -- Use matrix values lemmas and unfold constants
-  simp only [x_rotation_matrix_values, z_rotation_matrix_values]
+  -- Expand the two new sums and use the lemmas
+  simp only [sum_wires1, x_rotation_matrix_values, z_rotation_matrix_values]
   -- Split on the four corners of the matrix
   cases f 0 <;> cases g 0 <;>
   -- Throw some Lean magic maths simplifiers at it
