@@ -47,14 +47,19 @@ def xSpiderSem (α : ℝ) {n m : ℕ} (f : Wires n) (g : Wires m) : ℂ :=
   ∑ f' : Wires n, ∑ g' : Wires m,
     (∏ i, hadSem (f i) (f' i)) * zSpiderSem α f' g' * (∏ j, hadSem (g' j) (g j))
 
-/-- Denotation of an algebraic ZX term as a boundary tensor. -/
+/-- Denotation of an algebraic ZX term as a boundary tensor.
+`compose` sums over the shared internal boundary; `stack` splits the boundary
+assignment between the two halves. -/
 def ZX.sem : {n m : ℕ} → ZX n m → Wires n → Wires m → ℂ
-  | _, _, .empty, _, _ => 1
-  | _, _, .wire, f, g => if f 0 = g 0 then 1 else 0
+  | _, _, .empty, _, _ => 1                                  -- Empty diagram = 1
+  | _, _, .wire, f, g => if f 0 = g 0 then 1 else 0          -- Wire = identity matrix
   | _, _, .hadamard, f, g => hadSem (f 0) (g 0)
   | _, _, .spider .Z _ _ φ, f, g => zSpiderSem φ.angle f g
   | _, _, .spider .X _ _ φ, f, g => xSpiderSem φ.angle f g
-  | _, _, .stack a b, f, g => 0
-  | _, _, .compose a b, f, h => ∑ g, a.sem f g * b.sem g h
+  | _, _, .compose a b, f, h => ∑ g, a.sem f g * b.sem g h   -- Composition = tensor contraction
+  | _, _, .stack a b, f, g =>
+      -- Split up the responsibility for wire indexes across the two stacked diagrams
+      a.sem (fun i => f (Fin.castAdd _ i)) (fun j => g (Fin.castAdd _ j)) *
+        b.sem (fun i => f (Fin.natAdd _ i)) (fun j => g (Fin.natAdd _ j))
 
 end SpLean.Algebraic
