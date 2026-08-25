@@ -13,7 +13,8 @@ abbrev wireDiagram : ZX 1 1 := .wire
 #zx wireDiagram
 theorem wire_sem :
     wireDiagram.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin 2) ℂ) := by
+  unfold wiresMat2 vec1Bits
   apply funext; intro f
   apply funext; intro g
-  rw [ZX.sem, wiresMat2]
+  rw [ZX.sem]
   cases f 0 <;> cases g 0 <;> norm_num

@@ -36,21 +36,33 @@ abbrev oneAmpl : Wires 1 := fun _ => true
 lemma wires1_eq_const (g : Wires 1) : g = fun _ => g 0 :=
   funext fun i => by rw [Fin.fin_one_eq_zero i]
 
-/-! ### Explicit vector helpers
+/-! ### Vector bits helpers -/
 
-`vec1 a b` is a length-1 vector `(a, b)` for the two basis states of a single wire.
-`vec2 a b c d` is a length-2 vector for the four basis states of two wires. -/
+/-- `vec1Bits a b x₀`
+  Body of a length-1 vector, as a function of the wire's bit:
+  - `a` at `0`
+  - `b` at `1`.
+-/
+abbrev vec1Bits {T : Type*} (a b : T) (x₀ : Bool) : T := if x₀ then b else a
 
-/-- Length-1 vector: `(a, b)` for `|0⟩, |1⟩`. -/
-def vec1 (a b : ℂ) : Wires 1 → ℂ := λ g => if g 0 then b else a
-
-/-- Length-2 vector: `(a, b, c, d)` for `|00⟩, |10⟩, |01⟩, |11⟩`.
-`g 0` is LSB, `g 1` is MSB. -/
-def vec2 (a b c d : ℂ) : Wires 2 → ℂ := λ g =>
-  if g 0 then
-    if g 1 then d else b
+/-- `vec2Bits a b c d x₀ x₁` -/
+abbrev vec2Bits {T : Type*} (a b c d : T) (x₀ x₁ : Bool) : T :=
+  if x₀ then
+    if x₁ then d else b
   else
-    if g 1 then c else a
+    if x₁ then c else a
+
+abbrev vec3Bits {T : Type*} (a b c d e f g h : T) (x₀ x₁ x₂ : Bool) : T :=
+  if x₀ then
+    if x₁ then
+      if x₂ then h else d
+    else
+      if x₂ then f else b
+  else
+    if x₁ then
+      if x₂ then g else c
+    else
+      if x₂ then e else a
 
 /-! ### Mathlib-style vector conversion
 
@@ -65,40 +77,23 @@ noncomputable def wiresVec {n : ℕ} (v : Fin (2^n) → ℂ) : Wires n → ℂ :
   λ w => v (Fin.cast (by simp [Wires]) ((Fintype.equivFin (Wires n)) w))
 
 /-- Computable version for `n=1`: `Fin 2 → ℂ` to `Wires 1 → ℂ`. -/
-def wiresVec1 (v : Fin 2 → ℂ) : Wires 1 → ℂ := λ g => if g 0 then v 1 else v 0
-
-instance : Coe (Fin 2 → ℂ) (Wires 1 → ℂ) := ⟨wiresVec1⟩
-
+def wiresVec1 (v : Fin 2 → ℂ) : Wires 1 → ℂ := λ g => vec1Bits (v 0) (v 1) (g 0)
 /-- Computable version for `n=2`: `Fin 4 → ℂ` to `Wires 2 → ℂ`.
   `g 0` is LSB, `g 1` is MSB. -/
-def wiresVec2 (v : Fin 4 → ℂ) : Wires 2 → ℂ := λ g =>
-  if g 0 then
-    if g 1 then v 3 else v 1
-  else
-    if g 1 then v 2 else v 0
-
-instance : Coe (Fin 4 → ℂ) (Wires 2 → ℂ) := ⟨wiresVec2⟩
-
+def wiresVec2 (v : Fin 4 → ℂ) : Wires 2 → ℂ := λ g => vec2Bits (v 0) (v 1) (v 2) (v 3) (g 0) (g 1)
 /-- Computable version for `n=3`: `Fin 8 → ℂ` to `Wires 3 → ℂ`. -/
-def wiresVec3 (v : Fin 8 → ℂ) : Wires 3 → ℂ := λ g =>
-  if g 0 then
-    if g 1 then
-      if g 2 then v 7 else v 3
-    else
-      if g 2 then v 5 else v 1
-  else
-    if g 1 then
-      if g 2 then v 6 else v 2
-    else
-      if g 2 then v 4 else v 0
+def wiresVec3 (v : Fin 8 → ℂ) : Wires 3 → ℂ := λ g => vec3Bits (v 0) (v 1) (v 2) (v 3) (v 4) (v 5) (v 6) (v 7) (g 0) (g 1) (g 2)
 
+instance : Coe (Fin 2 → ℂ) (Wires 1 → ℂ) := ⟨wiresVec1⟩
+instance : Coe (Fin 4 → ℂ) (Wires 2 → ℂ) := ⟨wiresVec2⟩
 instance : Coe (Fin 8 → ℂ) (Wires 3 → ℂ) := ⟨wiresVec3⟩
 
-/-! ### 2x2 matrix helpers -/
+/-! ### Matrix helpers -/
 
+-- #### 2×2
 /-- Computable conversion from a Mathlib 2x2 matrix to `Wires 1 → Wires 1 → ℂ`.
 `f 0` is the row index, `g 0` the column index (both as `Bool → Fin 2`). -/
 def wiresMat2 (M : Matrix (Fin 2) (Fin 2) ℂ) : Wires 1 → Wires 1 → ℂ := λ f g =>
-  M (if f 0 then 1 else 0) (if g 0 then 1 else 0)
+  M (vec1Bits 0 1 (f 0)) (vec1Bits 0 1 (g 0))
 
 instance : Coe (Matrix (Fin 2) (Fin 2) ℂ) (Wires 1 → Wires 1 → ℂ) := ⟨wiresMat2⟩

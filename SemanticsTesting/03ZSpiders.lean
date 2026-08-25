@@ -15,8 +15,9 @@ open SpLean.Algebraic
 abbrev plusState : ZX 0 1 := .spider .Z 0 1 ⟨0, 1⟩
 #zx plusState
 theorem z_sem_plus_state (f : Wires 0) : plusState.sem f = (![1, 1] : Fin 2 → ℂ) := by
+  unfold wiresVec1 vec1Bits
   ext g
-  rw [wiresVec1, ZX.sem, zSpiderSem, Phase.angle]
+  rw [ZX.sem, zSpiderSem, Phase.angle]
   match h : g 0 with
   | false => norm_num [h]
   | true => norm_num [h]
@@ -29,8 +30,9 @@ theorem z_sem_plus_state (f : Wires 0) : plusState.sem f = (![1, 1] : Fin 2 → 
 abbrev minusState : ZX 0 1 := .spider .Z 0 1 ⟨1, 1⟩
 #zx minusState
 theorem z_sem_minus_state (f : Wires 0) : minusState.sem f = (![1, -1] : Fin 2 → ℂ) := by
+  unfold wiresVec1 vec1Bits
   ext g
-  rw [wiresVec1, ZX.sem, zSpiderSem, Phase.angle]
+  rw [ZX.sem, zSpiderSem, Phase.angle]
   match h : g 0 with
   | false => norm_num [h]
   | true => norm_num [h]
@@ -43,8 +45,9 @@ theorem z_sem_minus_state (f : Wires 0) : minusState.sem f = (![1, -1] : Fin 2 �
 abbrev bellState : ZX 0 2 := .spider .Z 0 2 ⟨0, 1⟩
 #zx bellState
 theorem z_sem_bell_state (f : Wires 0) : bellState.sem f = (![1, 0, 0, 1] : Fin 4 → ℂ) := by
+  unfold wiresVec2 vec2Bits
   ext g
-  rw [wiresVec2, ZX.sem, zSpiderSem, Phase.angle]
+  rw [ZX.sem, zSpiderSem, Phase.angle]
   simp only [Fin.forall_fin_succ, Fin.succ_zero_eq_one, Matrix.cons_val]
   cases g 0 <;> cases g 1 <;> norm_num
 
@@ -52,8 +55,9 @@ theorem z_sem_bell_state (f : Wires 0) : bellState.sem f = (![1, 0, 0, 1] : Fin 
 abbrev ghzState : ZX 0 3 := .spider .Z 0 3 ⟨0, 1⟩
 #zx ghzState
 theorem z_sem_ghz_state (f : Wires 0) : ghzState.sem f = (![1, 0, 0, 0, 0, 0, 0, 1] : Fin 8 → ℂ) := by
+  unfold wiresVec3 vec3Bits
   ext g
-  rw [wiresVec3, ZX.sem, zSpiderSem, Phase.angle]
+  rw [ZX.sem, zSpiderSem, Phase.angle]
   simp only [Fin.forall_fin_succ, Fin.succ_zero_eq_one, Fin.succ_one_eq_two, Matrix.cons_val]
   cases g 0 <;> cases g 1 <;> cases g 2 <;> norm_num
 
@@ -88,26 +92,29 @@ theorem z_sem_nGhz_state (f : Wires 0) (n : ℕ) (hn : n ≥ 1) : (nGhzState n).
 abbrev zIdentity : ZX 1 1 := .spider .Z 1 1 ⟨0, 1⟩
 #zx zIdentity
 theorem z_sem_z_identity : zIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin 2) ℂ) := by
+  unfold wiresMat2 vec1Bits
   apply funext; intro f
   apply funext; intro g
-  rw [ZX.sem, zSpiderSem, wiresMat2, Phase.angle]
+  rw [ZX.sem, zSpiderSem, Phase.angle]
   simp only [Fin.forall_fin_one]
   cases f 0 <;> cases g 0 <;> norm_num
 
 abbrev zGate : ZX 1 1 := .spider .Z 1 1 ⟨1, 1⟩
 #zx zGate
 theorem z_sem_z_gate : zGate.sem = (!![1, 0; 0, -1] : Matrix (Fin 2) (Fin 2) ℂ) := by
+  unfold wiresMat2 vec1Bits
   apply funext; intro f
   apply funext; intro g
-  rw [ZX.sem, zSpiderSem, wiresMat2, Phase.angle]
+  rw [ZX.sem, zSpiderSem, Phase.angle]
   simp only [Fin.forall_fin_one]
   cases f 0 <;> cases g 0 <;> norm_num
 
 abbrev zRotation (α : Phase) : ZX 1 1 := .spider .Z 1 1 α
 #zx zRotation ⟨1, 4⟩
 theorem z_sem_z_rotation (α : Phase) : (zRotation α).sem = (!![1, 0; 0, Complex.exp (α.angle * Complex.I)] : Matrix (Fin 2) (Fin 2) ℂ) := by
+  unfold wiresMat2 vec1Bits
   apply funext; intro f
   apply funext; intro g
-  rw [ZX.sem, zSpiderSem, wiresMat2]
+  rw [ZX.sem, zSpiderSem]
   simp only [Fin.forall_fin_one]
   cases f 0 <;> cases g 0 <;> norm_num
