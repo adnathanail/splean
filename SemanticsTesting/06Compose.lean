@@ -1,5 +1,6 @@
 import SemanticsTesting.Utils
 import SemanticsTesting.«03ZSpiders»
+import SemanticsTesting.«05XSpiders»
 
 open SpLean.Algebraic
 
@@ -58,22 +59,46 @@ lemma z_rotation_matrix_values (f g : Wires 1) :
       else 0
     := by
   -- Use Z phase gate semantics proof
-  rw [z_sem_z_rotation, wiresMat2]
+  rw [z_sem_z_rotation, wiresMat2, Phase.angle]
   -- Split into the four corners of the matrix and simplify
-  cases f 0 <;> cases g 0 <;> simp [Phase.angle, inv_mul_eq_div]
+  cases f 0 <;> cases g 0 <;> simp [inv_mul_eq_div]
 
+lemma x_rotation_one_plus_i_div_two :
+  Complex.exp (Real.pi / 4 * Complex.I) / √2 = (1 + Complex.I) / 2 := by
+  rw [Complex.exp_mul_I]
+  norm_cast
+  rw [Real.cos_pi_div_four, Real.sin_pi_div_four]
+  rw [add_div]
+  norm_cast
+  rw [div_div_cancel_left']
+  rw [mul_div_right_comm]
+  norm_cast
+  rw [div_div_cancel_left']
+  rw [add_div]
+  nth_rw 2 [div_eq_inv_mul]
+  rw [div_eq_inv_mul, mul_one]
+
+
+lemma x_rotation_one_minus_i_div_two :
+  -(Complex.exp (Real.pi / 4 * Complex.I) / √2 * Complex.I) = (1 - Complex.I) / 2 := by
+  sorry
 
 lemma x_rotation_matrix_values (f g : Wires 1) :
     (ZX.spider .X 1 1 (⟨1, 2⟩ : Phase)).sem f g =
-      eIPiOvFourTimesOneOverRootTwo * (if f 0 = g 0 then 1 else - Complex.I) := by
-  sorry
+      Complex.exp (Real.pi / 4 * Complex.I) / Real.sqrt 2 * (if f 0 = g 0 then 1 else - Complex.I) := by
+  rw [x_sem_x_rotation, wiresMat2, Phase.angle]
+  cases f 0 <;> cases g 0 <;> simp [inv_mul_eq_div]
+  on_goal 1 => rw [x_rotation_one_plus_i_div_two]
+  on_goal 3 => rw [x_rotation_one_plus_i_div_two]
+  all_goals rw [x_rotation_one_minus_i_div_two]
 
+noncomputable abbrev eIPiOvFourTimesOneOverRootTwo := Complex.exp (Real.pi / 4 * Complex.I) / rootTwo
 noncomputable abbrev hadamardUnnorm : Matrix (Fin 2) (Fin 2) ℂ := !![eIPiOvFourTimesOneOverRootTwo, eIPiOvFourTimesOneOverRootTwo; eIPiOvFourTimesOneOverRootTwo, -eIPiOvFourTimesOneOverRootTwo]
 abbrev hadamardEulerDecomp : ZX 1 1 := (.spider .Z 1 1 ⟨1, 2⟩) ≫ (.spider .X 1 1 ⟨1, 2⟩) ≫ (.spider .Z 1 1 ⟨1, 2⟩)
 #zx hadamardEulerDecomp
 theorem hadamard_euler_decomp_sem : hadamardEulerDecomp.sem = hadamardUnnorm := by
   -- Unfold definitions
-  unfold hadamardUnnorm eIPiOvFourTimesOneOverRootTwo eToTheIPiOverFour
+  unfold hadamardUnnorm eIPiOvFourTimesOneOverRootTwo
   -- Introduce variables for indexes of matrices
   apply funext; intro f
   apply funext; intro g
@@ -93,7 +118,7 @@ theorem hadamard_euler_decomp_sem : hadamardEulerDecomp.sem = hadamardUnnorm := 
   rw [Finset.sum_pair (by decide)]
   rw [Finset.sum_pair (by decide)]
   -- Use matrix values lemmas and unfold constants
-  simp only [x_rotation_matrix_values, z_rotation_matrix_values, eToTheIPiOverFour, eIPiOvFourTimesOneOverRootTwo]
+  simp only [x_rotation_matrix_values, z_rotation_matrix_values]
   -- Split on the four corners of the matrix
   cases f 0 <;> cases g 0 <;>
   -- Throw some Lean magic maths simplifiers at it
