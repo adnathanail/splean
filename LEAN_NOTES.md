@@ -28,6 +28,8 @@ Tactic to clear denominators in algebraic expressions.
 Tactic to 'normalise' (simplify) numerical expressions
 https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/NormNum/Core.html
 
+`norm_cast` and `push_cast` for dealing with type weirdness
+
 ### Cases
 
 `cases` takes an inductive value and splits all the options into separate goals.
