@@ -82,10 +82,13 @@ instance : Coe (Fin 8 → ℂ) (Wires 3 → ℂ) := ⟨wiresVec3⟩
 
 /-! ### Matrix helpers -/
 
--- #### 2×2
 /-- Computable conversion from a Mathlib 2x2 matrix to `Wires 1 → Wires 1 → ℂ`.
 `f 0` is the row index, `g 0` the column index (both as `Bool → Fin 2`). -/
 def wiresMat2 (M : Matrix (Fin 2) (Fin 2) ℂ) : Wires 1 → Wires 1 → ℂ := λ f g =>
   M (vec1Bits 0 1 (f 0)) (vec1Bits 0 1 (g 0))
+/-- Computable conversion for 2x2 matrix to `Wires 2 → Wires 2 → ℂ`. -/
+def wiresMat4 (M : Matrix (Fin 4) (Fin 4) ℂ) : Wires 2 → Wires 2 → ℂ := λ f g =>
+  M (vec2Bits 0 1 2 3 (f 0) (f 1)) (vec2Bits 0 1 2 3 (g 0) (g 1))
 
 instance : Coe (Matrix (Fin 2) (Fin 2) ℂ) (Wires 1 → Wires 1 → ℂ) := ⟨wiresMat2⟩
+instance : Coe (Matrix (Fin 4) (Fin 4) ℂ) (Wires 2 → Wires 2 → ℂ) := ⟨wiresMat4⟩
