@@ -28,19 +28,38 @@ theorem scalar_sem_alpha (α : Phase) (f g : Wires 0) :
   rw [ZX.sem, zSpiderSem]
   norm_num
 
--- -- Phaseless X spider linked to α-phase Z spider = √2
--- abbrev redCircleAnyGreen (α : Phase) : ZX 0 0 := (.spider .X 0 1 ⟨0, 1⟩) ≫ (.spider .Z 1 0 α)
--- #zx redCircleAnyGreen ⟨1, 4⟩
--- theorem scalar_sem_sqrt_two (α : Phase) (f g : Wires 0) :
---     (redCircleAnyGreen α).sem f g = rootTwo := by
---   rw [ZX.sem]
+-- Phaseless X spider linked to α-phase Z spider = √2
+abbrev redCircleAnyGreen (α : Phase) : ZX 0 0 := (.spider .X 0 1 ⟨0, 1⟩) ≫ (.spider .Z 1 0 α)
+#zx redCircleAnyGreen ⟨1, 4⟩
+theorem scalar_sem_sqrt_two (α : Phase) (f g : Wires 0) :
+    (redCircleAnyGreen α).sem f g = rootTwo := by
+  rw [ZX.sem]
+  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
+  rw [Finset.sum_pair (by decide)]
+  simp only [ZX.sem, xSpiderSem, zSpiderSem, hadSem, Phase.angle]
+  norm_num
+  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
+  rw [Finset.sum_pair (by decide)]
+  rw [Finset.sum_pair (by decide)]
+  simp
+  rw [two_times_one_over_root_two_eq_root_two_complex]
 
--- -- π-phase X spider linked to α-phase Z spider = √2 e^{iα}
--- abbrev redPiCircleAnyGreen (α : Phase) : ZX 0 0 := (.spider .X 0 1 ⟨1, 1⟩) ≫ (.spider .Z 1 0 α)
--- #zx redPiCircleAnyGreen ⟨1, 4⟩
--- theorem scalar_sem_sqrt_two_e_i_alpha (α : Phase) (f g : Wires 0) :
---     (redPiCircleAnyGreen α).sem f g = rootTwo * eiTheta α.angle := by
---   rw [ZX.sem]
+-- π-phase X spider linked to α-phase Z spider = √2 e^{iα}
+abbrev redPiCircleAnyGreen (α : Phase) : ZX 0 0 := (.spider .X 0 1 ⟨1, 1⟩) ≫ (.spider .Z 1 0 α)
+#zx redPiCircleAnyGreen ⟨1, 4⟩
+theorem scalar_sem_sqrt_two_e_i_alpha (α : Phase) (f g : Wires 0) :
+    (redPiCircleAnyGreen α).sem f g = rootTwo * eiTheta α.angle := by
+  unfold rootTwo eiTheta
+  rw [ZX.sem]
+  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
+  rw [Finset.sum_pair (by decide)]
+  simp only [ZX.sem, xSpiderSem, zSpiderSem, hadSem, Phase.angle]
+  norm_num
+  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
+  rw [Finset.sum_pair (by decide)]
+  rw [Finset.sum_pair (by decide)]
+  simp
+  rw [two_times_one_over_root_two_eq_root_two_complex]
 
 -- -- Phaseles X spider triple-linked to phaseless Z spider = 1/√2
 -- abbrev redCircleTripleLinkGreenCircle : ZX 0 0 := (.spider .X 0 3 ⟨0, 1⟩) ≫ (.spider .Z 3 0 ⟨0, 1⟩)
