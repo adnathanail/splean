@@ -31,6 +31,8 @@ Things to research
     - diagrams formalisation
 - chyp
 
+Lean things to play with:
+- [aesop](https://github.com/leanprover-community/aesop)
 
 - Add Dirac semantics for neater proofs?
 
@@ -60,3 +62,7 @@ https://github.com/tannerduve/zxLean/blob/main/ZxCalculus/MultiQubit/Denotationa
 
 https://github.com/Timeroot/Lean-QuantumInfo
 https://github.com/leanprover-community/physlib
+
+Things to ask the Chicagoans:
+- When indicator function vs dirac notation
+- Do hypergraphs only work for symmetric diagrams? Do we need port graphs for W nodes

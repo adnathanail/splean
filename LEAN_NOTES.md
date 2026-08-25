@@ -17,6 +17,9 @@ abbrev greenAlphaCircle (α : Phase) : ZX 0 0 := .spider .Z 0 0 α
 
 ## Tactics
 
+`simp`
+https://leanprover-community.github.io/extras/simp.html#non-terminal-simps
+
 `field_simp`
 https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/FieldSimp.html
 Tactic to clear denominators in algebraic expressions.
@@ -24,6 +27,45 @@ Tactic to clear denominators in algebraic expressions.
 `norm_num`
 Tactic to 'normalise' (simplify) numerical expressions
 https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/NormNum/Core.html
+
+### Cases
+
+`cases` takes an inductive value and splits all the options into separate goals.
+E.g. below `g 0 ` is a `Wires 1` which has two output values: `true` or `false`, so we then have two concrete expressions to simplify with `norm_num`
+
+```lean
+abbrev plusState : ZX 0 1 := .spider .Z 0 1 ⟨0, 1⟩
+#zx plusState
+theorem z_sem_plus_state (f : Wires 0) : plusState.sem f = (![1, 1] : Fin 2 → ℂ) := by
+  ext g
+  rw [wiresVec1, ZX.sem, zSpiderSem, Phase.angle]
+  norm_num
+  cases g 0 <;> norm_num
+  -- Could also have done:
+  --   cases g 0
+  --   all_goals norm_num
+  -- Or if we need the expressions to stay the same, we can have cases create a hypothesis for each value.
+  -- E.g. we could remove the norm_num the line before, and then pass the hypothesis to the second norm_num:
+  --   cases h : g 0 <;> norm_num [h]
+```
+
+Tactic combinator (`<;>`):
+- Sometimes called 'angle-semi' or 'seq-focus`
+- Often read as 'and then on all goals'
+- Nice for chaining multiple `cases`
+
+```lean
+theorem two_wire_sem :
+    twoWires.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin 2) ℂ) := by
+  apply funext; intro f
+  apply funext; intro g
+  rw [ZX.sem, wiresMat2]
+  rw [show ZX.wire.sem = fun x x_1 => if x 0 = x_1 0 then 1 else 0 from rfl]
+  norm_num
+  field_simp
+  cases f 0 <;> cases g 0 <;> norm_num <;> decide
+```
+
 
 ## Commands
 
@@ -34,11 +76,30 @@ Show type signature
 
 ## Tips
 
+### Completing proofs
+
+- `exact?` — searches for a single lemma closing the goal.
+- `apply?` for up-to-unification.
+- `rw?` — every rewrite that applies at the current goal.
+- `simp? / aesop?` — run the automation, then show you which lemmas it used. Excellent for discovery, since it hands you the names of lemmas in the neighbourhood.
+- `hint` — runs a batch of standard tactics and reports what worked.
+- `exact?` with a partial term and _ holes is underrated.
+
 To see what rewrites a `simp` (or `simp` wrapper like `norm_num`) used:
 ```lean
 -- Must go after imports
 set_option trace.Meta.Tactic.simp.rewrite true
 ```
+
+#### Other searching methods
+
+- [Loogle](https://loogle.lean-lang.org)
+  - `Loogle "Finset.sum, tsum"`
+  - `|- _ * _ = _ * _`
+- [Moogle](https://www.moogle.ai) - natural-language semantic search over Mathlib.
+- `#leansearch` and `#loogle` commands
+
+### Theorem highlighting
 
 Sometimes theorems statements are hard to discern in the mess of a file.
 Using [this VS Code extension](https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-highlight), you can set custom highglight regexes.

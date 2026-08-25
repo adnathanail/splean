@@ -55,6 +55,6 @@ def ZX.sem : {n m : ℕ} → ZX n m → Wires n → Wires m → ℂ
   | _, _, .spider .Z _ _ φ, f, g => zSpiderSem φ.angle f g
   | _, _, .spider .X _ _ φ, f, g => xSpiderSem φ.angle f g
   | _, _, .stack a b, f, g => 0
-  | _, _, .compose a b, f, h => 0
+  | _, _, .compose a b, f, h => ∑ g, a.sem f g * b.sem g h
 
 end SpLean.Algebraic
