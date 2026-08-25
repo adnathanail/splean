@@ -43,26 +43,18 @@ lemma wires1_eq_const (g : Wires 1) : g = fun _ => g 0 :=
   - `a` at `0`
   - `b` at `1`.
 -/
-abbrev vec1Bits {T : Type*} (a b : T) (x₀ : Bool) : T := if x₀ then b else a
+@[simp] def vec1Bits {T : Type*} (a b : T) : Bool → T
+  | false => a
+  | true  => b
 
 /-- `vec2Bits a b c d x₀ x₁` -/
-abbrev vec2Bits {T : Type*} (a b c d : T) (x₀ x₁ : Bool) : T :=
-  if x₀ then
-    if x₁ then d else b
-  else
-    if x₁ then c else a
+@[simp] def vec2Bits {T : Type*} (a b c d : T) : Bool → Bool → T
+  | false, x₁ => vec1Bits a c x₁
+  | true,  x₁ => vec1Bits b d x₁
 
-abbrev vec3Bits {T : Type*} (a b c d e f g h : T) (x₀ x₁ x₂ : Bool) : T :=
-  if x₀ then
-    if x₁ then
-      if x₂ then h else d
-    else
-      if x₂ then f else b
-  else
-    if x₁ then
-      if x₂ then g else c
-    else
-      if x₂ then e else a
+@[simp] def vec3Bits {T : Type*} (a b c d e f g h : T) : Bool → Bool → Bool → T
+  | false, x₁, x₂ => vec2Bits a c e g x₁ x₂
+  | true,  x₁, x₂ => vec2Bits b d f h x₁ x₂
 
 /-! ### Mathlib-style vector conversion
 

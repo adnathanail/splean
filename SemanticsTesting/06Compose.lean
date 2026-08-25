@@ -9,7 +9,7 @@ abbrev identityMatrix : Matrix (Fin 2) (Fin 2) ℂ := !![1, 0; 0, 1]
 abbrev twoWires : ZX 1 1 := .wire ≫ .wire
 #zx twoWires
 theorem two_wire_sem : twoWires.sem = identityMatrix := by
-  unfold wiresMat2 vec1Bits
+  unfold wiresMat2
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem]
@@ -21,7 +21,7 @@ theorem two_wire_sem : twoWires.sem = identityMatrix := by
 abbrev twoZGates : ZX 1 1 := (.spider .Z 1 1 ⟨1, 1⟩) ≫ (.spider .Z 1 1 ⟨1, 1⟩)
 #zx twoZGates
 theorem two_z_gates_sem : twoZGates.sem = identityMatrix := by
-  unfold wiresMat2 vec1Bits
+  unfold wiresMat2
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem]
@@ -44,7 +44,7 @@ lemma x_gate_ampl (f g : Wires 1) :
   cases hf : f 0 <;> cases hg : g 0 <;>
     norm_num [hf, hg, one_over_root_two_times_itself_eq_half_complex]
 theorem two_x_gates_sem : twoXGates.sem = identityMatrix := by
-  unfold wiresMat2 vec1Bits
+  unfold wiresMat2
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem]
@@ -61,7 +61,7 @@ lemma z_rotation_matrix_values (f g : Wires 1) :
       else 0
     := by
   -- Use Z phase gate semantics proof
-  rw [z_sem_z_rotation, wiresMat2, vec1Bits, vec1Bits, Phase.angle]
+  rw [z_sem_z_rotation, wiresMat2, Phase.angle]
   -- Split into the four corners of the matrix and simplify
   cases f 0 <;> cases g 0 <;> simp [inv_mul_eq_div]
 
@@ -83,7 +83,7 @@ lemma x_rotation_one_minus_i_div_two :
 lemma x_rotation_matrix_values (f g : Wires 1) :
     (ZX.spider .X 1 1 (⟨1, 2⟩ : Phase)).sem f g =
       Complex.exp (Real.pi / 4 * Complex.I) / Real.sqrt 2 * (if f 0 = g 0 then 1 else - Complex.I) := by
-  rw [x_sem_x_rotation, wiresMat2, vec1Bits, vec1Bits, Phase.angle]
+  rw [x_sem_x_rotation, wiresMat2, Phase.angle]
   cases f 0 <;> cases g 0 <;> simp [inv_mul_eq_div, x_rotation_one_minus_i_div_two]
   all_goals rw [x_rotation_one_plus_i_div_two]
 
@@ -97,7 +97,7 @@ abbrev hadamardEulerDecomp : ZX 1 1 := (.spider .Z 1 1 ⟨1, 2⟩) ≫ (.spider 
 --                                        = !![e^{iπ/4}/√2, e^{iπ/4}/√2; e^{iπ/4}/√2, -e^{iπ/4}/√2]
 theorem hadamard_euler_decomp_sem : hadamardEulerDecomp.sem = hadamardUnnorm := by
   -- Unfold definitions
-  unfold hadamardUnnorm eIPiOvFourTimesOneOverRootTwo wiresMat2 vec1Bits
+  unfold hadamardUnnorm eIPiOvFourTimesOneOverRootTwo wiresMat2
   -- Introduce variables for indexes of matrices
   apply funext; intro f
   apply funext; intro g
