@@ -21,10 +21,10 @@ lemma x_sem_zero_state_ampl (f : Wires 0) (b : Bool) :
 
 -- Then use it in the proof against a vector
 theorem x_sem_zero_state (f : Wires 0) : zeroState.sem f = (![rootTwo, 0] : Fin 2 → ℂ) := by
-  unfold wiresVec1 vec1Bits
+  unfold wiresVec1
   ext g
   rw [wires1_eq_const g]
-  cases g 0 <;> simp only [x_sem_zero_state_ampl f, Matrix.cons_val_zero, Matrix.cons_val_one]
+  cases g 0 <;> simp [x_sem_zero_state_ampl f]
 
 -- ## 1 state
 -- (Xπ)- = √2|1⟩
@@ -38,10 +38,10 @@ lemma x_sem_one_state_ampl (f : Wires 0) (b : Bool) :
   simp only [hadSem, zSpiderSem, Phase.angle]
   cases b <;> norm_num [two_times_one_over_root_two_eq_root_two_complex]
 theorem x_sem_one_state (f : Wires 0) : oneState.sem f = (![0, rootTwo] : Fin 2 → ℂ) := by
-  unfold wiresVec1 vec1Bits
+  unfold wiresVec1
   ext g
   rw [wires1_eq_const g]
-  cases g 0 <;> simp only [x_sem_one_state_ampl f, Matrix.cons_val_zero, Matrix.cons_val_one]
+  cases g 0 <;> simp [x_sem_one_state_ampl f]
 
 /--
   # X-spiders (pqs eq 3.5)
@@ -49,7 +49,7 @@ theorem x_sem_one_state (f : Wires 0) : oneState.sem f = (![0, rootTwo] : Fin 2 
 abbrev xIdentity : ZX 1 1 := .spider .X 1 1 ⟨0, 1⟩
 #zx xIdentity
 theorem x_sem_x_identity : xIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin 2) ℂ) := by
-  unfold wiresMat2 vec1Bits
+  unfold wiresMat2
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, xSpiderSem]
@@ -65,7 +65,7 @@ abbrev xGate : ZX 1 1 := .spider .X 1 1 ⟨1, 1⟩
 #zx xGate
 theorem x_sem_x_gate : xGate.sem = (!![0, 1; 1, 0] : Matrix (Fin 2) (Fin 2) ℂ) := by
   -- same as x_sem_x_identity
-  unfold wiresMat2 vec1Bits
+  unfold wiresMat2
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, xSpiderSem]
@@ -81,7 +81,7 @@ theorem x_sem_x_rotation (α : Phase) :
       (1 + Complex.exp (α.angle * Complex.I)) / 2, (1 - Complex.exp (α.angle * Complex.I)) / 2;
       (1 - Complex.exp (α.angle * Complex.I)) / 2, (1 + Complex.exp (α.angle * Complex.I)) / 2
     ] : Matrix (Fin 2) (Fin 2) ℂ) := by
-  unfold wiresMat2 vec1Bits
+  unfold wiresMat2
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, xSpiderSem]
