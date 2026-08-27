@@ -23,6 +23,12 @@ noncomputable section
 def Phase.angle (p : Phase) : ℝ :=
   (p.num : ℝ) / ((p.den : ℕ) : ℝ) * Real.pi
 
+ theorem Phase.angle_smul (n : ℤ) (p : Phase) : (n • p).angle = (n : ℝ) * p.angle := by
+    show Phase.angle (Phase.smul n p) = _
+    unfold Phase.angle Phase.smul
+    push_cast
+    ring
+
 namespace SpLean.Algebraic
 
 open Complex (I)
