@@ -49,9 +49,43 @@ theorem scalar_sem_sqrt_two_e_i_alpha (α : Phase) (f g : Wires 0) :
   norm_num
   rw [two_times_one_over_root_two_eq_root_two_complex]
 
--- -- Phaseles X spider triple-linked to phaseless Z spider = 1/√2
--- abbrev redCircleTripleLinkGreenCircle : ZX 0 0 := (.spider .X 0 3 ⟨0, 1⟩) ≫ (.spider .Z 3 0 ⟨0, 1⟩)
--- #zx redCircleTripleLinkGreenCircle
--- theorem scalar_sem_one_over_sqrt_two (f g : Wires 0) :
---     redCircleTripleLinkGreenCircle.sem f g = 1 / rootTwo := by
---   rw [ZX.sem]
+lemma sum_bool_endpoints {n : ℕ} {M : Type*} [AddCommMonoid M] (a b : M) :
+    ∑ x : Fin n → Bool,
+        ((if ∀ i, x i = false then a else 0) + if ∀ i, x i = true then b else 0)
+      = a + b := by
+  simp only [all_wires_false, all_wires_true]
+  rw [Finset.sum_add_distrib]
+  norm_num
+
+-- Phaseles X spider triple-linked to phaseless Z spider = 1/√2
+abbrev redCircleTripleLinkGreenCircle : ZX 0 0 := (.spider .X 0 3 ⟨0, 1⟩) ≫ (.spider .Z 3 0 ⟨0, 1⟩)
+#zx redCircleTripleLinkGreenCircle
+theorem scalar_sem_one_over_sqrt_two (f g : Wires 0) :
+    redCircleTripleLinkGreenCircle.sem f g = 1 / rootTwo := by
+  -- Simp definitions
+  simp only [ZX.sem, xSpiderSem, zSpiderSem, hadSem, Phase.angle]
+  -- Remove product over Fin 0
+  simp only [Finset.univ_eq_empty, Finset.prod_empty, one_mul]
+  -- Remove conditions over Fin 0
+  simp only [IsEmpty.forall_iff, true_and, and_true]
+  -- Remove e^{0/1 Pi I}
+  simp only [Int.cast_zero, PNat.val_ofNat, Nat.cast_one, div_one, zero_mul, Complex.ofReal_zero, Complex.exp_zero]
+  -- Remove sum over Wires 0
+  simp only [Finset.sum_const, Finset.univ_unique]
+  -- Lean magic
+  ring_nf
+  norm_num
+  field_simp
+  -- Simplify booleans
+  simp only [Bool.false_eq_true, false_and, true_and]
+  simp_all only [Bool.false_eq_true]
+  -- Simplify ifs
+  simp only [↓reduceIte]
+  -- Simplify product of constants
+  simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin]
+  -- Simplify all false/true wires
+  simp only [sum_bool_endpoints]
+  -- Lean magic
+  norm_cast
+  field_simp
+  norm_num
