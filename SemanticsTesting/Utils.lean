@@ -32,6 +32,14 @@ lemma one_over_root_two_times_itself_eq_half_complex :
 abbrev zeroAmpl : Wires 1 := fun _ => false
 abbrev oneAmpl : Wires 1 := fun _ => true
 
+-- Boundary assignments for wires where all are false/true
+lemma all_wires_false {n : ℕ} :
+  ∀ x : Fin n → Bool, (∀ i, x i = false) ↔ x = fun _ => false := by
+  exact fun x => Iff.symm funext_iff
+lemma all_wires_true {n : ℕ} :
+  ∀ x : Fin n → Bool, (∀ i, x i = true) ↔ x = fun _ => true := by
+  exact fun x => Iff.symm funext_iff
+
 /-- A sum over every single-wire boundary assignment is a two-term sum: there
 are only `zeroAmpl` and `oneAmpl`. Replaces the
 `rw [show Finset.univ = {zeroAmpl, oneAmpl} from by decide]; rw [Finset.sum_pair (by decide)]`
