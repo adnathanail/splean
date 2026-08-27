@@ -64,14 +64,8 @@ theorem scalar_sem_one_over_sqrt_two (f g : Wires 0) :
     redCircleTripleLinkGreenCircle.sem f g = 1 / rootTwo := by
   -- Simp definitions
   simp only [ZX.sem, xSpiderSem, zSpiderSem, hadSem, AlgPhase.angle, AlgPhase.toRat]
-  -- Remove product over Fin 0
-  simp only [Finset.univ_eq_empty, Finset.prod_empty, one_mul]
-  -- Remove conditions over Fin 0
-  simp only [IsEmpty.forall_iff, true_and, and_true]
-  -- Remove e^{0/1 Pi I}
-  simp only [Int.cast_zero, PNat.val_ofNat, Nat.cast_one, div_one, zero_mul, Complex.ofReal_zero, Complex.exp_zero]
-  -- Remove sum over Wires 0
-  simp only [Finset.sum_const, Finset.univ_unique]
+  -- Simplify ifs
+  simp only [mul_ite]
   -- Lean magic
   ring_nf
   norm_num
