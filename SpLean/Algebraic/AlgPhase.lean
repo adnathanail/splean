@@ -6,6 +6,17 @@ def AlgPhase : Type := ℚ
 
 namespace AlgPhase
 
+/-! `AlgPhase` is a `def` rather than an `abbrev` so that the representation can
+change later, but that hides `ℚ`'s instances: without them a literal phase like
+`1 / 2` has no `OfNat`/`Div` to elaborate against and every use site needs a
+`(· : ℚ)` ascription. Transport the ones needed to write and compute with phase
+literals. -/
+
+instance : Field AlgPhase := inferInstanceAs (Field ℚ)
+instance : DecidableEq AlgPhase := inferInstanceAs (DecidableEq ℚ)
+instance : Repr AlgPhase := inferInstanceAs (Repr ℚ)
+instance : Inhabited AlgPhase := inferInstanceAs (Inhabited ℚ)
+
 /-- The phase `q·π`. -/
 def ofRat (q : ℚ) : AlgPhase := q
 
