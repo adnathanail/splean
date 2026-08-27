@@ -45,6 +45,16 @@ def Phase.neg (p : Phase) : Phase :=
 instance : Neg Phase where
   neg := Phase.neg
 
+/-- Integer multiple of a phase: `n • (a/b)π = (n*a/b)π`.
+
+Only *integer* scalars are provided: a phase is a value mod 2π, so scaling by a
+non-integer rational is not well defined on it (`0 = 2π` but `0 ≠ π`). -/
+def Phase.smul (n : ℤ) (p : Phase) : Phase :=
+  { num := n * p.num, den := p.den }
+
+instance : SMul ℤ Phase where
+  smul := Phase.smul
+
 /-- Internal spider (Z/X), Hadamard box, plain wire dot, input or output -/
 inductive Node where
   | spider (color : SpiderColor) (phase : Phase)

@@ -40,3 +40,37 @@ lemma scalar_univ_half (f g : Wires 0) :
   norm_cast
   ring_nf
   norm_num
+
+-- d) z = cos θ for any value of θ
+abbrev scalarDiagCosTheta (θ : Phase) :=
+  redPiCircleAnyGreen θ ≫
+  redCircleTripleLinkGreenCircle ≫
+  greenAlphaCircle (-2 • θ) ≫
+  redCircleTripleLinkGreenCircle ≫
+  redCircleTripleLinkGreenCircle
+#zx scalarDiagCosTheta ⟨1, 4⟩
+lemma scalar_uni_cos_theta (θ : Phase) (f g : Wires 0) :
+    (scalarDiagCosTheta θ).sem f g = Complex.cos θ.angle := by
+  -- Replace diagram semantics with scalars from previous lemmas
+  rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_one_over_sqrt_two]
+  rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_one_over_sqrt_two]
+  rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_alpha]
+  rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_one_over_sqrt_two, scalar_sem_sqrt_two_e_i_alpha]
+  unfold rootTwo eiTheta
+  -- Deal with the scalar multiple of phases
+  rw [Phase.angle_smul]
+  -- Neaten casting
+  push_cast
+  -- Rewrite cos in terms of exp
+  rw [Complex.cos]
+  -- Shuffle expressions around
+  nth_rw 4 [mul_right_comm]
+  rw [mul_one_div_cancel]
+  on_goal 2 => norm_num
+  rw [one_mul, mul_add]
+  -- e^x * e^y = e^{x + y}
+  rw [← Complex.exp_add]
+  -- Normalise expressions
+  ring_nf
+  -- Deal with complex casting nastiness
+  rw [show ((√2 : ℂ)⁻¹ ^ 2) = 1 / 2 by norm_cast ; simp]
