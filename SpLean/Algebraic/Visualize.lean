@@ -119,7 +119,7 @@ private def buildFrag : {n m : Nat} → ZX n m → Frag
     { diagram := d, left := [(id, 0)], right := [(id, 0)]
       width := 1, height := 1, pos := [(id, 0, 0)], boxes := [] }
   | _, _, .spider c n m φ =>
-    let (d, id) := Frag.empty.diagram.addNode (.spider c φ)
+    let (d, id) := Frag.empty.diagram.addNode (.spider c ⟨φ.num, φ.den'⟩)
     let mx := Nat.max n m
     -- `centre` is the qubitHalves at the midpoint of slots `0..mx-1`.
     -- `mx - 1` saturates at 0 when `mx = 0` (a 0-leg spider has no ports).
