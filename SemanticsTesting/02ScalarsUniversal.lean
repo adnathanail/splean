@@ -74,3 +74,7 @@ lemma scalar_uni_cos_theta (θ : Phase) (f g : Wires 0) :
   ring_nf
   -- Deal with complex casting nastiness
   rw [show ((√2 : ℂ)⁻¹ ^ 2) = 1 / 2 by norm_cast ; simp]
+
+-- TODO complete proof
+--   our phases are rationals, so they cannot be used to construct ℝ and therefore ℂ
+
