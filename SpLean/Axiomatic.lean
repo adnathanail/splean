@@ -1,6 +1,6 @@
 -- The graph-style, axiomatised approach: `≈z` equivalence on `ZXDiagram`,
 -- the rewrite rules it is built from, and the tactics that apply them.
-import SpLean.Axiomatic.Data
+import SpLean.Axiomatic.ZXDiagram
 import SpLean.Axiomatic.Visualize
 import SpLean.Axiomatic.Axioms
 import SpLean.Axiomatic.Tactics

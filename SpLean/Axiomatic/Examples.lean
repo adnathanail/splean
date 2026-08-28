@@ -1,4 +1,4 @@
-import SpLean.Axiomatic.Data
+import SpLean.Axiomatic.ZXDiagram
 
 namespace SpLean.Examples
 
