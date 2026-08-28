@@ -93,7 +93,13 @@ denotations: the `wiresVec*`/`wiresMat*` coercions that let a goal be stated as
 `#zx myAlgTerm` renders an algebraic term in the existing widget.
 `Visualize.lean` is the pure part (skeleton → `SpLean.Wire.Diagram` → `Html`);
 `Render.lean` is the `MetaM` part that turns a `ZX n m` *`Expr`* into that
-skeleton.
+skeleton. It has two entry points, both consumed by `SpLean/Panel.lean`:
+`zxTermHtml?` for a single term (`#zx`), and `zxEquivHtml?` for an `a ≈zx b`
+goal, which walks both sides and hands them to the widget as LHS and RHS — so
+`ZXPanel` follows an algebraic proof exactly as it follows an axiomatic one.
+Neither side is evaluated, which is the point: a goal with `α β : AlgPhase` in
+context still draws. `zxEquivHtml?` is why this file imports
+`Algebraic.Equiv` — it needs the `ZX.Equiv` constant to match on.
 
 This module owns its rendering end to end. It has **no** dependency on
 `SpLean/Axiomatic/` — not on `ZXDiagram`, not on `Node`, not on `Phase`, and

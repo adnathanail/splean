@@ -2,6 +2,9 @@ import SemanticsTesting.Utils
 
 open SpLean.Algebraic
 
+-- Draw each goal as LHS/RHS diagrams in the InfoView as the cursor moves.
+show_panel_widgets [local SpLean.ZXPanel]
+
 theorem two_t_gates_equiv_s_gate :
     Gate.T ≫ Gate.T ≈zx Gate.S := by
   zx_rw [zSpider_fusion]

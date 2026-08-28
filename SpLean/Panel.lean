@@ -8,11 +8,11 @@ open Lean Server Elab Meta ProofWidgets
 
 namespace SpLean
 
-/-- Run a renderer, turning "this cannot be drawn" into a `none`. The renderers
-    in `Axiomatic/Render.lean` return `none` only for an expression of the wrong
-    shape entirely, and *throw* on one of the right shape they cannot draw — a
-    `ZXDiagram` too open to evaluate, say. In a panel that is nothing to show
-    yet, not an error to put in front of the user.
+/-- Run a renderer, turning "this cannot be drawn" into a `none`. Both
+    representations' renderers throw on a term of the right shape they cannot
+    draw — the graph-style one because it evaluates, the algebraic one because
+    it walks — and in a panel that is nothing to show yet, not an error to
+    put in front of the user.
 
     An interrupt or a blown recursion depth is *not* an answer about the
     diagram: the first aborts a superseded request when the user edits the
@@ -25,7 +25,15 @@ private def softly (act : MetaM (Option Html)) : MetaM (Option Html) := do
     if ex.isInterrupt || ex.isMaxRecDepth then throw ex
     return none
 
-/-- Presents `≈z` goals and `ZXDiagram` subterms as diagrams. Surfaced by
+/-- Render an equivalence goal in whichever representation it is stated in:
+    a graph-style `d₁ ≈z d₂`, or an algebraic `a ≈zx b`. `none` if it is
+    neither, or if the sides cannot be drawn. -/
+def equivHtml? (e : Expr) : MetaM (Option Html) := do
+  if let some html ← softly (zxEquivHtml? e) then return html
+  softly (Algebraic.zxEquivHtml? e)
+
+/-- Presents equivalence goals (`≈z` and `≈zx`) and ZX-valued subterms
+    (`ZXDiagram` and algebraic `ZX n m`) as diagrams. Surfaced by
     `ProofWidgets.GoalTypePanel` and, for shift-click selections,
     `ProofWidgets.SelectionPanel`.
 
@@ -36,9 +44,10 @@ def zxPresenter : ExprPresenter where
   userName := "ZX diagram"
   layoutKind := .block
   present e := do
-    if let some html ← softly (zxEquivHtml? e) then return html
+    if let some html ← equivHtml? e then return html
     if let some html ← softly (zxDiagramHtml? e) then return html
-    throwError "Not a ZX diagram or `≈z` goal."
+    if let some html ← softly (Algebraic.zxTermHtml? e) then return html
+    throwError "Not a ZX diagram or ZX equivalence goal."
 
 /-- How many goals to draw at once. A case split can leave many goals live, and a
     wall of diagrams is less use than a few; the rest are reported as a count. -/
@@ -64,7 +73,7 @@ def ZXPanel.rpc (props : PanelWidgetProps) : RequestM (RequestTask Html) :=
     for g in shown do
       let html? ← g.ctx.val.runMetaM {} do
         g.mvarId.withContext do
-          softly (zxEquivHtml? (← g.mvarId.getType))
+          equivHtml? (← g.mvarId.getType)
       if let some html := html? then
         -- Only label when there is more than one diagram; a heading above a lone
         -- diagram is noise.
@@ -76,8 +85,9 @@ def ZXPanel.rpc (props : PanelWidgetProps) : RequestM (RequestTask Html) :=
       out := out.push (.text s!"… and {omitted} further goal(s) not drawn.")
     return .element "div" #[] out
 
-/-- Renders the current `≈z` goal as a diagram, following the cursor through a
-    proof. Enable for a section with
+/-- Renders the current equivalence goal as a diagram, following the cursor
+    through a proof. Takes both representations: a graph-style `≈z` goal, and
+    an algebraic `≈zx` one. Enable for a section with
 
     ```lean
     show_panel_widgets [local ZXPanel]

@@ -1,4 +1,5 @@
 import SpLean.Algebraic.Visualize
+import SpLean.Algebraic.Equiv
 import ProofWidgets.Component.HtmlDisplay
 
 /-! # Rendering algebraic `ZX n m` terms
@@ -95,5 +96,21 @@ def zxTermHtml? (e : Expr) : MetaM (Option Html) := do
   forallTelescopeReducing (← inferType e) fun xs body => do
     if !isZXType (← whnf body) then return none
     return some (← zxSkelOfExpr (mkAppN e xs)).toHtml
+
+/-- Render a goal `a ≈zx b` as its two sides side by side, or `none` if `e` is
+    not a `≈zx` application at all. A side that is not built from the `ZX`
+    constructors throws, just as `zxTermHtml?` does — the caller decides
+    whether that is an error or simply nothing to draw.
+
+    Unlike the graph-style `≈z` case in `SpLean/Panel.lean`, neither side is
+    evaluated: an algebraic goal in mid-proof is usually open (`α β : AlgPhase`
+    in the context), and the walker draws those phases as themselves. -/
+def zxEquivHtml? (e : Expr) : MetaM (Option Html) := do
+  let e ← instantiateMVars e
+  let args := e.getAppArgs
+  unless e.getAppFn.constName? == some ``ZX.Equiv && args.size == 4 do return none
+  let lhs ← zxSkelOfExpr args[2]!
+  let rhs ← zxSkelOfExpr args[3]!
+  return some (lhs.toWire.toHtml (some rhs.toWire))
 
 end SpLean.Algebraic
