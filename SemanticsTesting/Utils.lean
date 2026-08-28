@@ -1,5 +1,4 @@
-import SpLean.Algebraic.Semantics
-import SpLean.Algebraic.Equiv
+import SpLean.Algebraic
 import SpLean.Algebraic.Rules.Lemmas
 import SpLean.Panel
 
