@@ -16,7 +16,7 @@ scalar multiples — and nothing it doesn't: `p * q`, `p / q` and `p⁻¹` do no
 elaborate. That matters because a phase is a value mod 2π, so scaling by a
 non-integer rational is not well defined on it (`0 = 2π` but `0 ≠ π`); put
 another way, `equiv` is a congruence for `+`, `-` and `•` but not for `*` or
-`/`. The same restriction is stated on `Phase.smul` in `SpLean/Data.lean`.
+`/`. The same restriction is stated on `Phase.smul` in `SpLean/Axiomatic/ZXDiagram.lean`.
 
 It is also what survives the planned symbolic-phase extension: a `Phase`
 carrying ℤ-linear variable coefficients is still an `AddCommGroupWithOne`, but

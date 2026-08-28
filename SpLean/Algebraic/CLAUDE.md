@@ -56,7 +56,7 @@ coercions that let a goal be stated as `!![1, 0; 0, -1]`.
 - **`spider c n m φ`** takes its phase last and defaults it to `0`, so a
   phase-free spider is just `.spider .Z 1 2`.
 - **A spider's colour here is `AlgSpColor`**, not the `SpiderColor` in
-  `Axiomatic/Data.lean`. Same two constructors, deliberately duplicated: it
+  `Axiomatic/ZXDiagram.lean`. Same two constructors, deliberately duplicated: it
   was the last thread tying the two representations together and it bought
   nothing, since this one only ever becomes a `"Z"`/`"X"` on the wire. The
   names differ so that neither has to be identified by its namespace.
