@@ -63,10 +63,10 @@ coercions that let a goal be stated as `!![1, 0; 0, -1]`.
 
 ## Visualization (`Visualize.lean`, `Render.lean`)
 
-`ZX.toHtml` renders an algebraic term in the existing widget. `Visualize.lean`
-is the pure part (term → skeleton → `SpLean.Wire.Diagram` → `Html`);
-`Render.lean` is the `MetaM` part that turns a `ZX n m` *`Expr`* into `Html`,
-so `#zx myAlgTerm` displays algebraic terms at the top level.
+`#zx myAlgTerm` renders an algebraic term in the existing widget.
+`Visualize.lean` is the pure part (skeleton → `SpLean.Wire.Diagram` → `Html`);
+`Render.lean` is the `MetaM` part that turns a `ZX n m` *`Expr`* into that
+skeleton.
 
 This module owns its rendering end to end. It has **no** dependency on
 `SpLean/Axiomatic/` — not on `ZXDiagram`, not on `Node`, not on `Phase`, and
@@ -78,31 +78,36 @@ graph-style type, the answer is a lowering into `Wire`, not an import.
 ### The skeleton, and parametric phases
 
 Both halves meet at `ZXSkel`: an arity-erased mirror of `ZX n m` whose spiders
-carry the *text* to draw (a `String`) rather than a phase value. The two ways
-in are:
+carry the *text* to draw (a `String`) rather than a phase value. There is
+exactly one way in — `Render.lean`'s `zxSkelOfExpr`, which walks the `Expr`
+constructor by constructor (`whnf` between steps, so an `abbrev` naming a
+subdiagram is transparent). Nothing builds a skeleton from a `ZX n m` *value*:
+there was a `ZX.toSkel` doing that, but once `#zx` walked `Expr`s it had no
+callers, so a value goes through the walker like everything else.
 
-- `ZX.toSkel`, for a term whose phases are values — it formats them with
-  `AlgPhase.format`, so what the viewer draws is exactly what `AlgPhase`'s own
-  `Repr` says. (It used to convert to the graph-style `Phase` first, which
-  normalizes mod 2π, so the viewer drew `7π/4` where `format` promised `-π/4`.
-  That conversion is gone along with the dependency.)
-- `Render.lean`'s `zxSkelOfExpr`, which walks the `Expr` constructor by
-  constructor (`whnf` between steps, so an `abbrev` naming a subdiagram is
-  transparent). It never evaluates the term as a whole, which is what lets a
-  *parameterized* diagram be drawn: `zxTermHtml?` binds any leading `∀`s with
-  `forallTelescopeReducing`, so `#zx greenAlphaCircle` — of type
-  `(α : AlgPhase) → ZX 0 0` — draws a Z spider labelled `α`. A phase argument
-  mentioning no free or metavariable is evaluated and formatted as above;
-  anything else becomes its own pretty-printed source (`α`, `β + π`,
-  `α + π/4`, `2 • β`).
+Not evaluating the term as a whole is what lets a *parameterized* diagram be
+drawn: `zxTermHtml?` binds any leading `∀`s with `forallTelescopeReducing`, so
+`#zx greenAlphaCircle` — of type `(α : AlgPhase) → ZX 0 0` — draws a Z spider
+labelled `α`. A phase argument mentioning no free or metavariable is evaluated
+and formatted with `AlgPhase.format`, so what the viewer draws is exactly what
+`AlgPhase`'s own `Repr` says. (Rendering used to convert to the graph-style
+`Phase` first, which normalizes mod 2π, so the viewer drew `7π/4` where
+`format` promised `-π/4`. That conversion is gone along with the dependency.)
+Anything else becomes its own pretty-printed source (`α`, `β + π`, `α + π/4`,
+`2 • β`).
 
-  Spider *arities* get no such treatment — the layout has to place the legs,
-  so a non-literal `n`/`m` is an error rather than a label.
+`Meta.evalExpr` is what formats that closed phase, and it is the only `unsafe`
+step in the module: `phaseTextOfExpr` is an `opaque` with an
+`@[implemented_by]` impl, so the walk around it stays ordinary `MetaM` code.
+Keep the seal there rather than at the top of the walk.
 
-  This is why the display priority of the `π` notations in
-  `AlgPhase/Notation.lean` matters: a symbolic phase is whatever the
-  pretty-printer produces. They are declared in reverse priority order (the
-  last-declared unexpander is tried first) so that `π` does not print as `1π`.
+Spider *arities* get no such treatment — the layout has to place the legs, so
+a non-literal `n`/`m` is an error rather than a label.
+
+This is why the display priority of the `π` notations in
+`AlgPhase/Notation.lean` matters: a symbolic phase is whatever the
+pretty-printer produces. They are declared in reverse priority order (the
+last-declared unexpander is tried first) so that `π` does not print as `1π`.
 
 ### The layout walk
 

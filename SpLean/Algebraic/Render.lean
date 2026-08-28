@@ -36,10 +36,7 @@ private def arityOfExpr (e : Expr) : MetaM Nat := do
     | throwError "#zx: a spider's arity must be a literal, got{indentExpr e}"
   return n
 
-/-- The text to draw for a phase argument. A closed phase is evaluated and
-    formatted; anything mentioning a variable or metavariable is printed as it
-    is written, so `α` and `β + π/4` reach the widget as themselves. -/
-private unsafe def phaseTextOfExpr (e : Expr) : MetaM String := do
+private unsafe def phaseTextOfExprImpl (e : Expr) : MetaM String := do
   if !e.hasFVar && !e.hasMVar then
     try
       return ← Meta.evalExpr String (mkConst ``String) (← mkAppM ``AlgPhase.format #[e])
@@ -49,10 +46,20 @@ private unsafe def phaseTextOfExpr (e : Expr) : MetaM String := do
       pure ()
   return toString (← ppExpr e)
 
+/-- The text to draw for a phase argument. A closed phase is evaluated and
+    formatted; anything mentioning a variable or metavariable is printed as it
+    is written, so `α` and `β + π/4` reach the widget as themselves.
+
+    `Meta.evalExpr` is why this is the one `unsafe` step of the walk, and why
+    it is sealed behind an `opaque` here rather than at the top of it: the
+    walker itself is ordinary `MetaM` code. -/
+@[implemented_by phaseTextOfExprImpl]
+private opaque phaseTextOfExpr (e : Expr) : MetaM String
+
 /-- Walk a `ZX n m` `Expr` into a `ZXSkel`. `whnf` at each step unfolds the
     definitions between one constructor and the next, so an `abbrev` naming a
     subdiagram is transparent here. -/
-private unsafe def zxSkelOfExprImpl (e : Expr) : MetaM ZXSkel := do
+private partial def zxSkelOfExpr (e : Expr) : MetaM ZXSkel := do
   let e ← whnf e
   let args := e.getAppArgs
   match e.getAppFn.constName? with
@@ -69,15 +76,12 @@ private unsafe def zxSkelOfExprImpl (e : Expr) : MetaM ZXSkel := do
   | some ``ZX.stack =>
     -- `stack {n m p q} a b`
     unless args.size == 6 do throwError "#zx: malformed stack{indentExpr e}"
-    return .stack (← zxSkelOfExprImpl args[4]!) (← zxSkelOfExprImpl args[5]!)
+    return .stack (← zxSkelOfExpr args[4]!) (← zxSkelOfExpr args[5]!)
   | some ``ZX.compose =>
     -- `compose {n m k} a b`
     unless args.size == 5 do throwError "#zx: malformed compose{indentExpr e}"
-    return .compose (← zxSkelOfExprImpl args[3]!) (← zxSkelOfExprImpl args[4]!)
+    return .compose (← zxSkelOfExpr args[3]!) (← zxSkelOfExpr args[4]!)
   | _ => throwError "#zx: not built from the `ZX` constructors:{indentExpr e}"
-
-@[implemented_by zxSkelOfExprImpl]
-opaque zxSkelOfExpr (e : Expr) : MetaM ZXSkel
 
 /-- Render an `Expr` as an algebraic ZX diagram, or `none` if it is not a
     `ZX n m` term (possibly under binders). The `#zx` command uses this to
