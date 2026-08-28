@@ -1,5 +1,4 @@
 import SpLean.Algebraic.ZX
-import SpLean.Panel
 
 open SpLean.Algebraic
 
