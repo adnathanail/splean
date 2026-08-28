@@ -13,7 +13,7 @@ Make changes in new commits, as opposed to modifying existing commits, unless ex
 ## Project structure
 
 - `SpLean/` — Lean 4 library, split into one folder per representation plus the little that is genuinely shared:
-  - `Widget.lean` — the zxcc **wire format** (`SpLean.Wire`: `NodeKind`, `Node`, `Edge`, `Box`, `Diagram`, `toJson`) and the ProofWidgets `ZXWidget` that eats it. A pure data-transfer type: no `Phase`, no `SpiderColor`, phases already display strings.
+  - `Widget.lean` — the zxcc **wire format** (`SpLean.Wire`: `NodeKind`, `Node`, `Edge`, `BoxKind`, `Box`, `Diagram`, `toJson`) and the ProofWidgets `ZXWidget` that eats it. A pure data-transfer type: no `Phase`, no `SpiderColor`, phases already display strings.
   - `Panel.lean` — the InfoView panel widget, expression presenter, and `#zx` command. The one file that knows both representations, because `#zx` dispatches on which it was handed.
   - `Axiomatic/` — the graph-based approach: `Data.lean` (`SpiderColor`, `Phase`, `Node`, `Edge`, `ZXDiagram` + graph ops), `Visualize.lean` (`ZXDiagram → Wire.Diagram`), `Axioms.lean` (`≈z`), `Tactics.lean` (the rewrite tactics), `Rules/`, `DerivedRules/`, `Examples.lean`.
   - `Algebraic/` — the arity-indexed `ZX n m` approach, with its own `SpiderColor`, phase type and renderer; see `SpLean/Algebraic/CLAUDE.md`.

@@ -117,7 +117,8 @@ is the midpoint of slots `0..max-1` in halves):
   need to match) and shift `b`'s cols by `a.width`. Width `a.width + b.width`,
   height `max a.height b.height`.
 
-`stack` and `compose` each emit a `Wire.Box {kind, nodeIds}` over every node
+`stack` and `compose` each emit a `Wire.Box` — a `Wire.BoxKind` and the ids —
+over every node
 in their subtree; leaves emit none, and so does a subtree with no nodes at all
 (`empty ⊗ empty`). zxcc computes pixel bounds from the nodes' live positions,
 so boxes follow drags, and sorts them largest-first so outer ones paint

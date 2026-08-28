@@ -3,13 +3,11 @@ import SpLean.Widget
 
 /-! # Drawing an algebraic `ZX n m`
 
-The algebraic representation's own lowering to `SpLean.Wire`. It supplies a
-position for every node — derived from the term's structure rather than from
-a layout pass — so zxcc skips its BFS and the picture mirrors the algebra.
-
-Nothing here touches the graph-style `ZXDiagram`, `Node` or `Phase`: those
-belong to `SpLean/Axiomatic/`, and a `ZX n m` has no business knowing they
-exist. The two representations meet at the wire format and nowhere else. -/
+Lowering to `SpLean.Wire`
+- supplies a position for every node
+- derived from the term's structure rather than from a layout pass
+- zxcc skips BFS so that the picture mirrors the algebra.
+-/
 
 namespace SpLean.Algebraic
 
@@ -102,7 +100,7 @@ private def shiftBox (idOff : Nat) (b : Wire.Box) : Wire.Box :=
 
 /-- A box over every node of a fragment of `count` nodes, or nothing at all if
     it has none. -/
-private def wholeBox (kind : String) (count : Nat) : List Wire.Box :=
+private def wholeBox (kind : Wire.BoxKind) (count : Nat) : List Wire.Box :=
   if count == 0 then [] else [{ kind, nodeIds := List.range count }]
 
 /-- Stack `a` on top of `b` (parallel composition). `b`'s qubits shift down by
@@ -117,7 +115,7 @@ private def Frag.append (a b : Frag) : Frag :=
     width := Nat.max a.width b.width
     height := a.height + b.height
     boxes := a.boxes ++ b.boxes.map (shiftBox off)
-               ++ wholeBox "stack" (off + b.nodes.length) }
+               ++ wholeBox .stack (off + b.nodes.length) }
 
 /-- Sequentially compose `a` then `b`: connect `a`'s open outputs to `b`'s open
     inputs by id (their qubits need not match), shifting `b` right by `a.width`
@@ -134,7 +132,7 @@ private def Frag.then (a b : Frag) : Frag :=
     width := a.width + b.width
     height := Nat.max a.height b.height
     boxes := a.boxes ++ b.boxes.map (shiftBox off)
-               ++ wholeBox "compose" (off + b.nodes.length) }
+               ++ wholeBox .compose (off + b.nodes.length) }
 
 /-- Lay a term out. Boundary nodes are added afterwards, by `toWire`. -/
 private def buildFrag : {n m : Nat} → ZX n m → Frag
