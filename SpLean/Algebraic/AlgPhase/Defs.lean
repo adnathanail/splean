@@ -1,9 +1,9 @@
 import Mathlib.Data.Rat.Defs
 import Mathlib.Data.Real.Basic
-import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 
 def AlgPhase : Type := ℚ
 
+-- TODO Splean.Algebraic.AlgPhase?
 namespace AlgPhase
 
 /-! `AlgPhase` is a `def` rather than an `abbrev` so that the representation can
