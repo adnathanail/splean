@@ -27,16 +27,24 @@ the project currently uses `π` for `Real.pi`; it is spelled out.
 
 namespace SpLean.Algebraic
 
-/-- The phase `π`. -/
-scoped notation:max "π" => AlgPhase.ofRat 1
+/-! Declaration order below is *reverse* display priority: each `notation`
+generates an unexpander for `AlgPhase.ofRat`, and the last one declared is
+tried first. Every phase matches `kπ`, so the more specific forms have to come
+after it or nothing else would ever print — `π` would show as `1π` and `π/4` as
+`1 / 4π`. Symbolic phases reach the viewer as pretty-printed source (see
+`Algebraic/Render.lean`), so this ordering is what a spider labelled `α + π/4`
+is drawn with. Parsing is unaffected: `π` and `π/` are distinct tokens. -/
 
-/-- The phase `π/n`. -/
-scoped notation:max "π/" n => AlgPhase.ofRat (1 / n)
+/-- The phase `kπ`. See the note above on why this is not `notation:max`. -/
+scoped notation:70 k "π" => AlgPhase.ofRat k
 
 /-- The phase `kπ/n`. -/
 scoped notation:max k "π/" n => AlgPhase.ofRat (k / n)
 
-/-- The phase `kπ`. See the note above on why this is not `notation:max`. -/
-scoped notation:70 k "π" => AlgPhase.ofRat k
+/-- The phase `π/n`. -/
+scoped notation:max "π/" n => AlgPhase.ofRat (1 / n)
+
+/-- The phase `π`. -/
+scoped notation:max "π" => AlgPhase.ofRat 1
 
 end SpLean.Algebraic

@@ -64,11 +64,9 @@ coercions that let a goal be stated as `!![1, 0; 0, -1]`.
 ## Visualization (`Visualize.lean`, `Render.lean`)
 
 `ZX.toHtml` renders an algebraic term in the existing widget. `Visualize.lean`
-is the pure part (term → `SpLean.Wire.Diagram` → `Html`); `Render.lean` is the
-`MetaM` part that turns a `ZX n m` *`Expr`* into `Html`, so `#zx myAlgTerm`
-displays algebraic terms at the top level. Arity is recovered from
-`Meta.inferType`: the term itself isn't evaluable because `ZX n m` is
-index-dependent, but the `Html` application is.
+is the pure part (term → skeleton → `SpLean.Wire.Diagram` → `Html`);
+`Render.lean` is the `MetaM` part that turns a `ZX n m` *`Expr`* into `Html`,
+so `#zx myAlgTerm` displays algebraic terms at the top level.
 
 This module owns its rendering end to end. It has **no** dependency on
 `SpLean/Axiomatic/` — not on `ZXDiagram`, not on `Node`, not on `Phase`, and
@@ -77,12 +75,36 @@ thing is `SpLean/Widget.lean`, the zxcc wire format, which is a JSON DTO
 rather than a ZX type. Keep it that way: if something here starts wanting a
 graph-style type, the answer is a lowering into `Wire`, not an import.
 
-### The layout walk
+### The skeleton, and parametric phases
 
-`AlgPhase.format` is what the viewer draws — it used to convert to the
-graph-style `Phase` first, which normalizes mod 2π, so the viewer drew `7π/4`
-where `format` promised `-π/4`. That conversion is gone along with the
-dependency.
+Both halves meet at `ZXSkel`: an arity-erased mirror of `ZX n m` whose spiders
+carry the *text* to draw (a `String`) rather than a phase value. The two ways
+in are:
+
+- `ZX.toSkel`, for a term whose phases are values — it formats them with
+  `AlgPhase.format`, so what the viewer draws is exactly what `AlgPhase`'s own
+  `Repr` says. (It used to convert to the graph-style `Phase` first, which
+  normalizes mod 2π, so the viewer drew `7π/4` where `format` promised `-π/4`.
+  That conversion is gone along with the dependency.)
+- `Render.lean`'s `zxSkelOfExpr`, which walks the `Expr` constructor by
+  constructor (`whnf` between steps, so an `abbrev` naming a subdiagram is
+  transparent). It never evaluates the term as a whole, which is what lets a
+  *parameterized* diagram be drawn: `zxTermHtml?` binds any leading `∀`s with
+  `forallTelescopeReducing`, so `#zx greenAlphaCircle` — of type
+  `(α : AlgPhase) → ZX 0 0` — draws a Z spider labelled `α`. A phase argument
+  mentioning no free or metavariable is evaluated and formatted as above;
+  anything else becomes its own pretty-printed source (`α`, `β + π`,
+  `α + π/4`, `2 • β`).
+
+  Spider *arities* get no such treatment — the layout has to place the legs,
+  so a non-literal `n`/`m` is an error rather than a label.
+
+  This is why the display priority of the `π` notations in
+  `AlgPhase/Notation.lean` matters: a symbolic phase is whatever the
+  pretty-printer produces. They are declared in reverse priority order (the
+  last-declared unexpander is tried first) so that `π` does not print as `1π`.
+
+### The layout walk
 
 The walker threads a private `Frag` through the constructors: a list of
 `PlacedNode`s (a `NodeShape` — spider / hadamard / wire / input / output —
@@ -108,7 +130,7 @@ is the midpoint of slots `0..max-1` in halves):
 - `hadamard` → one `hadamard` node at `(col 0, q 0)`, same ports, width 1,
   height 1. Its `phase` is sent as `π` explicitly, like every other phase —
   zxcc draws no text for it, but that is zxcc's decision to make.
-- `spider c n m φ` → one node at `(col 0, q centre)`. Each port is paired
+- `spider c n m phase` → one node at `(col 0, q centre)`. Each port is paired
   with its qubitHalves: when the arity is `1` the lone port sits at `centre`
   (so a single-leg connection is horizontal); when arity > 1 the ports occupy
   whole slots `0, 2, …, 2(k-1)`. Width 1, height `max n m`.
@@ -126,10 +148,9 @@ so boxes follow drags, and sorts them largest-first so outer ones paint
 behind inner ones.
 
 Boundary `input`/`output` nodes are added **only** at the top level, by
-`ZX.toWire`; fragments stay arity-pure during the walk. The arity comes from
-the fragment's own open ports (`left.length`/`right.length`) rather than from
-the type index, so the boundary count and the ports can never disagree. Each
-boundary inherits the qubit of the
+`ZXSkel.toWire`; fragments stay arity-pure during the walk. The arity comes
+from the fragment's own open ports (`left.length`/`right.length`) — the
+skeleton has no index to read it off. Each boundary inherits the qubit of the
 body port it connects to: input `i` sits at `(col -1, q (left[i].2))` and
 output `j` at `(col width, q (right[j].2))`. So an input feeding a `Z 1→2`
 spider lands on the spider's centred half-row, and one feeding a wire pushed
