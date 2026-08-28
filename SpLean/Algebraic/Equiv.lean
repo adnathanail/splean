@@ -9,6 +9,7 @@ scalar (VyZX's proportionality). -/
 def ZX.Equiv {n m : ℕ} (a b : ZX n m) : Prop :=
   ∃ c : ℂ, c ≠ 0 ∧ ∀ f g, a.sem f g = c * b.sem f g
 
+-- TODO should this be ≃?
 @[inherit_doc] scoped infix:50 " ≈zx " => ZX.Equiv
 
 namespace ZX.Equiv

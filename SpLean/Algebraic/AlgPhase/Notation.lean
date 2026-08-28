@@ -51,6 +51,10 @@ scoped syntax:max (name := kPiOver) term:0 "π/" term : term
 
 -- The `kind :=` is needed because `$k π` also parses as an application of `$k`
 -- to `π`, and a `macro_rules` pattern may not be ambiguous.
+-- TODO can we improve the binding here?
+--   e.g. failures:
+--   ZX.spider .X 1 1 2π
+--   (π/2 + π/2)
 macro_rules (kind := kPi)     | `($k π)     => `(AlgPhase.ofRat $k)
 macro_rules (kind := piLit)   | `(π)        => `(AlgPhase.ofRat 1)
 macro_rules (kind := piOver)  | `(π/ $n)    => `(AlgPhase.ofRat (1 / $n))
