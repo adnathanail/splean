@@ -1,7 +1,7 @@
 import SpLean.Algebraic.Semantics
 import SpLean.Algebraic.Equiv
 
-open SpLean.Algebraic
+namespace SpLean.Algebraic
 
 -- Boundary assignments of a single wire. `abbrev`, not `def`, so `simp` and
 -- `norm_num` can still see through to `false`/`true`.
@@ -90,3 +90,5 @@ lemma root_two_inv_sq_eq_two_inv_complex : (√2 : ℂ)⁻¹ ^ 2 = 2⁻¹ := by
   norm_cast
   rw [root_two_inv_sq_eq_two_inv]
   norm_num
+
+end SpLean.Algebraic

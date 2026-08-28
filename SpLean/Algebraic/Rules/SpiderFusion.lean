@@ -2,7 +2,6 @@ import SpLean.Algebraic.ZX
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Rules.Lemmas
 
--- TODO different namespace?
 namespace SpLean.Algebraic
 
 theorem zSpider_fusion (n m : ℕ) (α β : AlgPhase) :
@@ -36,3 +35,5 @@ theorem xSpider_fusion (n m : ℕ) (α β : AlgPhase) :
   -- expanding: (A+B)(C+D) + (A-B)(C-D) = 2(AC+BD), and the two ½s cancel it.
   rw [root_two_inv_sq_eq_two_inv_complex]
   ring
+
+end SpLean.Algebraic
