@@ -140,8 +140,8 @@ example : ∃ d', exercise3point7 ≈z d' := by
   zx_unsp 20 ⟨0, 1⟩ ⟨1, 1⟩ [3]
   zx_rfl
 
--- Algebraic-ZX terms can now be rendered too: `ZX.toHtml` converts them into
--- the same `ZXDiagram` widget shown above.
+-- Algebraic-ZX terms can now be rendered too: `#zx` draws them in the same
+-- widget shown above.
 open SpLean.Algebraic
 def algSpider : ZX 1 1 := .spider .Z 1 1 (π/2)
 #zx algSpider

@@ -3,7 +3,7 @@ import SpLean.Widget
 
 /-! # Drawing an algebraic `ZX n m`
 
-`ZX n m → SpLean.Wire` lowering
+`ZXSkel → SpLean.Wire` lowering
 - supplies a position for every node
 - derived from the term's structure rather than from a layout pass
 - zxcc skips BFS so that the picture mirrors the algebra.
@@ -21,10 +21,11 @@ private abbrev NodeId := Nat
 
     Erasing the arity is what lets the renderer accept a term it cannot
     evaluate: `SpLean/Algebraic/Render.lean` builds a skeleton straight from
-    an `Expr`, and a phase argument that is a variable becomes the string
-    `"α"` where a closed one becomes `"π/4"`. Both are equally drawable, and
-    by the time a phase is here the difference has stopped mattering — which
-    is why this carries a `String` and not an `AlgPhase`. -/
+    an `Expr` — the only way one is ever built — and a phase argument that is
+    a variable becomes the string `"α"` where a closed one becomes `"π/4"`.
+    Both are equally drawable, and by the time a phase is here the difference
+    has stopped mattering — which is why this carries a `String` and not an
+    `AlgPhase`. -/
 inductive ZXSkel where
   | empty
   | wire
@@ -33,15 +34,6 @@ inductive ZXSkel where
   | stack (a b : ZXSkel)
   | compose (a b : ZXSkel)
   deriving Repr, Inhabited
-
-/-- The skeleton of a term whose phases are all values. -/
-def ZX.toSkel : {n m : Nat} → ZX n m → ZXSkel
-  | _, _, .empty          => .empty
-  | _, _, .wire           => .wire
-  | _, _, .hadamard       => .hadamard
-  | _, _, .spider c n m φ => .spider c n m φ.format
-  | _, _, .stack a b      => .stack a.toSkel b.toSkel
-  | _, _, .compose a b    => .compose a.toSkel b.toSkel
 
 def AlgSpColor.wireName : AlgSpColor → String
   | .Z => "Z" | .X => "X"
@@ -215,9 +207,5 @@ def ZXSkel.toWire (z : ZXSkel) : Wire.Diagram :=
 open ProofWidgets in
 /-- Display a skeleton in the InfoView. -/
 def ZXSkel.toHtml (z : ZXSkel) : Html := z.toWire.toHtml
-
-open ProofWidgets in
-/-- Display an algebraic ZX term in the InfoView. -/
-def ZX.toHtml {n m : Nat} (z : ZX n m) : Html := z.toSkel.toHtml
 
 end SpLean.Algebraic
