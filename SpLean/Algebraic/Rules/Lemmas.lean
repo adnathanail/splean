@@ -16,10 +16,16 @@ lemma sum_wires1 {M : Type*} [AddCommMonoid M] (F : Wires 1 → M) :
   rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
   exact Finset.sum_pair (by decide)
 
--- Boundary assignments for wires where all are false/true
+lemma prod_wires1 {M : Type*} [CommMonoid M] (F : Wires 1 → M) :
+    ∏ g : Wires 1, F g = F zeroAmpl * F oneAmpl := by
+  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
+  exact Finset.prod_pair (by decide)
+
+/-- Boundary assignments for wires where all are false -/
 lemma all_wires_false {n : ℕ} :
   ∀ x : Fin n → Bool, (∀ i, x i = false) ↔ x = fun _ => false := by
   exact fun x => Iff.symm funext_iff
+/-- Boundary assignments for wires where all are true -/
 lemma all_wires_true {n : ℕ} :
   ∀ x : Fin n → Bool, (∀ i, x i = true) ↔ x = fun _ => true := by
   exact fun x => Iff.symm funext_iff
