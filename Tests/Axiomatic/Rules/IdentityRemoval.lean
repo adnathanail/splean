@@ -1,6 +1,8 @@
 import LSpec
 import SpLean.All
 
+namespace Tests.Axiomatic.Rules.IdentityRemoval
+
 open LSpec SpLean
 
 -- Identity removal (Z spider)
@@ -24,8 +26,10 @@ private def aZSpiderWithPhase : ZXDiagram :=
   .ofList [.input 0, .spider .Z ⟨1, 1⟩, .output 0]
           [⟨0, 1⟩, ⟨1, 2⟩]
 
-def identityRemovalTests : TestSeq :=
+def tests : TestSeq :=
   group "Identity removal" $
     test "removing phase-free Z spider" ((justPhaseFreeZSpider.identityRemoval 1).get! ≈z justPhaseFreeZSpiderIdentityRemoved) $
     test "removing phase-free X spider" ((justPhaseFreeXSpider.identityRemoval 1).get! ≈z justPhaseFreeXSpiderIdentityRemoved) $
     test "identity remove spider with phase should fail" ((aZSpiderWithPhase.identityRemoval 1).isError)
+
+end Tests.Axiomatic.Rules.IdentityRemoval

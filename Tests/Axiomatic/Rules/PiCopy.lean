@@ -1,6 +1,8 @@
 import LSpec
 import SpLean.All
 
+namespace Tests.Axiomatic.Rules.PiCopy
+
 open LSpec SpLean
 
 -- Test pushing a green π spider through an adjacent red π/2 spider
@@ -27,9 +29,11 @@ private def tooManyNeighbors : ZXDiagram :=
   .ofList [.input 0, .spider .Z ⟨1, 1⟩, .spider .X ⟨1, 2⟩, .output 0, .input 1]
           [⟨0, 1⟩, ⟨1, 2⟩, ⟨2, 3⟩, ⟨4, 1⟩]
 
-def piCopyTests : TestSeq :=
+def tests : TestSeq :=
   group "Pi copy" $
     test "basic pi copy" ((piCopyBasic.piCopy 1 2).get! ≈z piCopyBasicResult) $
     test "same colour rejected" ((sameColour.piCopy 1 2).isError) $
     test "non-π phase rejected" ((nonPiPhase.piCopy 1 2).isError) $
     test "too many neighbors rejected" ((tooManyNeighbors.piCopy 1 2).isError)
+
+end Tests.Axiomatic.Rules.PiCopy

@@ -1,6 +1,8 @@
 import LSpec
 import SpLean.All
 
+namespace Tests.Axiomatic.Rules.IdentityInsertion
+
 open LSpec SpLean
 
 -- Simple wire: input—output
@@ -27,10 +29,12 @@ private def disconnected : ZXDiagram :=
   .ofList [.input 0, .output 0]
           []
 
-def identityInsertionTests : TestSeq :=
+def tests : TestSeq :=
   group "Identity insertion" $
     test "insert Z spider on wire" ((simpleWire.identityInsertion 0 1 .Z).get! ≈z simpleWireZInserted) $
     test "insert X spider on wire" ((simpleWire.identityInsertion 0 1 .X).get! ≈z simpleWireXInserted) $
     test "insert between two spiders" ((twoSpiders.identityInsertion 1 2 .Z).get! ≈z twoSpidersZInserted) $
     test "disconnected nodes rejected" ((disconnected.identityInsertion 0 1 .Z).isError) $
     test "missing node rejected" ((simpleWire.identityInsertion 0 99 .Z).isError)
+
+end Tests.Axiomatic.Rules.IdentityInsertion

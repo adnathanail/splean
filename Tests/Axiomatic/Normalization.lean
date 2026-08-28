@@ -1,6 +1,8 @@
 import LSpec
 import SpLean.All
 
+namespace Tests.Axiomatic.Normalization
+
 open LSpec SpLean
 
 -- == Phase simplification tests ==
@@ -83,7 +85,7 @@ private def messy : ZXDiagram :=
 private def clean : ZXDiagram :=
   .ofList [.input 0, .spider .Z ⟨0, 1⟩, .output 0] [⟨0, 1⟩, ⟨1, 2⟩]
 
-def normalizationTests : TestSeq :=
+def tests : TestSeq :=
   group "Phase normalization" $
     -- Compaction
     test "compact removes nones and remaps edges" (withNones ≈z withoutNones) $
@@ -103,3 +105,5 @@ def normalizationTests : TestSeq :=
     test "phase 3π wraps to π" (phase3Pi ≈z phasePi) $
     -- Combined
     test "compaction + normalization together" (messy ≈z clean)
+
+end Tests.Axiomatic.Normalization

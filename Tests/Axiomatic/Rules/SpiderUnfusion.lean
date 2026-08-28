@@ -1,6 +1,8 @@
 import LSpec
 import SpLean.All
 
+namespace Tests.Axiomatic.Rules.SpiderUnfusion
+
 open LSpec SpLean
 
 -- Fuse two Z(π/2) and Z(π) spiders, then unfuse back with the same phase split.
@@ -46,7 +48,7 @@ private def branchedSpider : ZXDiagram :=
   .ofList [.input 0, .input 1, .spider .Z ⟨1, 1⟩, .output 0, .output 1]
           [⟨0, 2⟩, ⟨1, 2⟩, ⟨2, 3⟩, ⟨2, 4⟩]
 
-def spiderUnfusionTests : TestSeq :=
+def tests : TestSeq :=
   group "Spider unfusion" $
     -- Unfuse then fuse: exact round-trip back to original
     test "unfuse then fuse single Z spider"
@@ -85,3 +87,5 @@ def spiderUnfusionTests : TestSeq :=
     test "unfusion fails when rewire target not a neighbor"
       (let fused := (twoSpiders.spiderFusion 1 2).get!
       (fused.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 1⟩ [2]).isError)
+
+end Tests.Axiomatic.Rules.SpiderUnfusion

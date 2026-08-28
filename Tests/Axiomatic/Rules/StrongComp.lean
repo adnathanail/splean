@@ -1,6 +1,8 @@
 import LSpec
 import SpLean.All
 
+namespace Tests.Axiomatic.Rules.StrongComp
+
 open LSpec SpLean
 
 -- Basic: two opposite-color phase-0 spiders in a chain
@@ -57,7 +59,7 @@ private def nonSpider : ZXDiagram :=
           [⟨0, 1⟩, ⟨1, 2⟩]
 -- #zx nonSpider
 
-def strongCompTests : TestSeq :=
+def tests : TestSeq :=
   group "Strong complementarity" $
     test "basic chain" ((basicChain.strongComp 1 2).get! ≈z basicChainResult) $
     test "3x3 bipartite" ((threeByThree.strongComp 1 2).get! ≈z threeByThreeResult) $
@@ -65,3 +67,5 @@ def strongCompTests : TestSeq :=
     test "non-zero phase rejected" ((nonZeroPhase.strongComp 1 2).isError) $
     test "not connected rejected" ((notConnected.strongComp 1 2).isError) $
     test "non-spider node rejected" ((nonSpider.strongComp 1 2).isError)
+
+end Tests.Axiomatic.Rules.StrongComp

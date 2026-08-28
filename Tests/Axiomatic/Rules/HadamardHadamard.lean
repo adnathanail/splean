@@ -1,6 +1,8 @@
 import LSpec
 import SpLean.All
 
+namespace Tests.Axiomatic.Rules.HadamardHadamard
+
 open LSpec SpLean
 
 -- Two adjacent Hadamards cancel
@@ -26,9 +28,11 @@ private def branchedHadamard : ZXDiagram :=
   .ofList [.input 0, .hadamard, .hadamard, .output 0, .input 1]
           [⟨0, 1⟩, ⟨1, 2⟩, ⟨2, 3⟩, ⟨4, 1⟩]
 
-def hadamardHadamardTests : TestSeq :=
+def tests : TestSeq :=
   group "Hadamard-Hadamard cancellation" $
     test "two Hadamards cancel" ((twoHadamards.hadamardHadamard 1 2).get! ≈z twoHadamardsCancelled) $
     test "non-Hadamard rejected" ((hadamardAndSpider.hadamardHadamard 1 2).isError) $
     test "disconnected rejected" ((disconnectedHadamards.hadamardHadamard 1 2).isError) $
     test "branched Hadamard rejected" ((branchedHadamard.hadamardHadamard 1 2).isError)
+
+end Tests.Axiomatic.Rules.HadamardHadamard
