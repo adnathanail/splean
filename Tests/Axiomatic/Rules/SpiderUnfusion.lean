@@ -47,42 +47,43 @@ private def branchedSpider : ZXDiagram :=
           [⟨0, 2⟩, ⟨1, 2⟩, ⟨2, 3⟩, ⟨2, 4⟩]
 
 def spiderUnfusionTests : TestSeq :=
-  -- Unfuse then fuse: exact round-trip back to original
-  test "unfuse then fuse single Z spider"
-    (let unfused := (singleZSpider.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 1⟩ [2]).get!
-     let refused := (unfused.spiderFusion 1 3).get!
-     refused ≈z singleZSpider) $
-  test "unfuse then fuse single X spider"
-    (let unfused := (singleXSpider.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 2⟩ [2]).get!
-     let refused := (unfused.spiderFusion 1 3).get!
-     refused ≈z singleXSpider) $
-  test "unfuse then fuse branched spider"
-    (let unfused := (branchedSpider.spiderUnfusion 2 ⟨1, 2⟩ ⟨1, 2⟩ [3, 4]).get!
-     let refused := (unfused.spiderFusion 2 5).get!
-     refused ≈z branchedSpider) $
-  -- Fuse then unfuse (node ordering changes, compare against expected)
-  test "fuse then unfuse two Z spiders"
-    (let fused := (twoSpiders.spiderFusion 1 2).get!
-     let unfused := (fused.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 1⟩ [3]).get!
-     unfused ≈z twoSpidersRoundTrip) $
-  -- Fuse then unfuse with a different phase split
-  test "fuse then unfuse two X spiders with different split"
-    (let fused := (twoXSpiders.spiderFusion 1 2).get!
-     let unfused := (fused.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 2⟩ [3]).get!
-     unfused ≈z twoXSpidersDifferentSplit) $
-  -- Fuse three, then partially unfuse
-  test "fuse three then unfuse once"
-    (let fused1 := (threeSpiders.spiderFusion 1 2).get!
-     let fused2 := (fused1.spiderFusion 1 3).get!
-     let unfused := (fused2.spiderUnfusion 1 ⟨1, 2⟩ ⟨7, 4⟩ [4]).get!
-     unfused ≈z threeSpidersPartialUnfuse) $
-  -- Error: phases don't sum correctly
-  test "unfusion fails when phases don't sum"
-    (let fused := (twoSpiders.spiderFusion 1 2).get!
-     (fused.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 2⟩ [3]).isError) $
-  -- Error: rewire target not a neighbor
-  test "unfusion fails when rewire target not a neighbor"
-    (let fused := (twoSpiders.spiderFusion 1 2).get!
-     (fused.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 1⟩ [2]).isError)
+  group "Spider unfusion" $
+    -- Unfuse then fuse: exact round-trip back to original
+    test "unfuse then fuse single Z spider"
+      (let unfused := (singleZSpider.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 1⟩ [2]).get!
+      let refused := (unfused.spiderFusion 1 3).get!
+      refused ≈z singleZSpider) $
+    test "unfuse then fuse single X spider"
+      (let unfused := (singleXSpider.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 2⟩ [2]).get!
+      let refused := (unfused.spiderFusion 1 3).get!
+      refused ≈z singleXSpider) $
+    test "unfuse then fuse branched spider"
+      (let unfused := (branchedSpider.spiderUnfusion 2 ⟨1, 2⟩ ⟨1, 2⟩ [3, 4]).get!
+      let refused := (unfused.spiderFusion 2 5).get!
+      refused ≈z branchedSpider) $
+    -- Fuse then unfuse (node ordering changes, compare against expected)
+    test "fuse then unfuse two Z spiders"
+      (let fused := (twoSpiders.spiderFusion 1 2).get!
+      let unfused := (fused.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 1⟩ [3]).get!
+      unfused ≈z twoSpidersRoundTrip) $
+    -- Fuse then unfuse with a different phase split
+    test "fuse then unfuse two X spiders with different split"
+      (let fused := (twoXSpiders.spiderFusion 1 2).get!
+      let unfused := (fused.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 2⟩ [3]).get!
+      unfused ≈z twoXSpidersDifferentSplit) $
+    -- Fuse three, then partially unfuse
+    test "fuse three then unfuse once"
+      (let fused1 := (threeSpiders.spiderFusion 1 2).get!
+      let fused2 := (fused1.spiderFusion 1 3).get!
+      let unfused := (fused2.spiderUnfusion 1 ⟨1, 2⟩ ⟨7, 4⟩ [4]).get!
+      unfused ≈z threeSpidersPartialUnfuse) $
+    -- Error: phases don't sum correctly
+    test "unfusion fails when phases don't sum"
+      (let fused := (twoSpiders.spiderFusion 1 2).get!
+      (fused.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 2⟩ [3]).isError) $
+    -- Error: rewire target not a neighbor
+    test "unfusion fails when rewire target not a neighbor"
+      (let fused := (twoSpiders.spiderFusion 1 2).get!
+      (fused.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 1⟩ [2]).isError)
 
 #lspec spiderUnfusionTests

@@ -84,23 +84,24 @@ private def clean : ZXDiagram :=
   .ofList [.input 0, .spider .Z ⟨0, 1⟩, .output 0] [⟨0, 1⟩, ⟨1, 2⟩]
 
 def normalizationTests : TestSeq :=
-  -- Compaction
-  test "compact removes nones and remaps edges" (withNones ≈z withoutNones) $
-  test "compact sparse graph" (sparseGraph ≈z sparseGraphCompacted) $
-  test "compact is identity when no nones" (alreadyCompact ≈z alreadyCompact) $
-  test "compact removes trailing nones" (trailingNones ≈z withoutNones) $
-  -- Edge direction normalization
-  test "edge direction normalized (src ≤ tgt)" (unsortedEdgeDir ≈z sortedEdgeDir) $
-  -- Edge order normalization
-  test "edge list sorted" (unsortedEdgeOrder ≈z sortedEdgeOrder) $
-  -- Phase simplification
-  test "phase 2/2 simplifies to 1/1" (unsimplifiedPhase ≈z simplifiedPhase) $
-  test "phase 6/4 simplifies to 3/2" (unsimplifiedPhase2 ≈z simplifiedPhase2) $
-  -- Phase mod 2π
-  test "phase 2π wraps to 0" (phase2Pi ≈z phase0) $
-  test "phase 5π/2 wraps to π/2" (phase5Over2 ≈z phaseHalfPi) $
-  test "phase 3π wraps to π" (phase3Pi ≈z phasePi) $
-  -- Combined
-  test "compaction + normalization together" (messy ≈z clean)
+  group "Phase normalization" $
+    -- Compaction
+    test "compact removes nones and remaps edges" (withNones ≈z withoutNones) $
+    test "compact sparse graph" (sparseGraph ≈z sparseGraphCompacted) $
+    test "compact is identity when no nones" (alreadyCompact ≈z alreadyCompact) $
+    test "compact removes trailing nones" (trailingNones ≈z withoutNones) $
+    -- Edge direction normalization
+    test "edge direction normalized (src ≤ tgt)" (unsortedEdgeDir ≈z sortedEdgeDir) $
+    -- Edge order normalization
+    test "edge list sorted" (unsortedEdgeOrder ≈z sortedEdgeOrder) $
+    -- Phase simplification
+    test "phase 2/2 simplifies to 1/1" (unsimplifiedPhase ≈z simplifiedPhase) $
+    test "phase 6/4 simplifies to 3/2" (unsimplifiedPhase2 ≈z simplifiedPhase2) $
+    -- Phase mod 2π
+    test "phase 2π wraps to 0" (phase2Pi ≈z phase0) $
+    test "phase 5π/2 wraps to π/2" (phase5Over2 ≈z phaseHalfPi) $
+    test "phase 3π wraps to π" (phase3Pi ≈z phasePi) $
+    -- Combined
+    test "compaction + normalization together" (messy ≈z clean)
 
 #lspec normalizationTests

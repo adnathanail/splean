@@ -50,15 +50,16 @@ private def branchedHadamard : ZXDiagram :=
           [⟨0, 1⟩, ⟨1, 2⟩, ⟨1, 3⟩]
 
 def eulerDecompTests : TestSeq :=
-  test "variant 1: Z(π/2)-X(π/2)-Z(π/2)" ((hadWire.eulerDecomp 1 1).get! ≈z euExpected1) $
-  test "variant 2: Z(-π/2)-X(-π/2)-Z(-π/2)" ((hadWire.eulerDecomp 1 2).get! ≈z euExpected2) $
-  test "variant 3: Z(π/2)-X(0)-Z(π/2)+Z(-π/2)" ((hadWire.eulerDecomp 1 3).get! ≈z euExpected3) $
-  test "variant 4: X(π/2)-Z(π/2)-X(π/2)" ((hadWire.eulerDecomp 1 4).get! ≈z euExpected4) $
-  test "variant 5: X(-π/2)-Z(-π/2)-X(-π/2)" ((hadWire.eulerDecomp 1 5).get! ≈z euExpected5) $
-  test "variant 6: X(π/2)-Z(0)-X(π/2)+X(-π/2)" ((hadWire.eulerDecomp 1 6).get! ≈z euExpected6) $
-  test "non-Hadamard rejected" ((notHadamard.eulerDecomp 1 1).isError) $
-  test "branched Hadamard rejected" ((branchedHadamard.eulerDecomp 1 1).isError) $
-  test "invalid variant rejected" ((hadWire.eulerDecomp 1 7).isError) $
-  test "node not found rejected" ((hadWire.eulerDecomp 99 1).isError)
+  group "Euler decomposition" $
+    test "variant 1: Z(π/2)-X(π/2)-Z(π/2)" ((hadWire.eulerDecomp 1 1).get! ≈z euExpected1) $
+    test "variant 2: Z(-π/2)-X(-π/2)-Z(-π/2)" ((hadWire.eulerDecomp 1 2).get! ≈z euExpected2) $
+    test "variant 3: Z(π/2)-X(0)-Z(π/2)+Z(-π/2)" ((hadWire.eulerDecomp 1 3).get! ≈z euExpected3) $
+    test "variant 4: X(π/2)-Z(π/2)-X(π/2)" ((hadWire.eulerDecomp 1 4).get! ≈z euExpected4) $
+    test "variant 5: X(-π/2)-Z(-π/2)-X(-π/2)" ((hadWire.eulerDecomp 1 5).get! ≈z euExpected5) $
+    test "variant 6: X(π/2)-Z(0)-X(π/2)+X(-π/2)" ((hadWire.eulerDecomp 1 6).get! ≈z euExpected6) $
+    test "non-Hadamard rejected" ((notHadamard.eulerDecomp 1 1).isError) $
+    test "branched Hadamard rejected" ((branchedHadamard.eulerDecomp 1 1).isError) $
+    test "invalid variant rejected" ((hadWire.eulerDecomp 1 7).isError) $
+    test "node not found rejected" ((hadWire.eulerDecomp 99 1).isError)
 
 #lspec eulerDecompTests

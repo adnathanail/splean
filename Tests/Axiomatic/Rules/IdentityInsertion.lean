@@ -28,10 +28,11 @@ private def disconnected : ZXDiagram :=
           []
 
 def identityInsertionTests : TestSeq :=
-  test "insert Z spider on wire" ((simpleWire.identityInsertion 0 1 .Z).get! ≈z simpleWireZInserted) $
-  test "insert X spider on wire" ((simpleWire.identityInsertion 0 1 .X).get! ≈z simpleWireXInserted) $
-  test "insert between two spiders" ((twoSpiders.identityInsertion 1 2 .Z).get! ≈z twoSpidersZInserted) $
-  test "disconnected nodes rejected" ((disconnected.identityInsertion 0 1 .Z).isError) $
-  test "missing node rejected" ((simpleWire.identityInsertion 0 99 .Z).isError)
+  group "Identity insertion" $
+    test "insert Z spider on wire" ((simpleWire.identityInsertion 0 1 .Z).get! ≈z simpleWireZInserted) $
+    test "insert X spider on wire" ((simpleWire.identityInsertion 0 1 .X).get! ≈z simpleWireXInserted) $
+    test "insert between two spiders" ((twoSpiders.identityInsertion 1 2 .Z).get! ≈z twoSpidersZInserted) $
+    test "disconnected nodes rejected" ((disconnected.identityInsertion 0 1 .Z).isError) $
+    test "missing node rejected" ((simpleWire.identityInsertion 0 99 .Z).isError)
 
 #lspec identityInsertionTests
