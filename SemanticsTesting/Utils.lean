@@ -9,26 +9,6 @@ open SpLean.Algebraic
 noncomputable abbrev eiTheta (θ : ℝ) : ℂ := Complex.exp (θ * Complex.I)
 noncomputable abbrev rootTwo : ℂ := Real.sqrt 2
 
--- Common lemmas
-lemma two_times_one_over_root_two_eq_root_two :
-    (√2)⁻¹ + (√2)⁻¹ = √2 := by
-  field_simp
-  norm_num
-lemma two_times_one_over_root_two_eq_root_two_complex :
-    ((√2 : ℝ) : ℂ)⁻¹ + ((√2 : ℝ) : ℂ)⁻¹ = √2 := by
-  norm_cast
-  rw [two_times_one_over_root_two_eq_root_two]
-
-lemma one_over_root_two_times_itself_eq_half :
-    (√2)⁻¹ * (√2)⁻¹ = 1/2 := by
-  rw [← mul_inv, Real.mul_self_sqrt (by norm_num)]
-  norm_num
-lemma one_over_root_two_times_itself_eq_half_complex :
-    ((√2 : ℝ) : ℂ)⁻¹ * ((√2 : ℝ) : ℂ)⁻¹ = 1/2 := by
-  norm_cast
-  rw [one_over_root_two_times_itself_eq_half]
-  norm_num
-
 /-- A single-wire boundary assignment is the constant function at its one bit. -/
 lemma wires1_eq_const (g : Wires 1) : g = fun _ => g 0 :=
   funext fun i => by rw [Fin.fin_one_eq_zero i]
