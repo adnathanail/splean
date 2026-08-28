@@ -8,3 +8,5 @@ scalar (VyZX's proportionality). -/
 -- TODO track scalar factors
 def ZX.Equiv {n m : ℕ} (a b : ZX n m) : Prop :=
   ∃ c : ℂ, c ≠ 0 ∧ ∀ f g, a.sem f g = c * b.sem f g
+
+@[inherit_doc] scoped infix:50 " ≈zx " => ZX.Equiv
