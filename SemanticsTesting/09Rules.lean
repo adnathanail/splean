@@ -10,5 +10,4 @@ abbrev sGate : ZX 1 1 := .spider .Z 1 1 (π/2)
 theorem two_t_gates_equiv_z_gate :
     twoTGates ≈zx sGate := by
   unfold twoTGates sGate
-  grw [zSpider_fusion]
-  rw [show ((π/2) = (π/4) + (π/4)) by rw [← AlgPhase.ofRat_add] ; norm_num]
+  zx_rw [zSpider_fusion]
