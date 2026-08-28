@@ -7,12 +7,26 @@ def AlgPhase : Type := ℚ
 namespace AlgPhase
 
 /-! `AlgPhase` is a `def` rather than an `abbrev` so that the representation can
-change later, but that hides `ℚ`'s instances: without them a literal phase like
-`1 / 2` has no `OfNat`/`Div` to elaborate against and every use site needs a
-`(· : ℚ)` ascription. Transport the ones needed to write and compute with phase
-literals. -/
+change later, but that hides `ℚ`'s instances, so the ones worth having are
+transported below.
 
-instance : Field AlgPhase := inferInstanceAs (Field ℚ)
+`AddCommGroupWithOne` rather than `Field` is deliberate. It is everything a
+phase actually supports — `0`, `1`, integer numerals, `+`, `-`, and `ℤ`/`ℕ`
+scalar multiples — and nothing it doesn't: `p * q`, `p / q` and `p⁻¹` do not
+elaborate. That matters because a phase is a value mod 2π, so scaling by a
+non-integer rational is not well defined on it (`0 = 2π` but `0 ≠ π`); put
+another way, `equiv` is a congruence for `+`, `-` and `•` but not for `*` or
+`/`. The same restriction is stated on `Phase.smul` in `SpLean/ZXDiagram.lean`.
+
+It is also what survives the planned symbolic-phase extension: a `Phase`
+carrying ℤ-linear variable coefficients is still an `AddCommGroupWithOne`, but
+cannot be a `Field`.
+
+The cost is that a fractional literal has to be written `ofRat (1 / 2)` rather
+than `(1 / 2 : AlgPhase)` — the division then happens in `ℚ`, where it means
+something. Integer literals are unaffected. -/
+
+instance : AddCommGroupWithOne AlgPhase := inferInstanceAs (AddCommGroupWithOne ℚ)
 instance : DecidableEq AlgPhase := inferInstanceAs (DecidableEq ℚ)
 instance : Inhabited AlgPhase := inferInstanceAs (Inhabited ℚ)
 
@@ -39,9 +53,6 @@ theorem ext {p q : AlgPhase} (h : p.toRat = q.toRat) : p = q := h
   exact zsmul_eq_mul _ _
 
 @[simp] theorem toRat_one : (1 : AlgPhase).toRat = 1 := rfl
-@[simp] theorem toRat_mul (p q : AlgPhase) : (p * q).toRat = p.toRat * q.toRat := rfl
-@[simp] theorem toRat_inv (p : AlgPhase) : p⁻¹.toRat = p.toRat⁻¹ := rfl
-@[simp] theorem toRat_div (p q : AlgPhase) : (p / q).toRat = p.toRat / q.toRat := rfl
 @[simp] theorem toRat_natCast (n : ℕ) : ((n : AlgPhase)).toRat = n := rfl
 @[simp] theorem toRat_intCast (n : ℤ) : ((n : AlgPhase)).toRat = n := rfl
 -- `no_index` as in Mathlib's own `Nat.cast_ofNat`: without it the numeral in the
