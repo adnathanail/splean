@@ -55,10 +55,11 @@ coercions that let a goal be stated as `!![1, 0; 0, -1]`.
   `open SpLean.Algebraic` (see `Main.lean`).
 - **`spider c n m φ`** takes its phase last and defaults it to `0`, so a
   phase-free spider is just `.spider .Z 1 2`.
-- **`SpiderColor` here is `SpLean.Algebraic.SpiderColor`**, not the one in
+- **A spider's colour here is `AlgSpColor`**, not the `SpiderColor` in
   `Axiomatic/Data.lean`. Same two constructors, deliberately duplicated: it
   was the last thread tying the two representations together and it bought
-  nothing, since this one only ever becomes a `"Z"`/`"X"` on the wire.
+  nothing, since this one only ever becomes a `"Z"`/`"X"` on the wire. The
+  names differ so that neither has to be identified by its namespace.
 
 ## Visualization (`Visualize.lean`, `Render.lean`)
 
@@ -71,7 +72,7 @@ index-dependent, but the `Html` application is.
 
 This module owns its rendering end to end. It has **no** dependency on
 `SpLean/Axiomatic/` — not on `ZXDiagram`, not on `Node`, not on `Phase`, and
-not even on `SpiderColor`, which `ZX.lean` defines for itself. The only shared
+not even on `SpiderColor` — `ZX.lean` defines its own `AlgSpColor`. The only shared
 thing is `SpLean/Widget.lean`, the zxcc wire format, which is a JSON DTO
 rather than a ZX type. Keep it that way: if something here starts wanting a
 graph-style type, the answer is a lowering into `Wire`, not an import.

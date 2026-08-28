@@ -3,7 +3,7 @@ import SpLean.Widget
 
 /-! # Drawing an algebraic `ZX n m`
 
-Lowering to `SpLean.Wire`
+`ZX n m → SpLean.Wire` lowering
 - supplies a position for every node
 - derived from the term's structure rather than from a layout pass
 - zxcc skips BFS so that the picture mirrors the algebra.
@@ -16,12 +16,12 @@ open SpLean
 /-- Index into a fragment's node list, and the node's wire-format `id`. -/
 private abbrev NodeId := Nat
 
-def SpiderColor.wireName : SpiderColor → String
+def AlgSpColor.wireName : AlgSpColor → String
   | .Z => "Z" | .X => "X"
 
 /-- What a node in the diagram under construction draws as. -/
 private inductive NodeShape where
-  | spider (c : SpiderColor) (phase : String)
+  | spider (c : AlgSpColor) (phase : String)
   | hadamard
   | wire
   | input (ioId : Nat)

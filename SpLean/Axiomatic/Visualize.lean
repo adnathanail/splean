@@ -3,17 +3,16 @@ import SpLean.Widget
 
 /-! # Drawing a graph-style `ZXDiagram`
 
-The `ZXDiagram → SpLean.Wire.Diagram` lowering. It supplies no positions, so
-zxcc lays the graph out itself with its own BFS.
-
-This is the axiomatic representation's *own* renderer. The algebraic one has
-its own, in `SpLean/Algebraic/Visualize.lean`; the two meet only at
-`SpLean.Wire`. -/
+`ZXDiagram → SpLean.Wire.Diagram` lowering
+- supplies no positions
+- zxcc lays the graph out itself with its own BFS
+-/
 
 open Lean SpLean ProofWidgets
 
 /-- Human-readable phase string used by the widget. gcd + mod-2π normalize
-    via `Phase.simplify`, then format as `π/2`, `-π/4`, `2π/3`, `π`, or `0`. -/
+    via `Phase.simplify`, then format as `π/2`, `2π/3`, `π`, or `0`.
+    Phases are always positive (e.g. -π/2 → 3π/2)-/
 def Phase.format (p : Phase) : String :=
   let p := p.simplify
   if p.num == 0 then "0"
