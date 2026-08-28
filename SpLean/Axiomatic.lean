@@ -4,6 +4,7 @@ import SpLean.Axiomatic.ZXDiagram
 import SpLean.Axiomatic.Visualize
 import SpLean.Axiomatic.Axioms
 import SpLean.Axiomatic.Tactics
+import SpLean.Axiomatic.Render
 import SpLean.Axiomatic.Rules.SpiderFusion
 import SpLean.Axiomatic.Rules.IdentityRemoval
 import SpLean.Axiomatic.Rules.HadamardHadamard
