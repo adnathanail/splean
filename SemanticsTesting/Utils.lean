@@ -1,4 +1,5 @@
 import SpLean.Algebraic.Semantics
+import SpLean.Algebraic.Equiv
 import SpLean.Panel
 
 open SpLean.Algebraic

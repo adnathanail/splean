@@ -6,7 +6,6 @@ open SpLean.Algebraic
   # X-basis states (pqs eq 3.3)
 -/
 
--- TODO track scalar factors
 -- ## Plus state
 -- (Z0)- = √2|+⟩ = |0⟩ + |1⟩
 --   no input wires so `f : Wires 0`
