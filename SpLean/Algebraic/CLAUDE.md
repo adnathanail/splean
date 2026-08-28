@@ -47,6 +47,12 @@ fusion goes through the Hadamard-conjugated definition of `xSpiderSem` rather
 than being proved from scratch. Note that fusion is stated only for
 `(n,1) ≫ (1,m)` — spiders joined by *k* parallel wires do not follow from it,
 and that is the shape the axiomatic rule actually covers.
+`Rules/Structural.lean` has the laws that let the *other* rules fire:
+`compose_assoc` (needed because `≫` is a constructor, so `(a ≫ b) ≫ c` and
+`a ≫ (b ≫ c)` are different terms and a rule only matches the grouping it was
+stated with) plus `wire_compose`/`compose_wire` to clear the `wire` a
+cancellation leaves behind. Its arguments are explicit so `zx_rw` can target a
+particular grouping: `zx_rw [← compose_assoc ZX.hadamard ZX.hadamard]`.
 `Rules/Lemmas.lean` holds the shared sum-collapsing machinery (`sum_wires1`,
 the `sum_bool_*` endpoint lemmas, the `√2` arithmetic), moved here out of
 `SemanticsTesting/Utils.lean` when the rules started needing it.

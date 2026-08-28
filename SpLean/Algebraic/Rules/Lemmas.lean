@@ -21,6 +21,14 @@ lemma prod_wires1 {M : Type*} [CommMonoid M] (F : Wires 1 → M) :
   rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
   exact Finset.prod_pair (by decide)
 
+/-- A single-wire boundary assignment is determined by its one bit. -/
+lemma wires1_eq_of_head {f g : Wires 1} (h : f 0 = g 0) : f = g :=
+  funext fun i => by rw [Fin.fin_one_eq_zero i, h]
+
+/-- A single-wire boundary assignment is the constant function at its one bit. -/
+lemma wires1_eq_const (g : Wires 1) : g = fun _ => g 0 :=
+  funext fun i => by rw [Fin.fin_one_eq_zero i]
+
 /-- Boundary assignments for wires where all are false -/
 lemma all_wires_false {n : ℕ} :
   ∀ x : Fin n → Bool, (∀ i, x i = false) ↔ x = fun _ => false := by
