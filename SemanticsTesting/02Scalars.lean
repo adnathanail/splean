@@ -10,14 +10,15 @@ open SpLean.Algebraic
 abbrev greenCircle : ZX 0 0 := .spider .Z 0 0 0
 #zx greenCircle
 theorem scalar_sem_two (f g : Wires 0) : greenCircle.sem f g = 2 := by
-  rw [ZX.sem, zSpiderSem, AlgPhase.angle, AlgPhase.toRat]
+  rw [ZX.sem, zSpiderSem]
   norm_num
 
 -- Zero-arity π-phase Z-spider = 0
 abbrev greenPiCircle : ZX 0 0 := .spider .Z 0 0 1
 #zx greenPiCircle
 theorem scalar_sem_pi (f g : Wires 0) : greenPiCircle.sem f g = 0 := by
-  rw [ZX.sem, zSpiderSem, AlgPhase.angle, AlgPhase.toRat]
+  rw [ZX.sem, zSpiderSem]
+  push_cast
   norm_num
 
 -- Zero-arity α-phase Z-spider = 1 + e^{iα}
@@ -34,7 +35,7 @@ abbrev redCircleAnyGreen (α : AlgPhase) : ZX 0 0 := (.spider .X 0 1 0) ≫ (.sp
 theorem scalar_sem_sqrt_two (α : AlgPhase) (f g : Wires 0) :
     (redCircleAnyGreen α).sem f g = rootTwo := by
   rw [ZX.sem]
-  simp only [sum_wires1, ZX.sem, xSpiderSem, zSpiderSem, hadSem, AlgPhase.angle, AlgPhase.toRat]
+  simp only [sum_wires1, ZX.sem, xSpiderSem, zSpiderSem, hadSem]
   norm_num
   rw [two_times_one_over_root_two_eq_root_two_complex]
 
@@ -45,7 +46,8 @@ theorem scalar_sem_sqrt_two_e_i_alpha (α : AlgPhase) (f g : Wires 0) :
     (redPiCircleAnyGreen α).sem f g = rootTwo * eiTheta α.angle := by
   unfold rootTwo eiTheta
   rw [ZX.sem]
-  simp only [sum_wires1, ZX.sem, xSpiderSem, zSpiderSem, hadSem, AlgPhase.angle, AlgPhase.toRat]
+  simp only [sum_wires1, ZX.sem, xSpiderSem, zSpiderSem, hadSem]
+  push_cast
   norm_num
   rw [two_times_one_over_root_two_eq_root_two_complex]
 
@@ -63,7 +65,7 @@ abbrev redCircleTripleLinkGreenCircle : ZX 0 0 := (.spider .X 0 3 0) ≫ (.spide
 theorem scalar_sem_one_over_sqrt_two (f g : Wires 0) :
     redCircleTripleLinkGreenCircle.sem f g = 1 / rootTwo := by
   -- Simp definitions
-  simp only [ZX.sem, xSpiderSem, zSpiderSem, hadSem, AlgPhase.angle, AlgPhase.toRat]
+  simp only [ZX.sem, xSpiderSem, zSpiderSem, hadSem]
   -- Simplify ifs
   simp only [mul_ite]
   -- Lean magic

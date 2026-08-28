@@ -39,6 +39,21 @@ theorem ext {p q : AlgPhase} (h : p.toRat = q.toRat) : p = q := h
   show n • p.toRat = (n : ℚ) * p.toRat
   exact zsmul_eq_mul _ _
 
+@[simp] theorem toRat_one : (1 : AlgPhase).toRat = 1 := rfl
+@[simp] theorem toRat_mul (p q : AlgPhase) : (p * q).toRat = p.toRat * q.toRat := rfl
+@[simp] theorem toRat_inv (p : AlgPhase) : p⁻¹.toRat = p.toRat⁻¹ := rfl
+@[simp] theorem toRat_div (p q : AlgPhase) : (p / q).toRat = p.toRat / q.toRat := rfl
+@[simp] theorem toRat_natCast (n : ℕ) : ((n : AlgPhase)).toRat = n := rfl
+@[simp] theorem toRat_intCast (n : ℤ) : ((n : AlgPhase)).toRat = n := rfl
+-- `no_index` as in Mathlib's own `Nat.cast_ofNat`: without it the numeral in the
+-- LHS is indexed as a literal and `simp`/`push_cast` never match `(2 : AlgPhase)`.
+@[simp] theorem toRat_ofNat (n : ℕ) [n.AtLeastTwo] :
+    (no_index (OfNat.ofNat n) : AlgPhase).toRat = OfNat.ofNat n := rfl
+
+@[simp] theorem toRat_nsmul (n : ℕ) (p : AlgPhase) : (n • p).toRat = (n : ℚ) * p.toRat := by
+  show n • p.toRat = (n : ℚ) * p.toRat
+  exact nsmul_eq_mul _ _
+
 @[simp] theorem ofRat_add (a b : ℚ) : ofRat (a + b) = ofRat a + ofRat b := rfl
 
 /-! ### Display -/
@@ -53,22 +68,27 @@ def den' (p : AlgPhase) : ℕ+ := ⟨p.den, p.den_pos⟩
 
 noncomputable def angle (p : AlgPhase) : ℝ := (p.toRat : ℝ) * Real.pi
 
+/-- The bridge out of `AlgPhase`: an angle is `π` times a rational.
+
+Tagged `@[push_cast]` (together with the `toRat` lemmas above), so `push_cast`
+turns any `AlgPhase` arithmetic buried under `angle` — and under the `ℝ → ℂ`
+coercion — into plain rational arithmetic on `π`, at which point `ring` can
+finish. That is what makes goals like
+`↑θ.angle * I + ↑(-2 * θ).angle * I = -↑θ.angle * I` a one-liner instead of
+needing a bespoke lemma per shuffle. -/
+theorem angle_eq (p : AlgPhase) : p.angle = (p.toRat : ℝ) * Real.pi := rfl
+
+attribute [push_cast] angle_eq toRat_zero toRat_one toRat_add toRat_neg toRat_sub
+  toRat_mul toRat_inv toRat_div toRat_natCast toRat_intCast toRat_ofNat
+  toRat_nsmul toRat_zsmul
+
 @[simp] theorem angle_add (p q : AlgPhase) : (p + q).angle = p.angle + q.angle := by
-  unfold angle
-  rw [toRat_add]
-  push_cast
-  ring
+  push_cast; ring
 
 @[simp] theorem angle_neg (p : AlgPhase) : (-p).angle = -p.angle := by
-  unfold angle
-  rw [toRat_neg]
-  push_cast
-  ring
+  push_cast; ring
 
 @[simp] theorem angle_zero : (0 : AlgPhase).angle = 0 := by
-  unfold angle
-  rw [toRat_zero]
-  push_cast
-  ring
+  push_cast; ring
 
 end AlgPhase
