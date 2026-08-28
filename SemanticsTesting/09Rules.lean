@@ -32,6 +32,7 @@ theorem unfuse (α β : AlgPhase) :
   zx_rw [← zSpider_fusion]
 
 theorem colour_change_fusion :
-    (Gate.Z ≫ ZX.hadamard) ≫ Gate.X ≈zx Gate.I := by
+    Gate.Z ≫ (ZX.hadamard ≫ Gate.X) ≈zx Gate.I := by
   unfold Gate.X
   zx_rw [← colour_change_one]
+  zx_rw [hadamard_hadamard]
