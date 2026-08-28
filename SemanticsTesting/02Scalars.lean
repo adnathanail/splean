@@ -23,7 +23,7 @@ theorem scalar_sem_pi (f g : Wires 0) : greenPiCircle.sem f g = 0 := by
 
 -- Zero-arity α-phase Z-spider = 1 + e^{iα}
 abbrev greenAlphaCircle (α : AlgPhase) : ZX 0 0 := .spider .Z 0 0 α
-#zx greenAlphaCircle (π/4)  -- TODO display parametric phases
+#zx greenAlphaCircle
 theorem scalar_sem_alpha (α : AlgPhase) (f g : Wires 0) :
     (greenAlphaCircle α).sem f g = 1 + eiTheta α.angle := by
   rw [ZX.sem, zSpiderSem]
@@ -31,7 +31,7 @@ theorem scalar_sem_alpha (α : AlgPhase) (f g : Wires 0) :
 
 -- Phaseless X spider linked to α-phase Z spider = √2
 abbrev redCircleAnyGreen (α : AlgPhase) : ZX 0 0 := (.spider .X 0 1) ≫ (.spider .Z 1 0 α)
-#zx redCircleAnyGreen (π/4)
+#zx redCircleAnyGreen
 theorem scalar_sem_sqrt_two (α : AlgPhase) (f g : Wires 0) :
     (redCircleAnyGreen α).sem f g = rootTwo := by
   rw [ZX.sem]
@@ -41,7 +41,7 @@ theorem scalar_sem_sqrt_two (α : AlgPhase) (f g : Wires 0) :
 
 -- π-phase X spider linked to α-phase Z spider = √2 e^{iα}
 abbrev redPiCircleAnyGreen (α : AlgPhase) : ZX 0 0 := (.spider .X 0 1 π) ≫ (.spider .Z 1 0 α)
-#zx redPiCircleAnyGreen (π/4)
+#zx redPiCircleAnyGreen
 theorem scalar_sem_sqrt_two_e_i_alpha (α : AlgPhase) (f g : Wires 0) :
     (redPiCircleAnyGreen α).sem f g = rootTwo * eiTheta α.angle := by
   unfold rootTwo eiTheta

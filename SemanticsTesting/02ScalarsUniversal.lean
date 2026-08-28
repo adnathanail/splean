@@ -21,7 +21,7 @@ lemma scalar_univ_neg_one (f g : Wires 0) :
 
 -- b) z = e^{i θ} for any θ
 abbrev scalarDiagEuler (θ : AlgPhase) := redPiCircleAnyGreen θ ≫ redCircleTripleLinkGreenCircle
-#zx scalarDiagEuler (π/4)
+#zx scalarDiagEuler
 lemma scalar_univ_euler_form (θ : AlgPhase) (f g : Wires 0) :
     (scalarDiagEuler θ).sem f g = eiTheta θ.angle := by
   -- Composition of scalars is a sum over the unique element of `Wires 0`
@@ -49,7 +49,7 @@ abbrev scalarDiagCosTheta (θ : AlgPhase) :=
   greenAlphaCircle (-2 • θ) ≫
   redCircleTripleLinkGreenCircle ≫
   redCircleTripleLinkGreenCircle
-#zx scalarDiagCosTheta (π/4)
+#zx scalarDiagCosTheta
 lemma scalar_uni_cos_theta (θ : AlgPhase) (f g : Wires 0) :
     (scalarDiagCosTheta θ).sem f g = Complex.cos θ.angle := by
   -- Replace diagram semantics with scalars from previous lemmas
