@@ -1,5 +1,6 @@
 import SpLean.Algebraic.Semantics
 import SpLean.Algebraic.Equiv
+import SpLean.Algebraic.Rules.Lemmas
 import SpLean.Panel
 
 open SpLean.Algebraic
@@ -28,11 +29,6 @@ lemma one_over_root_two_times_itself_eq_half_complex :
   rw [one_over_root_two_times_itself_eq_half]
   norm_num
 
--- Boundary assignments of a single wire. `abbrev`, not `def`, so `simp` and
--- `norm_num` can still see through to `false`/`true`.
-abbrev zeroAmpl : Wires 1 := fun _ => false
-abbrev oneAmpl : Wires 1 := fun _ => true
-
 -- Boundary assignments for wires where all are false/true
 lemma all_wires_false {n : ℕ} :
   ∀ x : Fin n → Bool, (∀ i, x i = false) ↔ x = fun _ => false := by
@@ -40,15 +36,6 @@ lemma all_wires_false {n : ℕ} :
 lemma all_wires_true {n : ℕ} :
   ∀ x : Fin n → Bool, (∀ i, x i = true) ↔ x = fun _ => true := by
   exact fun x => Iff.symm funext_iff
-
-/-- A sum over every single-wire boundary assignment is a two-term sum: there
-are only `zeroAmpl` and `oneAmpl`. Replaces the
-`rw [show Finset.univ = {zeroAmpl, oneAmpl} from by decide]; rw [Finset.sum_pair (by decide)]`
-pair; use `simp only [sum_wires1]` to hit nested sums in one go. -/
-lemma sum_wires1 {M : Type*} [AddCommMonoid M] (F : Wires 1 → M) :
-    ∑ g : Wires 1, F g = F zeroAmpl + F oneAmpl := by
-  rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
-  exact Finset.sum_pair (by decide)
 
 /-- A single-wire boundary assignment is the constant function at its one bit. -/
 lemma wires1_eq_const (g : Wires 1) : g = fun _ => g 0 :=
