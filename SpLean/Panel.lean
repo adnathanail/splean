@@ -1,4 +1,4 @@
-import SpLean.Tactics
+import SpLean.Axiomatic.Tactics
 import SpLean.Algebraic.Render
 import ProofWidgets.Component.OfRpcMethod
 import ProofWidgets.Component.Panel.Basic

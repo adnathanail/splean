@@ -1,5 +1,5 @@
-import SpLean.Rules.SpiderFusion
-import SpLean.Rules.IdentityRemoval
+import SpLean.Axiomatic.Rules.SpiderFusion
+import SpLean.Axiomatic.Rules.IdentityRemoval
 
 /-- Fuse two connected same-color π-spiders and remove the resulting identity.
     Usage: `zx_pipi n` where `n` is one of the two spider node IDs. -/

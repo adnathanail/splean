@@ -12,7 +12,12 @@ Make changes in new commits, as opposed to modifying existing commits, unless ex
 
 ## Project structure
 
-- `SpLean/` — Lean 4 library: ZX diagram types, spider fusion, JSON serialization. `Tactics.lean` holds the rewrite tactics, `Panel.lean` the InfoView panel widget and expression presenter.
+- `SpLean/` — Lean 4 library, split into what both ZX representations share and one folder per representation:
+  - `Data.lean` — the shared data types: `SpiderColor`, `Phase`, `Node`, `Edge`, and the `ZXDiagram` graph structure with its graph operations.
+  - `Visualize.lean` — JSON serialization and the ProofWidgets `ZXWidget`; `Panel.lean` — the InfoView panel widget, expression presenter, and `#zx` command. Both representations render through these.
+  - `Axiomatic/` — the graph-based approach: `Axioms.lean` (`≈z`), `Tactics.lean` (the rewrite tactics), `Rules/`, `DerivedRules/`, `Examples.lean`.
+  - `Algebraic/` — the arity-indexed `ZX n m` approach; see `SpLean/Algebraic/CLAUDE.md`.
+  - `Utils.lean` — generic `List`/`Except`/`Option` helpers. `All.lean` imports everything.
 - `zx_view_widget/` — TypeScript ProofWidgets widget (React, rollup). A thin shell that hands the Lean diagram JSON to the `<zx-diagram>` web component from [`@adnathanail/zxcc`](https://www.npmjs.com/package/@adnathanail/zxcc), which does the layout and SVG rendering.
 - `Main.lean` — Entry point with example diagrams shown in InfoView
 
@@ -33,11 +38,11 @@ The JS bundle is built by rollup and written to `.lake/build/js/`. zxcc is bundl
 - Phases cross the wire as display-ready strings (`π/2`, `-π/4`, `0`) — `Phase.format` in `SpLean/Visualize.lean` is the single source of truth; the widget prints them verbatim
 - JSON wire format from Lean to the widget: `{"nodes": [...], "edges": [{"src": id, "tgt": id}]}`. Algebraic terms extend this: each node also carries `col`/`qubit` (which makes zxcc skip its own layout), plus a top-level `boxes` array of `{kind, nodeIds}`.
 - Layout and rendering both live in the separate [zxcc](https://github.com/adnathanail/zxcc) repo, not here — change them there and release a new version.
-- Demo diagrams live in `SpLean.Examples`, not the root namespace, so that `open SpLean` doesn't take names like `cnot` out of a user's hands. Keep new example data there.
+- Demo diagrams live in `SpLean.Examples` (`SpLean/Axiomatic/Examples.lean`), not the root namespace, so that `open SpLean` doesn't take names like `cnot` out of a user's hands. Keep new example data there.
 
 ## Rewrite tactics
 
-`applyRewrite` in `SpLean/Tactics.lean` reduces a rule application with `whnf`, which exposes the `Except.ok` head but leaves the diagram's fields unevaluated. It then evaluates that diagram with `evalZXDiagram` and reflects the value back into an `Expr` with `reflectDiagram`, so the goal holds a flat literal rather than an application tree that grows with each tactic line.
+`applyRewrite` in `SpLean/Axiomatic/Tactics.lean` reduces a rule application with `whnf`, which exposes the `Except.ok` head but leaves the diagram's fields unevaluated. It then evaluates that diagram with `evalZXDiagram` and reflects the value back into an `Expr` with `reflectDiagram`, so the goal holds a flat literal rather than an application tree that grows with each tactic line.
 
 `reflectDiagram`/`reflectNode`/`reflectPhase` mirror the `Node` and `Phase` definitions by hand and must be updated alongside them — a new constructor or field will otherwise reflect wrongly or fail to compile. They are `MetaM` rather than a `ToExpr` instance because an `ℕ+` denominator needs `mkNumeral` to synthesize its `OfNat` instance; that synthesis is cached per distinct denominator, since repeating it per phase measurably slows elaboration.
 
@@ -60,7 +65,7 @@ Tactics do not log diagrams. `zx_debug` is the one tactic that writes to the Inf
 
 ## Two ZX representations
 
-- **`ZXDiagram`** (`SpLean/ZXDiagram.lean`) — graph-style: nodes + edges. Used by all rewrite rules in `Rules/*` and the `≈z` equivalence.
+- **`ZXDiagram`** (`SpLean/Data.lean`) — graph-style: nodes + edges. Used by all rewrite rules in `Axiomatic/Rules/*` and the `≈z` equivalence, and also as the lowering target the algebraic renderer emits — which is why it sits in the shared root rather than in `Axiomatic/`.
 - **`ZX n m`** (`SpLean/Algebraic/ZX.lean`) — free-algebra ADT indexed by arity. On this branch it exists for rendering only; the denotational matrix semantics that will let rules be *proved* rather than axiomatised live on the stacked `algebraic-semantics` branch.
 
 Both are renderable in the InfoView: `ZXDiagram.toHtml` directly, `ZX.toHtml` via `ZX.toPositionedDiagram` (lowers to a graph and emits per-node `(col, qubit)` positions from the algebraic structure — `compose` advances col, `stack` advances qubit; a `wire` stays a real `.wire` node so the boxes around it are non-empty). Each `stack`/`compose` subtree also records a bounding rectangle that the widget draws behind the diagram. See `SpLean/Algebraic/CLAUDE.md` for details.

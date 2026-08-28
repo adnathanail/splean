@@ -1,5 +1,5 @@
-import SpLean.Axioms
-import SpLean.Tactics
+import SpLean.Axiomatic.Axioms
+import SpLean.Axiomatic.Tactics
 
 open Lean Elab Tactic Meta
 

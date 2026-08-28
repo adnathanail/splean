@@ -1,4 +1,4 @@
-import SpLean.Axioms
+import SpLean.Axiomatic.Axioms
 import SpLean.Visualize
 import Mathlib.Tactic.Linter.UnusedTacticExtension
 
