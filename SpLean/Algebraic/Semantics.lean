@@ -1,5 +1,4 @@
 import SpLean.Algebraic.ZX
-import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 
 /-!
 # Denotational semantics for algebraic ZX terms
@@ -17,11 +16,7 @@ hypergraph-isomorphism work: permuting wires is reindexing a sum, i.e. an
 `Equiv`, not a matrix conjugation.
 -/
 
-noncomputable section
-
 namespace SpLean.Algebraic
-
-open Complex (I)
 
 /-- A boundary assignment: one Boolean per open wire. -/
 abbrev Wires (n : ℕ) := Fin n → Bool
@@ -29,24 +24,24 @@ abbrev Wires (n : ℕ) := Fin n → Bool
 /-- Tensor of a Z spider: `1` on the all-`false` boundary, `e^{iα}` on the
 all-`true` boundary, `0` elsewhere. When `n = m = 0` both indicators fire and
 the scalar is `1 + e^{iα}`, as it should be. -/
-def zSpiderSem (α : ℝ) {n m : ℕ} (f : Wires n) (g : Wires m) : ℂ :=
+noncomputable def zSpiderSem (α : ℝ) {n m : ℕ} (f : Wires n) (g : Wires m) : ℂ :=
   (if (∀ i, f i = false) ∧ (∀ j, g j = false) then 1 else 0)
-    + Complex.exp (α * I) *
+    + Complex.exp (α * Complex.I) *
         (if (∀ i, f i = true) ∧ (∀ j, g j = true) then 1 else 0)
 
 /-- One matrix entry of the Hadamard gate. -/
-def hadSem (a b : Bool) : ℂ :=
+noncomputable def hadSem (a b : Bool) : ℂ :=
   if a && b then -((Real.sqrt 2 : ℝ) : ℂ)⁻¹ else ((Real.sqrt 2 : ℝ) : ℂ)⁻¹
 
 /-- Tensor of an X spider: a Z spider conjugated by Hadamards on every wire. -/
-def xSpiderSem (α : ℝ) {n m : ℕ} (f : Wires n) (g : Wires m) : ℂ :=
+noncomputable def xSpiderSem (α : ℝ) {n m : ℕ} (f : Wires n) (g : Wires m) : ℂ :=
   ∑ f' : Wires n, ∑ g' : Wires m,
     (∏ i, hadSem (f i) (f' i)) * zSpiderSem α f' g' * (∏ j, hadSem (g' j) (g j))
 
 /-- Denotation of an algebraic ZX term as a boundary tensor.
 `compose` sums over the shared internal boundary; `stack` splits the boundary
 assignment between the two halves. -/
-def ZX.sem : {n m : ℕ} → ZX n m → Wires n → Wires m → ℂ
+noncomputable def ZX.sem : {n m : ℕ} → ZX n m → Wires n → Wires m → ℂ
   | _, _, .empty, _, _ => 1                                  -- Empty diagram = 1
   | _, _, .wire, f, g => if f 0 = g 0 then 1 else 0          -- Wire = identity matrix
   | _, _, .hadamard, f, g => hadSem (f 0) (g 0)
