@@ -51,14 +51,6 @@ theorem scalar_sem_sqrt_two_e_i_alpha (α : AlgPhase) (f g : Wires 0) :
   norm_num
   rw [two_times_one_over_root_two_eq_root_two_complex]
 
-lemma sum_bool_endpoints {n : ℕ} {M : Type*} [AddCommMonoid M] (a b : M) :
-    ∑ x : Fin n → Bool,
-        ((if ∀ i, x i = false then a else 0) + if ∀ i, x i = true then b else 0)
-      = a + b := by
-  simp only [all_wires_false, all_wires_true]
-  rw [Finset.sum_add_distrib]
-  norm_num
-
 -- Phaseles X spider triple-linked to phaseless Z spider = 1/√2
 abbrev redCircleTripleLinkGreenCircle : ZX 0 0 := (.spider .X 0 3) ≫ (.spider .Z 3 0)
 #zx redCircleTripleLinkGreenCircle
