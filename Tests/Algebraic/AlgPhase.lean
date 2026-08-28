@@ -22,6 +22,11 @@ private def formatTests : TestSeq :=
     test "minus pi" (minusPi.format = "-π") $
     test "minus pi over two" (minusPiOverTwo.format = "-π/2")
 
+private def normalizationTests : TestSeq :=
+  group "normalization" $
+    test "pi ≠ 3 pi" (pi ≠ threePi) $
+    test "pi equiv 3 pi" (pi.equiv threePi)
+
 /-! Display, pinned. `AlgPhase.format` above is the string a *closed* phase is
 drawn with; these are the pretty-printer forms, which is what a symbolic phase
 reaches the viewer as (see `SpLean/Algebraic/Render.lean`). They are what
@@ -46,6 +51,7 @@ shapes have to be matched before the general `kπ`, or `π` prints as `1π` and
 
 def tests : TestSeq :=
   group "AlgPhase" $
-    formatTests
+    formatTests ++
+    normalizationTests
 
 end Tests.Algebraic.AlgPhase
