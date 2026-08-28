@@ -14,7 +14,6 @@ literals. -/
 
 instance : Field AlgPhase := inferInstanceAs (Field ℚ)
 instance : DecidableEq AlgPhase := inferInstanceAs (DecidableEq ℚ)
-instance : Repr AlgPhase := inferInstanceAs (Repr ℚ)
 instance : Inhabited AlgPhase := inferInstanceAs (Inhabited ℚ)
 
 /-- The phase `q·π`. -/
