@@ -18,17 +18,27 @@ abbrev greenAlphaCircle (α : Phase) : ZX 0 0 := .spider .Z 0 0 α
 ## Tactics
 
 `simp`
+- Very general; anyone can define theorems to be used in simps
+- The simp set should aim to reach a normal form
 https://leanprover-community.github.io/extras/simp.html#non-terminal-simps
 
 `field_simp`
+- If you have common terms on both sides, this will fully remove them from the goal
 https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/FieldSimp.html
-Tactic to clear denominators in algebraic expressions.
 
 `norm_num`
 Tactic to 'normalise' (simplify) numerical expressions
 https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/NormNum/Core.html
 
-`norm_cast` and `push_cast` for dealing with type weirdness
+### Casting
+
+- `norm_cast` moves casts as far outwards as possible
+- `push_cast` moves casts as far inwards as possible
+- Useful just before `ring`/`linear_combination`
+
+Mythical (never worked for me yet):
+- `exact_mod_cast h` / `apply_mod_cast h`: Allows you to apply a hypothesis `h` even if it differs from your goal by the placement of cast arrows
+- `rw_mod_cast [h]`: Rewrites using `h` while ignoring differences in cast locations
 
 ### Cases
 
