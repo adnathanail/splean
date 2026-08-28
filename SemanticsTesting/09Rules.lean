@@ -13,3 +13,17 @@ theorem three_t_gates_fusion :
 theorem two_x_gates_fusion :
     Gate.X ≫ Gate.X ≈zx ZX.spider .X 1 1 (2π) := by
   zx_rw [xSpider_fusion]
+
+theorem fuse_under_stack :
+    (ZX.wire ⊗ (ZX.hadamard ≫ (Gate.T ≫ Gate.T))) ≈zx
+      (ZX.wire ⊗ (ZX.hadamard ≫ Gate.S)) := by
+  zx_rw [zSpider_fusion]
+
+theorem fuse_symbolic (α β γ : AlgPhase) :
+    ((ZX.spider .Z 1 1 α ≫ ZX.spider .Z 1 1 β) ≫ ZX.spider .Z 1 1 γ) ≈zx
+      ZX.spider .Z 1 1 (α + β + γ) := by
+  zx_rw [zSpider_fusion, zSpider_fusion]
+
+theorem unfuse (α β : AlgPhase) :
+    ZX.spider .Z 1 1 (α + β) ≈zx (ZX.spider .Z 1 1 α ≫ ZX.spider .Z 1 1 β) := by
+  zx_rw [← zSpider_fusion]
