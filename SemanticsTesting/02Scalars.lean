@@ -30,7 +30,7 @@ theorem scalar_sem_alpha (α : AlgPhase) (f g : Wires 0) :
   norm_num
 
 -- Phaseless X spider linked to α-phase Z spider = √2
-abbrev redCircleAnyGreen (α : AlgPhase) : ZX 0 0 := (.spider .X 0 1 0) ≫ (.spider .Z 1 0 α)
+abbrev redCircleAnyGreen (α : AlgPhase) : ZX 0 0 := (.spider .X 0 1) ≫ (.spider .Z 1 0 α)
 #zx redCircleAnyGreen (1 / 4)
 theorem scalar_sem_sqrt_two (α : AlgPhase) (f g : Wires 0) :
     (redCircleAnyGreen α).sem f g = rootTwo := by
@@ -60,7 +60,7 @@ lemma sum_bool_endpoints {n : ℕ} {M : Type*} [AddCommMonoid M] (a b : M) :
   norm_num
 
 -- Phaseles X spider triple-linked to phaseless Z spider = 1/√2
-abbrev redCircleTripleLinkGreenCircle : ZX 0 0 := (.spider .X 0 3 0) ≫ (.spider .Z 3 0 0)
+abbrev redCircleTripleLinkGreenCircle : ZX 0 0 := (.spider .X 0 3) ≫ (.spider .Z 3 0)
 #zx redCircleTripleLinkGreenCircle
 theorem scalar_sem_one_over_sqrt_two (f g : Wires 0) :
     redCircleTripleLinkGreenCircle.sem f g = 1 / rootTwo := by

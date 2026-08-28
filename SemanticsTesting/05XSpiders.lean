@@ -8,7 +8,7 @@ open SpLean.Algebraic
 
 -- ## 0 state
 -- (X0)- = √2|0⟩
-abbrev zeroState : ZX 0 1 := .spider .X 0 1 0
+abbrev zeroState : ZX 0 1 := .spider .X 0 1
 #zx zeroState
 -- First prove link between indicator true/false and vector amplitude
 lemma x_sem_zero_state_ampl (f : Wires 0) (b : Bool) :
@@ -43,7 +43,7 @@ theorem x_sem_one_state (f : Wires 0) : oneState.sem f = (![0, rootTwo] : Fin 2 
 /--
   # X-spiders (pqs eq 3.5)
 -/
-abbrev xIdentity : ZX 1 1 := .spider .X 1 1 0
+abbrev xIdentity : ZX 1 1 := .spider .X 1 1
 #zx xIdentity
 theorem x_sem_x_identity : xIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin 2) ℂ) := by
   unfold wiresMat2
