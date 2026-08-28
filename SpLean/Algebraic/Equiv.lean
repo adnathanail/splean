@@ -1,5 +1,4 @@
 import SpLean.Algebraic.Semantics
-import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 
 namespace SpLean.Algebraic
 
@@ -36,7 +35,7 @@ namespace ZX.Equiv
     inv_mul_cancel_left₀ hc
   ]
 
-theorem trans {n m : ℕ} {a b c : ZX n m} : a ≈zx b → b ≈zx c → a ≈zx c := by
+@[trans] theorem trans {n m : ℕ} {a b c : ZX n m} : a ≈zx b → b ≈zx c → a ≈zx c := by
   rintro ⟨c₁, hc₁, h₁⟩ ⟨c₂, hc₂, h₂⟩
   refine ⟨c₁ * c₂, mul_ne_zero hc₁ hc₂, fun f g => ?_⟩
   rw [h₁ f g, h₂ f g, mul_assoc]

@@ -1,5 +1,4 @@
 import SpLean.Algebraic.Semantics
-import SpLean.Algebraic.Equiv
 
 namespace SpLean.Algebraic
 
