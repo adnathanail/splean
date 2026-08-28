@@ -74,7 +74,7 @@ theorem x_sem_x_gate : xGate.sem = (!![0, 1; 1, 0] : Matrix (Fin 2) (Fin 2) ℂ)
     <;> norm_num [one_over_root_two_times_itself_eq_half]
 
 abbrev xRotation (α : AlgPhase) : ZX 1 1 := .spider .X 1 1 α
-#zx xRotation (1 / 4)
+#zx xRotation (π/4)
 theorem x_sem_x_rotation (α : AlgPhase) :
     (xRotation α).sem = (!![
       (1 + Complex.exp (α.angle * Complex.I)) / 2, (1 - Complex.exp (α.angle * Complex.I)) / 2;

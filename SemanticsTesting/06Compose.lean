@@ -50,7 +50,7 @@ theorem two_x_gates_sem : twoXGates.sem = identityMatrix := by
 
 -- ## Hadamard decomp (pqs 3.81)
 lemma z_rotation_matrix_values (f g : Wires 1) :
-    (ZX.spider .Z 1 1 (1 / 2)).sem f g =
+    (ZX.spider .Z 1 1 (π/2)).sem f g =
       if (f 0 = false) ∧ (g 0 = false) then 1
       else if (f 0 = true) ∧ (g 0 = true) then Complex.I
       else 0
@@ -77,7 +77,7 @@ lemma x_rotation_one_minus_i_div_two :
   ring_nf
 
 lemma x_rotation_matrix_values (f g : Wires 1) :
-    (ZX.spider .X 1 1 (1 / 2)).sem f g =
+    (ZX.spider .X 1 1 (π/2)).sem f g =
       Complex.exp (Real.pi / 4 * Complex.I) / Real.sqrt 2 * (if f 0 = g 0 then 1 else - Complex.I) := by
   rw [x_sem_x_rotation, wiresMat2]
   push_cast
@@ -86,7 +86,7 @@ lemma x_rotation_matrix_values (f g : Wires 1) :
 
 noncomputable abbrev eIPiOvFourTimesOneOverRootTwo := Complex.exp (Real.pi / 4 * Complex.I) / rootTwo
 noncomputable abbrev hadamardUnnorm : Matrix (Fin 2) (Fin 2) ℂ := !![eIPiOvFourTimesOneOverRootTwo, eIPiOvFourTimesOneOverRootTwo; eIPiOvFourTimesOneOverRootTwo, -eIPiOvFourTimesOneOverRootTwo]
-abbrev hadamardEulerDecomp : ZX 1 1 := (.spider .Z 1 1 (1 / 2)) ≫ (.spider .X 1 1 (1 / 2)) ≫ (.spider .Z 1 1 (1 / 2))
+abbrev hadamardEulerDecomp : ZX 1 1 := (.spider .Z 1 1 (π/2)) ≫ (.spider .X 1 1 (π/2)) ≫ (.spider .Z 1 1 (π/2))
 #zx hadamardEulerDecomp
 -- Showing that
 -- e^{-iπ/4} --Z(π/2)---X(π/2)---Z(π/2)-- = --◾--

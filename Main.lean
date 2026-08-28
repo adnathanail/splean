@@ -143,10 +143,10 @@ example : ∃ d', exercise3point7 ≈z d' := by
 -- Algebraic-ZX terms can now be rendered too: `ZX.toHtml` converts them into
 -- the same `ZXDiagram` widget shown above.
 open SpLean.Algebraic
-def algSpider : ZX 1 1 := .spider .Z 1 1 (1 / 2)
+def algSpider : ZX 1 1 := .spider .Z 1 1 (π/2)
 #zx algSpider
 
-def algFusionLHS : ZX 1 1 := .spider .Z 1 1 (1 / 4) ≫ .spider .Z 1 1 (1 / 4)
+def algFusionLHS : ZX 1 1 := .spider .Z 1 1 (π/4) ≫ .spider .Z 1 1 (π/4)
 #zx algFusionLHS
 
 def algStack : ZX 2 2 := .wire ⊗ .hadamard
