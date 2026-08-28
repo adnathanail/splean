@@ -35,6 +35,11 @@ theorem symm {n m : ℕ} {a b : ZX n m} : a ≈zx b → b ≈zx a := by
     inv_mul_cancel_left₀ hc
   ]
 
+theorem trans {n m : ℕ} {a b c : ZX n m} : a ≈zx b → b ≈zx c → a ≈zx c := by
+  rintro ⟨c₁, hc₁, h₁⟩ ⟨c₂, hc₂, h₂⟩
+  refine ⟨c₁ * c₂, mul_ne_zero hc₁ hc₂, fun f g => ?_⟩
+  rw [h₁ f g, h₂ f g, mul_assoc]
+
 end ZX.Equiv
 
 end SpLean.Algebraic
