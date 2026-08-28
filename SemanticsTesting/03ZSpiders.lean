@@ -12,7 +12,7 @@ open SpLean.Algebraic
 --   no input wires so `f : Wires 0`
 --   one output `g : Wires 1`
 --     |0⟩ and |1⟩ both have amplitude 1
-abbrev plusState : ZX 0 1 := .spider .Z 0 1 0
+abbrev plusState : ZX 0 1 := .spider .Z 0 1
 #zx plusState
 theorem z_sem_plus_state (f : Wires 0) : plusState.sem f = (![1, 1] : Fin 2 → ℂ) := by
   unfold wiresVec1
@@ -39,7 +39,7 @@ theorem z_sem_minus_state (f : Wires 0) : minusState.sem f = (![1, -1] : Fin 2 �
 -/
 
 -- ## Bell state
-abbrev bellState : ZX 0 2 := .spider .Z 0 2 0
+abbrev bellState : ZX 0 2 := .spider .Z 0 2
 #zx bellState
 theorem z_sem_bell_state (f : Wires 0) : bellState.sem f = (![1, 0, 0, 1] : Fin 4 → ℂ) := by
   unfold wiresVec2
@@ -50,7 +50,7 @@ theorem z_sem_bell_state (f : Wires 0) : bellState.sem f = (![1, 0, 0, 1] : Fin 
   cases g 0 <;> cases g 1 <;> norm_num
 
 -- ## GHZ state
-abbrev ghzState : ZX 0 3 := .spider .Z 0 3 0
+abbrev ghzState : ZX 0 3 := .spider .Z 0 3
 #zx ghzState
 theorem z_sem_ghz_state (f : Wires 0) : ghzState.sem f = (![1, 0, 0, 0, 0, 0, 0, 1] : Fin 8 → ℂ) := by
   unfold wiresVec3
@@ -61,7 +61,7 @@ theorem z_sem_ghz_state (f : Wires 0) : ghzState.sem f = (![1, 0, 0, 0, 0, 0, 0,
   cases g 0 <;> cases g 1 <;> cases g 2 <;> norm_num
 
 -- ## Arity-n GHZ state (Leanstral)
-abbrev nGhzState (n : ℕ) : ZX 0 n := .spider .Z 0 n 0
+abbrev nGhzState (n : ℕ) : ZX 0 n := .spider .Z 0 n
 #zx nGhzState 7
 theorem z_sem_nGhz_state (f : Wires 0) (n : ℕ) (hn : n ≥ 1) : (nGhzState n).sem f =
     (λ g => if (∀ j : Fin n, g j = false) ∨ (∀ j : Fin n, g j = true) then (1 : ℂ) else 0) := by
@@ -89,7 +89,7 @@ theorem z_sem_nGhz_state (f : Wires 0) (n : ℕ) (hn : n ≥ 1) : (nGhzState n).
 /--
   # Z-spiders (pqs eq 3.2)
 -/
-abbrev zIdentity : ZX 1 1 := .spider .Z 1 1 0
+abbrev zIdentity : ZX 1 1 := .spider .Z 1 1
 #zx zIdentity
 theorem z_sem_z_identity : zIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin 2) ℂ) := by
   unfold wiresMat2
