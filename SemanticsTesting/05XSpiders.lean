@@ -8,13 +8,13 @@ open SpLean.Algebraic
 
 -- ## 0 state
 -- (X0)- = √2|0⟩
-abbrev zeroState : ZX 0 1 := .spider .X 0 1 ⟨0, 1⟩
+abbrev zeroState : ZX 0 1 := .spider .X 0 1 0
 #zx zeroState
 -- First prove link between indicator true/false and vector amplitude
 lemma x_sem_zero_state_ampl (f : Wires 0) (b : Bool) :
     zeroState.sem f (fun _ => b) = if b then 0 else rootTwo := by
   rw [ZX.sem, xSpiderSem, Fintype.sum_unique]
-  simp only [sum_wires1, hadSem, zSpiderSem, Phase.angle]
+  simp only [sum_wires1, hadSem, zSpiderSem]
   cases b <;> norm_num [two_times_one_over_root_two_eq_root_two_complex]
 
 -- Then use it in the proof against a vector
@@ -22,27 +22,28 @@ theorem x_sem_zero_state (f : Wires 0) : zeroState.sem f = (![rootTwo, 0] : Fin 
   unfold wiresVec1
   ext g
   rw [wires1_eq_const g]
-  cases g 0 <;> simp [x_sem_zero_state_ampl f]
+  cases g 0 <;> norm_num [x_sem_zero_state_ampl f]
 
 -- ## 1 state
 -- (Xπ)- = √2|1⟩
-abbrev oneState : ZX 0 1 := .spider .X 0 1 ⟨1, 1⟩
+abbrev oneState : ZX 0 1 := .spider .X 0 1 1
 #zx oneState
 lemma x_sem_one_state_ampl (f : Wires 0) (b : Bool) :
     oneState.sem f (fun _ => b) = if b then rootTwo else 0 := by
   rw [ZX.sem, xSpiderSem, Fintype.sum_unique, rootTwo]
-  simp only [sum_wires1, hadSem, zSpiderSem, Phase.angle]
+  simp only [sum_wires1, hadSem, zSpiderSem]
+  push_cast
   cases b <;> norm_num [two_times_one_over_root_two_eq_root_two_complex]
 theorem x_sem_one_state (f : Wires 0) : oneState.sem f = (![0, rootTwo] : Fin 2 → ℂ) := by
   unfold wiresVec1
   ext g
   rw [wires1_eq_const g]
-  cases g 0 <;> simp [x_sem_one_state_ampl f]
+  cases g 0 <;> norm_num [x_sem_one_state_ampl f]
 
 /--
   # X-spiders (pqs eq 3.5)
 -/
-abbrev xIdentity : ZX 1 1 := .spider .X 1 1 ⟨0, 1⟩
+abbrev xIdentity : ZX 1 1 := .spider .X 1 1 0
 #zx xIdentity
 theorem x_sem_x_identity : xIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin 2) ℂ) := by
   unfold wiresMat2
@@ -51,12 +52,12 @@ theorem x_sem_x_identity : xIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin
   rw [ZX.sem, xSpiderSem]
   simp only [sum_wires1]
   rw [wires1_eq_const f, wires1_eq_const g]
-  cases f 0 <;> cases g 0 <;> simp [zSpiderSem, hadSem, Phase.angle]
+  cases f 0 <;> cases g 0 <;> norm_num [zSpiderSem, hadSem]
     <;> norm_cast  -- Make everything into reals
     <;> ring_nf    -- Normalize form
     <;> norm_num   -- Solve
 
-abbrev xGate : ZX 1 1 := .spider .X 1 1 ⟨1, 1⟩
+abbrev xGate : ZX 1 1 := .spider .X 1 1 1
 #zx xGate
 theorem x_sem_x_gate : xGate.sem = (!![0, 1; 1, 0] : Matrix (Fin 2) (Fin 2) ℂ) := by
   -- same as x_sem_x_identity
@@ -66,11 +67,15 @@ theorem x_sem_x_gate : xGate.sem = (!![0, 1; 1, 0] : Matrix (Fin 2) (Fin 2) ℂ)
   rw [ZX.sem, xSpiderSem]
   simp only [sum_wires1]
   rw [wires1_eq_const f, wires1_eq_const g]
-  cases f 0 <;> cases g 0 <;> simp [zSpiderSem, hadSem, Phase.angle] <;> norm_cast <;> ring_nf <;> norm_num
+  cases f 0 <;> cases g 0 <;> norm_num [zSpiderSem, hadSem]
+    <;> push_cast  -- Make inner expressions reals
+    <;> norm_num   -- Lose the Complex.exp
+    <;> norm_cast  -- Make the whole expressionr eal
+    <;> norm_num [one_over_root_two_times_itself_eq_half]
 
-abbrev xRotation (α : Phase) : ZX 1 1 := .spider .X 1 1 α
-#zx xRotation ⟨1, 4⟩
-theorem x_sem_x_rotation (α : Phase) :
+abbrev xRotation (α : AlgPhase) : ZX 1 1 := .spider .X 1 1 α
+#zx xRotation (1 / 4)
+theorem x_sem_x_rotation (α : AlgPhase) :
     (xRotation α).sem = (!![
       (1 + Complex.exp (α.angle * Complex.I)) / 2, (1 - Complex.exp (α.angle * Complex.I)) / 2;
       (1 - Complex.exp (α.angle * Complex.I)) / 2, (1 + Complex.exp (α.angle * Complex.I)) / 2
@@ -80,8 +85,12 @@ theorem x_sem_x_rotation (α : Phase) :
   apply funext; intro g
   rw [ZX.sem, xSpiderSem]
   rw [wires1_eq_const f, wires1_eq_const g]
-  simp only [sum_wires1, zSpiderSem, hadSem, Bool.and_true, Bool.false_eq_true]
-  cases f 0 <;> cases g 0 <;>
-  norm_num <;>
-  -- `mul_right_comm` pulls the two `(√2)⁻¹` factors flanking `e^{iα}` together.
-  rw [mul_right_comm, one_over_root_two_times_itself_eq_half_complex] <;> ring
+  simp only [sum_wires1, zSpiderSem, hadSem]
+  cases f 0 <;> cases g 0 <;> norm_num
+    <;> rw [
+      -- Pulls the two `(√2)⁻¹` factors flanking `e^{iα}` together.
+      mul_right_comm,
+      -- Destroy them
+      one_over_root_two_times_itself_eq_half_complex
+    ]
+    <;> ring
