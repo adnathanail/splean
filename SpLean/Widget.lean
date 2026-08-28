@@ -70,11 +70,20 @@ structure Edge where
   tgt : Nat
   deriving Repr, Inhabited
 
-/-- A translucent rectangle drawn behind a set of nodes. `kind` is zxcc's
-    `BoxKind`: `"stack"` or `"compose"`. Pixel bounds are computed by zxcc
-    from the nodes' live positions, so boxes follow drags. -/
+/-- zxcc's `BoxKind`. Closed, unlike `DiagramEdgeKind`, which zxcc leaves open
+    to arbitrary strings — a box kind picks the label and styling of a
+    rectangle it knows how to draw. -/
+inductive BoxKind where
+  | stack | compose
+  deriving Repr, DecidableEq, Inhabited
+
+def BoxKind.name : BoxKind → String
+  | .stack => "stack" | .compose => "compose"
+
+/-- A translucent rectangle drawn behind a set of nodes. Pixel bounds are
+    computed by zxcc from the nodes' live positions, so boxes follow drags. -/
 structure Box where
-  kind : String
+  kind : BoxKind
   nodeIds : List Nat
   deriving Repr, Inhabited
 
@@ -112,7 +121,7 @@ def Edge.toJson (e : Edge) : Json :=
   .mkObj [("src", natJson e.src), ("tgt", natJson e.tgt)]
 
 def Box.toJson (b : Box) : Json :=
-  .mkObj [("kind", .str b.kind), ("nodeIds", .arr (b.nodeIds.map natJson).toArray)]
+  .mkObj [("kind", .str b.kind.name), ("nodeIds", .arr (b.nodeIds.map natJson).toArray)]
 
 def Diagram.toJson (d : Diagram) : Json :=
   .mkObj ([("nodes", .arr (d.nodes.map Node.toJson).toArray),
