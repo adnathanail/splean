@@ -33,7 +33,7 @@ theorem xSpider_fusion (n m : ℕ) (α β : AlgPhase) :
   simp only [sum_bool_endpoints₂]
   -- Both sides now mention the same four Hadamard products, so they never need
   -- expanding: (A+B)(C+D) + (A-B)(C-D) = 2(AC+BD), and the two ½s cancel it.
-  rw [root_two_inv_sq_eq_two_inv_complex]
+  rw [inv_root_two_sq_complex]
   ring
 
 end SpLean.Algebraic

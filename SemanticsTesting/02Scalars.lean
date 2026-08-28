@@ -37,7 +37,7 @@ theorem scalar_sem_sqrt_two (α : AlgPhase) (f g : Wires 0) :
   rw [ZX.sem]
   simp only [sum_wires1, ZX.sem, xSpiderSem, zSpiderSem, hadSem]
   norm_num
-  rw [inv_root_two_add_inv_root_two_eq_root_two_complex]
+  rw [inv_root_two_add_self_complex]
 
 -- π-phase X spider linked to α-phase Z spider = √2 e^{iα}
 abbrev redPiCircleAnyGreen (α : AlgPhase) : ZX 0 0 := (.spider .X 0 1 π) ≫ (.spider .Z 1 0 α)
@@ -49,7 +49,7 @@ theorem scalar_sem_sqrt_two_e_i_alpha (α : AlgPhase) (f g : Wires 0) :
   simp only [sum_wires1, ZX.sem, xSpiderSem, zSpiderSem, hadSem]
   push_cast
   norm_num
-  rw [inv_root_two_add_inv_root_two_eq_root_two_complex]
+  rw [inv_root_two_add_self_complex]
 
 -- Phaseles X spider triple-linked to phaseless Z spider = 1/√2
 abbrev redCircleTripleLinkGreenCircle : ZX 0 0 := (.spider .X 0 3) ≫ (.spider .Z 3 0)
