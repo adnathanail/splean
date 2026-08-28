@@ -18,7 +18,7 @@ theorem two_wire_sem : twoWires.sem = identityMatrix := by
   field_simp
   cases f 0 <;> cases g 0 <;> norm_num <;> decide
 
-abbrev twoZGates : ZX 1 1 := (.spider .Z 1 1 1) ≫ (.spider .Z 1 1 1)
+abbrev twoZGates : ZX 1 1 := (.spider .Z 1 1 π) ≫ (.spider .Z 1 1 π)
 #zx twoZGates
 theorem two_z_gates_sem : twoZGates.sem = identityMatrix := by
   unfold wiresMat2
@@ -28,13 +28,13 @@ theorem two_z_gates_sem : twoZGates.sem = identityMatrix := by
   push_cast
   cases f 0 <;> cases g 0 <;> simp
 
-abbrev twoXGates : ZX 1 1 := (.spider .X 1 1 1) ≫ (.spider .X 1 1 1)
+abbrev twoXGates : ZX 1 1 := (.spider .X 1 1 π) ≫ (.spider .X 1 1 π)
 #zx twoXGates
 /-- The X gate flips the bit: its amplitude is `1` off the diagonal, `0` on it.
 Proved separately so the composition below never unfolds `xSpiderSem`'s double
 sum twice over. -/
 lemma x_gate_ampl (f g : Wires 1) :
-    (ZX.spider .X 1 1 1).sem f g = if f 0 = g 0 then 0 else 1 := by
+    (ZX.spider .X 1 1 π).sem f g = if f 0 = g 0 then 0 else 1 := by
   rw [ZX.sem, xSpiderSem]
   simp only [sum_wires1, zSpiderSem, hadSem]
   push_cast

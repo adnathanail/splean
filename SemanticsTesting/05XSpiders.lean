@@ -26,7 +26,7 @@ theorem x_sem_zero_state (f : Wires 0) : zeroState.sem f = (![rootTwo, 0] : Fin 
 
 -- ## 1 state
 -- (Xπ)- = √2|1⟩
-abbrev oneState : ZX 0 1 := .spider .X 0 1 1
+abbrev oneState : ZX 0 1 := .spider .X 0 1 π
 #zx oneState
 lemma x_sem_one_state_ampl (f : Wires 0) (b : Bool) :
     oneState.sem f (fun _ => b) = if b then rootTwo else 0 := by
@@ -57,7 +57,7 @@ theorem x_sem_x_identity : xIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin
     <;> ring_nf    -- Normalize form
     <;> norm_num   -- Solve
 
-abbrev xGate : ZX 1 1 := .spider .X 1 1 1
+abbrev xGate : ZX 1 1 := .spider .X 1 1 π
 #zx xGate
 theorem x_sem_x_gate : xGate.sem = (!![0, 1; 1, 0] : Matrix (Fin 2) (Fin 2) ℂ) := by
   -- same as x_sem_x_identity

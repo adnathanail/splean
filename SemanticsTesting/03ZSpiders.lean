@@ -25,7 +25,7 @@ theorem z_sem_plus_state (f : Wires 0) : plusState.sem f = (![1, 1] : Fin 2 → 
 --   no input wires so `f : Wires 0`
 --   one output `g : Wires 1`
 --     |0⟩ has amplitude 1, |1⟩ has amplitude -1
-abbrev minusState : ZX 0 1 := .spider .Z 0 1 1
+abbrev minusState : ZX 0 1 := .spider .Z 0 1 π
 #zx minusState
 theorem z_sem_minus_state (f : Wires 0) : minusState.sem f = (![1, -1] : Fin 2 → ℂ) := by
   unfold wiresVec1
@@ -99,7 +99,7 @@ theorem z_sem_z_identity : zIdentity.sem = (!![1, 0; 0, 1] : Matrix (Fin 2) (Fin
   simp only [Fin.forall_fin_one]
   cases f 0 <;> cases g 0 <;> norm_num
 
-abbrev zGate : ZX 1 1 := .spider .Z 1 1 1
+abbrev zGate : ZX 1 1 := .spider .Z 1 1 π
 #zx zGate
 theorem z_sem_z_gate : zGate.sem = (!![1, 0; 0, -1] : Matrix (Fin 2) (Fin 2) ℂ) := by
   unfold wiresMat2
