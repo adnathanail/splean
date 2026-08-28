@@ -12,6 +12,8 @@ Mathlib's `grw` generalises `rw` to any relation
 
 namespace SpLean.Algebraic
 
+attribute [gcongr] ZX.Equiv.compose_congr ZX.Equiv.stack_congr
+
 /-- Normalise phase arithmetic left behind by a rewrite.
 
 Spider fusion's output phase is `α + β`, so it would leave `π/4 + π/4`
