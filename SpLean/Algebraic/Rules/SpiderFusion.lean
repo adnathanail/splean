@@ -6,7 +6,7 @@ namespace SpLean.Algebraic
 
 theorem zSpider_fusion (n m : ℕ) (α β : AlgPhase) :
     (ZX.spider .Z n 1 α ≫ ZX.spider .Z 1 m β) ≈zx ZX.spider .Z n m (α + β) := by
-  refine ⟨1, one_ne_zero, fun f h => ?_⟩
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
   rw [one_mul]
   simp only [ZX.sem]
   simp only [sum_wires1, zSpiderSem]
@@ -16,7 +16,7 @@ theorem zSpider_fusion (n m : ℕ) (α β : AlgPhase) :
 
 theorem xSpider_fusion (n m : ℕ) (α β : AlgPhase) :
     (ZX.spider .X n 1 α ≫ ZX.spider .X 1 m β) ≈zx ZX.spider .X n m (α + β) := by
-  refine ⟨1, one_ne_zero, fun f h => ?_⟩
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
   rw [one_mul]
   simp only [ZX.sem]
   simp only [sum_wires1, xSpiderSem, zSpiderSem, hadSem]

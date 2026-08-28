@@ -8,10 +8,6 @@ open SpLean.Algebraic
 noncomputable abbrev eiTheta (θ : ℝ) : ℂ := Complex.exp (θ * Complex.I)
 noncomputable abbrev rootTwo : ℂ := Real.sqrt 2
 
-/-- A single-wire boundary assignment is the constant function at its one bit. -/
-lemma wires1_eq_const (g : Wires 1) : g = fun _ => g 0 :=
-  funext fun i => by rw [Fin.fin_one_eq_zero i]
-
 /-! ### Vector bits helpers -/
 
 /-- `vec1Bits a b x₀`
