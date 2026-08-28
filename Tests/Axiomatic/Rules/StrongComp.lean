@@ -58,11 +58,12 @@ private def nonSpider : ZXDiagram :=
 -- #zx nonSpider
 
 def strongCompTests : TestSeq :=
-  test "basic chain" ((basicChain.strongComp 1 2).get! ≈z basicChainResult) $
-  test "3x3 bipartite" ((threeByThree.strongComp 1 2).get! ≈z threeByThreeResult) $
-  test "same colour rejected" ((sameColour.strongComp 1 2).isError) $
-  test "non-zero phase rejected" ((nonZeroPhase.strongComp 1 2).isError) $
-  test "not connected rejected" ((notConnected.strongComp 1 2).isError) $
-  test "non-spider node rejected" ((nonSpider.strongComp 1 2).isError)
+  group "Strong complementarity" $
+    test "basic chain" ((basicChain.strongComp 1 2).get! ≈z basicChainResult) $
+    test "3x3 bipartite" ((threeByThree.strongComp 1 2).get! ≈z threeByThreeResult) $
+    test "same colour rejected" ((sameColour.strongComp 1 2).isError) $
+    test "non-zero phase rejected" ((nonZeroPhase.strongComp 1 2).isError) $
+    test "not connected rejected" ((notConnected.strongComp 1 2).isError) $
+    test "non-spider node rejected" ((nonSpider.strongComp 1 2).isError)
 
 #lspec strongCompTests
