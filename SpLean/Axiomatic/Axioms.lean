@@ -1,4 +1,4 @@
-import SpLean.ZXDiagram
+import SpLean.Data
 
 namespace SpLean
 

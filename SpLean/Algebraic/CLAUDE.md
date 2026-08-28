@@ -3,7 +3,7 @@
 A free-algebra ZX representation (`ZX n m`, indexed by input/output arity),
 living *alongside* the graph-style `ZXDiagram`. There is a one-way
 `ZX → ZXDiagram` translation for **rendering only** (`Visualize.lean` — see
-below); the `Rules/*` rewrite machinery still operates on `ZXDiagram` directly.
+below); the `Axiomatic/Rules/*` rewrite machinery still operates on `ZXDiagram` directly.
 
 ## Scope on this branch
 
@@ -13,9 +13,9 @@ ADT), `Visualize.lean` (pure lowering to a positioned diagram), and
 here: no `ZX.sem`, no `≃ZX`, no `Semantics.lean`, no `SpiderFusion.lean`.
 
 Those live on the stacked `algebraic-semantics` branch, and are the *reason*
-this module exists: `SpLean/Axioms.lean` defines `≈z` as syntactic equality
+this module exists: `SpLean/Axiomatic/Axioms.lean` defines `≈z` as syntactic equality
 after compaction, which is too weak to prove rewrite-rule soundness, so every
-rule in `SpLean/Rules/` is axiomatised. A semantic equivalence (matrix
+rule in `SpLean/Axiomatic/Rules/` is axiomatised. A semantic equivalence (matrix
 equality) is what lets those rules be proved outright. Do not document that
 work as present here — check what the branch actually contains before writing
 about semantics.
