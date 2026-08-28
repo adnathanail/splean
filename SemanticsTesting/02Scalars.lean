@@ -14,7 +14,7 @@ theorem scalar_sem_two (f g : Wires 0) : greenCircle.sem f g = 2 := by
   norm_num
 
 -- Zero-arity π-phase Z-spider = 0
-abbrev greenPiCircle : ZX 0 0 := .spider .Z 0 0 1
+abbrev greenPiCircle : ZX 0 0 := .spider .Z 0 0 π
 #zx greenPiCircle
 theorem scalar_sem_pi (f g : Wires 0) : greenPiCircle.sem f g = 0 := by
   rw [ZX.sem, zSpiderSem]
@@ -40,7 +40,7 @@ theorem scalar_sem_sqrt_two (α : AlgPhase) (f g : Wires 0) :
   rw [two_times_one_over_root_two_eq_root_two_complex]
 
 -- π-phase X spider linked to α-phase Z spider = √2 e^{iα}
-abbrev redPiCircleAnyGreen (α : AlgPhase) : ZX 0 0 := (.spider .X 0 1 1) ≫ (.spider .Z 1 0 α)
+abbrev redPiCircleAnyGreen (α : AlgPhase) : ZX 0 0 := (.spider .X 0 1 π) ≫ (.spider .Z 1 0 α)
 #zx redPiCircleAnyGreen (π/4)
 theorem scalar_sem_sqrt_two_e_i_alpha (α : AlgPhase) (f g : Wires 0) :
     (redPiCircleAnyGreen α).sem f g = rootTwo * eiTheta α.angle := by

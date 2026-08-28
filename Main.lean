@@ -183,7 +183,7 @@ def algLayoutTest4 : ZX 2 2 := (.spider .Z 1 3 ⊗ .wire) ≫ (.wire ⊗ .spider
 def algExercise3point7a : ZX 2 3 :=
   (.wire ⊗ .wire ⊗ .spider .Z 0 1) ≫
   (.wire ⊗ algNotc)
-def algExercise3point7b : ZX 3 3 := .wire ⊗ .hadamard ⊗ .spider .X 1 1 1
+def algExercise3point7b : ZX 3 3 := .wire ⊗ .hadamard ⊗ .spider .X 1 1 π
 def algExercise3point7c : ZX 3 2 := (algNotc ⊗ .spider .X 1 0)
 def algExercise3point7d : ZX 2 2 := (.wire ⊗ .hadamard) ≫ algCx
 def algExercise3point7 : ZX 2 2 := ((algExercise3point7a ≫ algExercise3point7b) ≫ algExercise3point7c) ≫ algExercise3point7d
