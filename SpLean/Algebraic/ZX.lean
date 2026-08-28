@@ -1,10 +1,21 @@
-import SpLean.Data
 import SpLean.Algebraic.AlgPhase
 
 namespace SpLean.Algebraic
 
-/-- A free-algebra ZX term, indexed by its arity (`n` inputs, `m` outputs).
-    Reuses `SpiderColor` and `Phase` from the graph-style `ZXDiagram` module. -/
+/-- Which of the two spider families a node belongs to.
+
+    Deliberately *not* the `SpiderColor` in `SpLean/Axiomatic/Data.lean`, even
+    though the two are the same two constructors. Sharing it was the last
+    thread tying this module to the graph-style representation, and it bought
+    nothing: the rewrite rules pattern-match theirs, this one only ever
+    becomes a `"Z"`/`"X"` on the way to the widget. Two three-line types are
+    cheaper than a dependency between the halves of the project. -/
+inductive SpiderColor where
+  | Z  -- green
+  | X  -- red
+  deriving Repr, BEq, DecidableEq
+
+/-- A free-algebra ZX term, indexed by its arity (`n` inputs, `m` outputs). -/
 inductive ZX : Nat → Nat → Type
   | empty    : ZX 0 0
   | wire     : ZX 1 1

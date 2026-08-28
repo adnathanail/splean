@@ -12,12 +12,15 @@ Make changes in new commits, as opposed to modifying existing commits, unless ex
 
 ## Project structure
 
-- `SpLean/` — Lean 4 library, split into what both ZX representations share and one folder per representation:
-  - `Data.lean` — the shared data types: `SpiderColor`, `Phase`, `Node`, `Edge`, and the `ZXDiagram` graph structure with its graph operations.
-  - `Visualize.lean` — JSON serialization and the ProofWidgets `ZXWidget`; `Panel.lean` — the InfoView panel widget, expression presenter, and `#zx` command. Both representations render through these.
-  - `Axiomatic/` — the graph-based approach: `Axioms.lean` (`≈z`), `Tactics.lean` (the rewrite tactics), `Rules/`, `DerivedRules/`, `Examples.lean`.
-  - `Algebraic/` — the arity-indexed `ZX n m` approach; see `SpLean/Algebraic/CLAUDE.md`.
+- `SpLean/` — Lean 4 library, split into one folder per representation plus the little that is genuinely shared:
+  - `Widget.lean` — the zxcc **wire format** (`SpLean.Wire`: `NodeKind`, `Node`, `Edge`, `Box`, `Diagram`, `toJson`) and the ProofWidgets `ZXWidget` that eats it. A pure data-transfer type: no `Phase`, no `SpiderColor`, phases already display strings.
+  - `Panel.lean` — the InfoView panel widget, expression presenter, and `#zx` command. The one file that knows both representations, because `#zx` dispatches on which it was handed.
+  - `Axiomatic/` — the graph-based approach: `Data.lean` (`SpiderColor`, `Phase`, `Node`, `Edge`, `ZXDiagram` + graph ops), `Visualize.lean` (`ZXDiagram → Wire.Diagram`), `Axioms.lean` (`≈z`), `Tactics.lean` (the rewrite tactics), `Rules/`, `DerivedRules/`, `Examples.lean`.
+  - `Algebraic/` — the arity-indexed `ZX n m` approach, with its own `SpiderColor`, phase type and renderer; see `SpLean/Algebraic/CLAUDE.md`.
   - `Utils.lean` — generic `List`/`Except`/`Option` helpers. `All.lean` imports everything.
+
+  **`Axiomatic/` and `Algebraic/` import nothing from each other** — check with `grep -rh "^import" SpLean/Algebraic/`. They meet at `SpLean.Wire` and at `Panel.lean`, and nowhere else. `SpiderColor` is deliberately defined twice rather than shared; two three-line types are cheaper than an arrow between the halves.
+  **This is not a strict rule, it's just nice to have for now**
 - `zx_view_widget/` — TypeScript ProofWidgets widget (React, rollup). A thin shell that hands the Lean diagram JSON to the `<zx-diagram>` web component from [`@adnathanail/zxcc`](https://www.npmjs.com/package/@adnathanail/zxcc), which does the layout and SVG rendering.
 - `Main.lean` — Entry point with example diagrams shown in InfoView
 
@@ -35,8 +38,8 @@ The JS bundle is built by rollup and written to `.lake/build/js/`. zxcc is bundl
 - Construct diagrams with `ZXDiagram.ofList` (list indices become IDs) or `ZXDiagram.addNode`/`ZXDiagram.addEdge`
 - Look up nodes with `d.getNode? id`, not direct list indexing
 - ZXDiagram nodes: `.input ioId`, `.output ioId`, `.spider color phase`, `.hadamard`, `.wire` where phase is a `Phase` (`num : Int`, `den : ℕ+`)
-- Phases cross the wire as display-ready strings (`π/2`, `-π/4`, `0`) — `Phase.format` in `SpLean/Visualize.lean` is the single source of truth; the widget prints them verbatim
-- JSON wire format from Lean to the widget: `{"nodes": [...], "edges": [{"src": id, "tgt": id}]}`. Algebraic terms extend this: each node also carries `col`/`qubit` (which makes zxcc skip its own layout), plus a top-level `boxes` array of `{kind, nodeIds}`.
+- Phases become display-ready strings *before* reaching the wire format, and the widget prints them verbatim. Each representation formats its own: `Phase.format` (`Axiomatic/Visualize.lean`, normalizes mod 2π) and `AlgPhase.format` (`Algebraic/AlgPhase/Display.lean`, deliberately does not).
+- JSON wire format: written down once, in `SpLean/Widget.lean`, as `Wire.Diagram.toJson`. `{"nodes": [...], "edges": [{"src", "tgt"}]}`, with each node carrying `id`/`type` and whichever of `color`/`phase`/`ioId`/`col`/`qubit` apply — an `Option` that is `none` is *omitted*, not sent as null. Algebraic terms fill in `col`/`qubit` (which makes zxcc skip its own layout) and add a top-level `boxes` array of `{kind, nodeIds}`. Changing what the wire looks like means changing that one file and the two lowerings into it.
 - Layout and rendering both live in the separate [zxcc](https://github.com/adnathanail/zxcc) repo, not here — change them there and release a new version.
 - Demo diagrams live in `SpLean.Examples` (`SpLean/Axiomatic/Examples.lean`), not the root namespace, so that `open SpLean` doesn't take names like `cnot` out of a user's hands. Keep new example data there.
 
@@ -59,16 +62,16 @@ Diagrams reach the InfoView two ways, both defined in `SpLean/Panel.lean`:
 
 Outside a proof, the `#zx d` command (also in `Panel.lean`) renders a diagram. It takes either representation — a graph-style `ZXDiagram` or an algebraic `ZX n m` — and is the replacement for ProofWidgets' `#html d.toHtml`; the project has no remaining `#html` call sites. Because `ZX n m` is arity-indexed there is no single expected type to elaborate against, so the argument is elaborated with no expected type and the result dispatched on its type: notation that needs one (`.spider .Z 1 1`, anonymous constructors) has to be ascribed, e.g. `#zx (.spider .Z 1 1 : ZX 1 1)`. Anything else fails with an error naming the term's actual type.
 
-Both paths evaluate the `Expr` to a real `ZXDiagram` via `evalZXDiagram` (`Meta.evalExpr`), so they need closed terms. On a goal with free variables or an unassigned metavariable LHS, `ZXPanel` shows "No ZX diagram" and `zxPresenter` throws — which is how `getExprPresentations` knows to omit it. A presenter that cannot render **must** throw rather than return empty HTML.
+`ZXPanel` and `zxPresenter` are `ZXDiagram`-only, and both evaluate the `Expr` to a real `ZXDiagram` via `evalZXDiagram` (`Meta.evalExpr`), so they need closed terms. On a goal with free variables or an unassigned metavariable LHS, `ZXPanel` shows "No ZX diagram" and `zxPresenter` throws — which is how `getExprPresentations` knows to omit it. A presenter that cannot render **must** throw rather than return empty HTML.
 
-Tactics do not log diagrams. `zx_debug` is the one tactic that writes to the InfoView, printing raw diagram JSON (`includeNones := true`) for debugging.
+Tactics do not log diagrams. `zx_debug` is the one tactic that writes to the InfoView, printing `ZXDiagram.debugJson` — which, unlike `toWire`, keeps the `none` slots left by `removeNode` as `{"id": i, "type": "none"}`, since where the holes are is what you want when debugging a rewrite. That JSON is never sent to the widget; `"none"` is not a zxcc node type.
 
 ## Two ZX representations
 
-- **`ZXDiagram`** (`SpLean/Data.lean`) — graph-style: nodes + edges. Used by all rewrite rules in `Axiomatic/Rules/*` and the `≈z` equivalence, and also as the lowering target the algebraic renderer emits — which is why it sits in the shared root rather than in `Axiomatic/`.
+- **`ZXDiagram`** (`SpLean/Axiomatic/Data.lean`) — graph-style: nodes + edges. Used by all rewrite rules in `Axiomatic/Rules/*` and the `≈z` equivalence. It used to sit in the shared root because the algebraic renderer lowered into it; it no longer does, so it lives with the rules that use it.
 - **`ZX n m`** (`SpLean/Algebraic/ZX.lean`) — free-algebra ADT indexed by arity. On this branch it exists for rendering only; the denotational matrix semantics that will let rules be *proved* rather than axiomatised live on the stacked `algebraic-semantics` branch.
 
-Both are renderable in the InfoView: `ZXDiagram.toHtml` directly, `ZX.toHtml` via `ZX.toPositionedDiagram` (lowers to a graph and emits per-node `(col, qubit)` positions from the algebraic structure — `compose` advances col, `stack` advances qubit; a `wire` stays a real `.wire` node so the boxes around it are non-empty). Each `stack`/`compose` subtree also records a bounding rectangle that the widget draws behind the diagram. See `SpLean/Algebraic/CLAUDE.md` for details.
+Both render through `SpLean.Wire`, by separate lowerings: `ZXDiagram.toWire` supplies no positions, so zxcc lays the graph out itself; `ZX.toWire` supplies a `(col, qubit)` for every node from the algebraic structure — `compose` advances col, `stack` advances qubit; a `wire` stays a real `wire` node so the boxes around it are non-empty — so zxcc skips its layout. Each `stack`/`compose` subtree also records a bounding rectangle drawn behind the diagram. See `SpLean/Algebraic/CLAUDE.md` for details.
 
 ## Lean tips
 

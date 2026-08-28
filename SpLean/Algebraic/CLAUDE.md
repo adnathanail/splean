@@ -1,9 +1,10 @@
 # SpLean.Algebraic
 
 A free-algebra ZX representation (`ZX n m`, indexed by input/output arity),
-living *alongside* the graph-style `ZXDiagram`. There is a one-way
-`ZX → ZXDiagram` translation for **rendering only** (`Visualize.lean` — see
-below); the `Axiomatic/Rules/*` rewrite machinery still operates on `ZXDiagram` directly.
+living *alongside* the graph-style `ZXDiagram` and sharing nothing with it.
+This module renders straight to the zxcc wire format (`Visualize.lean` — see
+below); the `Axiomatic/Rules/*` rewrite machinery operates on `ZXDiagram` and
+renders through its own lowering.
 
 ## Scope
 
@@ -54,89 +55,104 @@ coercions that let a goal be stated as `!![1, 0; 0, -1]`.
   `open SpLean.Algebraic` (see `Main.lean`).
 - **`spider c n m φ`** takes its phase last and defaults it to `0`, so a
   phase-free spider is just `.spider .Z 1 2`.
+- **`SpiderColor` here is `SpLean.Algebraic.SpiderColor`**, not the one in
+  `Axiomatic/Data.lean`. Same two constructors, deliberately duplicated: it
+  was the last thread tying the two representations together and it bought
+  nothing, since this one only ever becomes a `"Z"`/`"X"` on the wire.
 
 ## Visualization (`Visualize.lean`, `Render.lean`)
 
-`ZX.toHtml` renders an algebraic term in the existing `ZXWidget`.
-`Visualize.lean` is the pure part (term → positioned diagram → `Html`);
-`Render.lean` is the `MetaM` part that turns a `ZX n m` *`Expr`* into `Html`,
-so `#zx myAlgTerm` displays algebraic terms at the top level the same way it
-displays a `ZXDiagram`. Arity is recovered from `Meta.inferType`: the term
-itself isn't evaluable because `ZX n m` is index-dependent, but the `Html`
-application is.
+`ZX.toHtml` renders an algebraic term in the existing widget. `Visualize.lean`
+is the pure part (term → `SpLean.Wire.Diagram` → `Html`); `Render.lean` is the
+`MetaM` part that turns a `ZX n m` *`Expr`* into `Html`, so `#zx myAlgTerm`
+displays algebraic terms at the top level. Arity is recovered from
+`Meta.inferType`: the term itself isn't evaluable because `ZX n m` is
+index-dependent, but the `Html` application is.
 
-The walker threads a private `Frag` (diagram + open `left`/`right` port lists,
-each port paired with the qubit-in-halves at which it enters/leaves the body,
-+ `(width, height, pos, boxes)`) through the constructors. Every node carries
-an algebraic-grid `(col, qubitHalves)` position emitted alongside the JSON, so
-the renderer skips its own layout and the visual reflects the term's
-structure. Each `stack`/`compose` subtree also records a `BoxRecord` covering
-its extent, drawn as a translucent rectangle behind the diagram so the
-algebraic nesting is visible at a glance.
+This module owns its rendering end to end. It has **no** dependency on
+`SpLean/Axiomatic/` — not on `ZXDiagram`, not on `Node`, not on `Phase`, and
+not even on `SpiderColor`, which `ZX.lean` defines for itself. The only shared
+thing is `SpLean/Widget.lean`, the zxcc wire format, which is a JSON DTO
+rather than a ZX type. Keep it that way: if something here starts wanting a
+graph-style type, the answer is a lowering into `Wire`, not an import.
 
-Qubit positions are stored internally as `2 ×` the actual qubit (i.e.
-"halves") so a spider with mismatched arity (e.g. `Z 1→2`) can sit on a
-half-row at the centre of its span. The structural `Frag.height` stays a count
-of integer slots; `stack` shifts the lower fragment's qubits by
-`2 * a.height`. JSON emission divides by two — `qubit` is a real number
-(e.g. `0.5`, `1`, `1.5`) on the wire.
+### The layout walk
+
+`AlgPhase.format` is what the viewer draws — it used to convert to the
+graph-style `Phase` first, which normalizes mod 2π, so the viewer drew `7π/4`
+where `format` promised `-π/4`. That conversion is gone along with the
+dependency.
+
+The walker threads a private `Frag` through the constructors: a list of
+`PlacedNode`s (a `NodeShape` — spider / hadamard / wire / input / output —
+plus `col` and `qubitHalves`), `Wire.Edge`s, the open `left`/`right` port
+lists, `width`, `height`, and the `Wire.Box`es recorded so far. Node ids are
+list indices into `nodes`, so concatenating two fragments renumbers the second
+by exactly the length of the first. Each open port is paired with the
+qubit-in-halves at which it enters or leaves the body.
+
+Qubit positions are `2 ×` the actual qubit ("halves") so a spider with
+mismatched arity (e.g. `Z 1→2`) can sit on a half-row at the centre of its
+span. `Frag.height` stays a count of whole slots; `stack` shifts the lower
+fragment by `2 * a.height`. Only `PlacedNode.toWire` divides by two, via
+`Wire.qubitOfHalves`, so `qubit` reaches the widget as `0.5`, `1`, `1.5`, ….
 
 Per-constructor layout (all qubit values are halves; `centre = max(n, m) - 1`
 is the midpoint of slots `0..max-1` in halves):
 
-- `wire` → one `.wire` node at `(col 0, q 0)`, drawn as a small dot. Wires
-  stay as real nodes so that `stack`/`compose` boxes around them are
-  non-empty and the visual extent of a subtree matches its algebraic shape.
+- `wire` → one `wire` node at `(col 0, q 0)`, drawn as a small dot. Wires stay
+  real nodes so that `stack`/`compose` boxes around them are non-empty and the
+  visual extent of a subtree matches its algebraic shape.
   `left = right = [(id, 0)]`, width 1, height 1.
-- `hadamard` → one `.hadamard` node at `(col 0, q 0)`. `left = right = [(id, 0)]`,
-  width 1, height 1.
-- `spider c n m φ` → one node at `(col 0, q centre)` (centre of its span).
-  Each port is paired with its qubitHalves: when the arity is `1` the lone
-  port sits at `centre` (so a single-leg connection is horizontal); when
-  arity > 1 the ports occupy integer slots `0, 2, …, 2(k-1)`. Width 1,
-  height `max n m`.
+- `hadamard` → one `hadamard` node at `(col 0, q 0)`, same ports, width 1,
+  height 1. It sends no `phase`: zxcc defaults an H-box to `π` and draws no
+  text for that.
+- `spider c n m φ` → one node at `(col 0, q centre)`. Each port is paired
+  with its qubitHalves: when the arity is `1` the lone port sits at `centre`
+  (so a single-leg connection is horizontal); when arity > 1 the ports occupy
+  whole slots `0, 2, …, 2(k-1)`. Width 1, height `max n m`.
 - `stack a b` → concatenate; shift `b`'s qubitHalves by `2 * a.height`.
   Width `max a.width b.width`, height `a.height + b.height`.
 - `compose a b` → connect `a.right` to `b.left` (by node id, qubits do not
   need to match) and shift `b`'s cols by `a.width`. Width `a.width + b.width`,
   height `max a.height b.height`.
 
-`stack` and `compose` each emit a `BoxRecord {kind, nodeIds}` listing the ids
-of every node in their subtree (with appropriate shifts on `compose`/`stack`).
-Leaves emit no box. `algebraicJson` emits every box verbatim — it does no
-filtering. Pixel bounds are computed by the renderer from each node's live
-position, so boxes follow drags.
+`stack` and `compose` each emit a `Wire.Box {kind, nodeIds}` over every node
+in their subtree; leaves emit none, and so does a subtree with no nodes at all
+(`empty ⊗ empty`). zxcc computes pixel bounds from the nodes' live positions,
+so boxes follow drags, and sorts them largest-first so outer ones paint
+behind inner ones.
 
-Boundary `.input`/`.output` nodes are added **only** at the top level by
-`ZX.toPositionedDiagram`. Each boundary inherits the qubit of the body port
-it connects to: input `i` sits at `(col -1, q (f.left[i].2))`, and output
-`j` at `(col width, q (f.right[j].2))`. So a top-level input feeding a
-`Z 1→2` spider lands on the spider's centred half-row, and an input feeding
-a wire that has been pushed downward by a sibling stack lands at that wire's
-shifted qubit — no big diagonal jumps from the boundary into the body.
-Internal fragments stay arity-pure during recursion.
-
-The JSON shape extends `ZXDiagram.toJson` with `col` (Int) and `qubit`
-(real number, possibly half-integer) fields per node, plus a top-level
-`boxes` array of `{kind, nodeIds}` records.
+Boundary `input`/`output` nodes are added **only** at the top level, by
+`ZX.toWire`; fragments stay arity-pure during the walk. The arity comes from
+the fragment's own open ports (`left.length`/`right.length`) rather than from
+the type index, so the boundary count and the ports can never disagree. Each
+boundary inherits the qubit of the
+body port it connects to: input `i` sits at `(col -1, q (left[i].2))` and
+output `j` at `(col width, q (right[j].2))`. So an input feeding a `Z 1→2`
+spider lands on the spider's centred half-row, and one feeding a wire pushed
+down by a sibling `stack` lands at that wire's shifted qubit — no diagonal
+jumps from the boundary into the body.
 
 ## Where the drawing actually happens
 
 Layout and SVG rendering are **not in this repo** — they live in the
 [zxcc](https://github.com/adnathanail/zxcc) web component, consumed as the
 `@adnathanail/zxcc` npm package by `zx_view_widget/`. This module's only job
-is to emit JSON that zxcc understands (`DiagramData` in its `types.d.ts`:
-`col`, `qubit`, `boxes`, `labels`, …). zxcc skips its BFS auto-layout whenever
-any node carries `col`, turns off H-box barycentre repositioning in that case
-so supplied positions aren't overwritten, and sorts boxes largest-first so
-outer ones paint behind inner ones.
+is to emit a `Wire.Diagram`; `SpLean/Widget.lean` mirrors zxcc's `DiagramData`
+from its `types.d.ts` and is the only place the field names live. zxcc skips
+its BFS auto-layout whenever any node carries `col`, and turns off H-box
+barycentre repositioning in that case so supplied positions aren't
+overwritten.
 
 Changing how any of that *looks* means changing zxcc and releasing a new
 version, not editing anything here.
 
 ## Not proved
 
-`ZX.toZXDiagram` (used by callers that just need the graph) delegates to
-`ZX.toPositionedDiagram` and discards the position list. Rendering-only —
-there is no proof that the lowering preserves semantics (that would need a
-`ZXDiagram` denotation, which doesn't exist yet).
+There is no proof that the lowering to `Wire` draws anything faithful — it is
+rendering, and there is nothing to prove it against. There used to be a
+`ZX.toZXDiagram` producing a graph-style diagram; it had no callers and was
+the last arrow from here into `Axiomatic/`, so it is gone. If a real
+`ZX → ZXDiagram` translation is ever wanted it should be written as its own
+thing, with a semantics to justify it, not as a by-product of the renderer.
