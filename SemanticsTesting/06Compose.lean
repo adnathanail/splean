@@ -18,24 +18,26 @@ theorem two_wire_sem : twoWires.sem = identityMatrix := by
   field_simp
   cases f 0 <;> cases g 0 <;> norm_num <;> decide
 
-abbrev twoZGates : ZX 1 1 := (.spider .Z 1 1 ⟨1, 1⟩) ≫ (.spider .Z 1 1 ⟨1, 1⟩)
+abbrev twoZGates : ZX 1 1 := (.spider .Z 1 1 1) ≫ (.spider .Z 1 1 1)
 #zx twoZGates
 theorem two_z_gates_sem : twoZGates.sem = identityMatrix := by
   unfold wiresMat2
   apply funext; intro f
   apply funext; intro g
-  simp only [ZX.sem, sum_wires1, vec1Bits, zSpiderSem, Phase.angle, Fin.forall_fin_one]
+  simp only [ZX.sem, sum_wires1, vec1Bits, zSpiderSem, Fin.forall_fin_one]
+  push_cast
   cases f 0 <;> cases g 0 <;> simp
 
-abbrev twoXGates : ZX 1 1 := (.spider .X 1 1 ⟨1, 1⟩) ≫ (.spider .X 1 1 ⟨1, 1⟩)
+abbrev twoXGates : ZX 1 1 := (.spider .X 1 1 1) ≫ (.spider .X 1 1 1)
 #zx twoXGates
 /-- The X gate flips the bit: its amplitude is `1` off the diagonal, `0` on it.
 Proved separately so the composition below never unfolds `xSpiderSem`'s double
 sum twice over. -/
 lemma x_gate_ampl (f g : Wires 1) :
-    (ZX.spider .X 1 1 (⟨1, 1⟩ : Phase)).sem f g = if f 0 = g 0 then 0 else 1 := by
+    (ZX.spider .X 1 1 1).sem f g = if f 0 = g 0 then 0 else 1 := by
   rw [ZX.sem, xSpiderSem]
-  simp only [sum_wires1, zSpiderSem, hadSem, Phase.angle]
+  simp only [sum_wires1, zSpiderSem, hadSem]
+  push_cast
   cases hf : f 0 <;> cases hg : g 0 <;>
     norm_num [hf, hg, one_over_root_two_times_itself_eq_half_complex]
 theorem two_x_gates_sem : twoXGates.sem = identityMatrix := by
@@ -44,17 +46,18 @@ theorem two_x_gates_sem : twoXGates.sem = identityMatrix := by
   apply funext; intro g
   rw [ZX.sem, sum_wires1]
   rw [x_gate_ampl, x_gate_ampl, x_gate_ampl, x_gate_ampl]
-  cases hf : f 0 <;> cases hg : g 0 <;> norm_num
+  cases f 0 <;> cases g 0 <;> norm_num
 
 -- ## Hadamard decomp (pqs 3.81)
 lemma z_rotation_matrix_values (f g : Wires 1) :
-    (ZX.spider .Z 1 1 (⟨1, 2⟩ : Phase)).sem f g =
+    (ZX.spider .Z 1 1 (1 / 2)).sem f g =
       if (f 0 = false) ∧ (g 0 = false) then 1
       else if (f 0 = true) ∧ (g 0 = true) then Complex.I
       else 0
     := by
   -- Use Z phase gate semantics proof
-  rw [z_sem_z_rotation, wiresMat2, Phase.angle]
+  rw [z_sem_z_rotation, wiresMat2]
+  push_cast
   -- Split into the four corners of the matrix and simplify
   cases f 0 <;> cases g 0 <;> simp [inv_mul_eq_div]
 
@@ -74,15 +77,16 @@ lemma x_rotation_one_minus_i_div_two :
   ring_nf
 
 lemma x_rotation_matrix_values (f g : Wires 1) :
-    (ZX.spider .X 1 1 (⟨1, 2⟩ : Phase)).sem f g =
+    (ZX.spider .X 1 1 (1 / 2)).sem f g =
       Complex.exp (Real.pi / 4 * Complex.I) / Real.sqrt 2 * (if f 0 = g 0 then 1 else - Complex.I) := by
-  rw [x_sem_x_rotation, wiresMat2, Phase.angle]
+  rw [x_sem_x_rotation, wiresMat2]
+  push_cast
   cases f 0 <;> cases g 0 <;> simp [inv_mul_eq_div, x_rotation_one_minus_i_div_two]
   all_goals rw [x_rotation_one_plus_i_div_two]
 
 noncomputable abbrev eIPiOvFourTimesOneOverRootTwo := Complex.exp (Real.pi / 4 * Complex.I) / rootTwo
 noncomputable abbrev hadamardUnnorm : Matrix (Fin 2) (Fin 2) ℂ := !![eIPiOvFourTimesOneOverRootTwo, eIPiOvFourTimesOneOverRootTwo; eIPiOvFourTimesOneOverRootTwo, -eIPiOvFourTimesOneOverRootTwo]
-abbrev hadamardEulerDecomp : ZX 1 1 := (.spider .Z 1 1 ⟨1, 2⟩) ≫ (.spider .X 1 1 ⟨1, 2⟩) ≫ (.spider .Z 1 1 ⟨1, 2⟩)
+abbrev hadamardEulerDecomp : ZX 1 1 := (.spider .Z 1 1 (1 / 2)) ≫ (.spider .X 1 1 (1 / 2)) ≫ (.spider .Z 1 1 (1 / 2))
 #zx hadamardEulerDecomp
 -- Showing that
 -- e^{-iπ/4} --Z(π/2)---X(π/2)---Z(π/2)-- = --◾--
