@@ -39,13 +39,15 @@ private structure PlacedNode where
   col : Int
   qubitHalves : Nat
 
-/-- A Hadamard sends no phase: zxcc defaults it to `π` and draws no text for
-    that, which is what a plain H-box should look like. -/
+/-- A Hadamard box carries a phase of π by convention. It is sent explicitly,
+    like every other phase — see `Wire.Node.phase`. -/
+def hadamardPhase : AlgPhase := π
+
 private def PlacedNode.toWire (p : PlacedNode) (id : NodeId) : Wire.Node :=
   let base : Wire.Node :=
     match p.shape with
     | .spider c phase => { id, kind := .spider, color := some c.wireName, phase := some phase }
-    | .hadamard    => { id, kind := .hadamard }
+    | .hadamard    => { id, kind := .hadamard, phase := some hadamardPhase.format }
     | .wire        => { id, kind := .wire }
     | .input ioId  => { id, kind := .input,  ioId := some ioId }
     | .output ioId => { id, kind := .output, ioId := some ioId }
