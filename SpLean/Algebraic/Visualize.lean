@@ -16,6 +16,33 @@ open SpLean
 /-- Index into a fragment's node list, and the node's wire-format `id`. -/
 private abbrev NodeId := Nat
 
+/-- An arity-erased mirror of `ZX n m` whose spiders carry the *text* to draw
+    rather than a phase value.
+
+    Erasing the arity is what lets the renderer accept a term it cannot
+    evaluate: `SpLean/Algebraic/Render.lean` builds a skeleton straight from
+    an `Expr`, and a phase argument that is a variable becomes the string
+    `"α"` where a closed one becomes `"π/4"`. Both are equally drawable, and
+    by the time a phase is here the difference has stopped mattering — which
+    is why this carries a `String` and not an `AlgPhase`. -/
+inductive ZXSkel where
+  | empty
+  | wire
+  | hadamard
+  | spider (c : AlgSpColor) (n m : Nat) (phase : String)
+  | stack (a b : ZXSkel)
+  | compose (a b : ZXSkel)
+  deriving Repr, Inhabited
+
+/-- The skeleton of a term whose phases are all values. -/
+def ZX.toSkel : {n m : Nat} → ZX n m → ZXSkel
+  | _, _, .empty          => .empty
+  | _, _, .wire           => .wire
+  | _, _, .hadamard       => .hadamard
+  | _, _, .spider c n m φ => .spider c n m φ.format
+  | _, _, .stack a b      => .stack a.toSkel b.toSkel
+  | _, _, .compose a b    => .compose a.toSkel b.toSkel
+
 def AlgSpColor.wireName : AlgSpColor → String
   | .Z => "Z" | .X => "X"
 
@@ -134,12 +161,12 @@ private def Frag.then (a b : Frag) : Frag :=
     boxes := a.boxes ++ b.boxes.map (shiftBox off)
                ++ wholeBox .compose (off + b.nodes.length) }
 
-/-- Lay a term out. Boundary nodes are added afterwards, by `toWire`. -/
-private def buildFrag : {n m : Nat} → ZX n m → Frag
-  | _, _, .empty    => Frag.empty
-  | _, _, .wire     => Frag.leaf .wire
-  | _, _, .hadamard => Frag.leaf .hadamard
-  | _, _, .spider c n m φ =>
+/-- Lay a skeleton out. Boundary nodes are added afterwards, by `toWire`. -/
+private def buildFrag : ZXSkel → Frag
+  | .empty       => Frag.empty
+  | .wire        => Frag.leaf .wire
+  | .hadamard    => Frag.leaf .hadamard
+  | .spider c n m phase =>
     let mx := Nat.max n m
     -- `centre` is the qubitHalves at the midpoint of slots `0..mx-1`.
     -- `mx - 1` saturates at 0 when `mx = 0` (a 0-leg spider has no ports).
@@ -148,24 +175,24 @@ private def buildFrag : {n m : Nat} → ZX n m → Frag
     -- horizontal; two or more occupy whole slots `0, 2, …, 2(k-1)`.
     let portQubits (k : Nat) : List Nat :=
       if k = 1 then [centre] else (List.range k).map (fun i => 2 * i)
-    { nodes := [{ shape := .spider c φ.format, col := 0, qubitHalves := centre }]
+    { nodes := [{ shape := .spider c phase, col := 0, qubitHalves := centre }]
       edges := []
       left := (portQubits n).map (fun q => (0, q))
       right := (portQubits m).map (fun q => (0, q))
       width := 1, height := mx, boxes := [] }
-  | _, _, .stack a b   => Frag.append (buildFrag a) (buildFrag b)
-  | _, _, .compose a b => Frag.then   (buildFrag a) (buildFrag b)
+  | .stack a b   => Frag.append (buildFrag a) (buildFrag b)
+  | .compose a b => Frag.then   (buildFrag a) (buildFrag b)
 
-/-- Lower an algebraic term to the wire format.
+/-- Lower a skeleton to the wire format.
 
     Boundary `input`/`output` nodes are added **only** here, at the top level;
     fragments stay arity-pure during the walk. Each boundary inherits the
     qubit of the body port it connects to — so an input feeding a `Z 1→2`
     spider lands on that spider's centred half-row, and one feeding a wire
     pushed down by a sibling `stack` lands at the wire's shifted qubit. The
-    arity comes from the fragment's own open ports rather than from the type
-    index, so the boundary count and the ports can never disagree. -/
-def ZX.toWire {n m : Nat} (z : ZX n m) : Wire.Diagram :=
+    arity comes from the fragment's own open ports; the skeleton has no index
+    to read it off. -/
+def ZXSkel.toWire (z : ZXSkel) : Wire.Diagram :=
   let f := buildFrag z
   let body := f.nodes.length
   let ins := (List.range f.left.length).map (· + body)
@@ -186,7 +213,11 @@ def ZX.toWire {n m : Nat} (z : ZX n m) : Wire.Diagram :=
     boxes := f.boxes }
 
 open ProofWidgets in
+/-- Display a skeleton in the InfoView. -/
+def ZXSkel.toHtml (z : ZXSkel) : Html := z.toWire.toHtml
+
+open ProofWidgets in
 /-- Display an algebraic ZX term in the InfoView. -/
-def ZX.toHtml {n m : Nat} (z : ZX n m) : Html := z.toWire.toHtml
+def ZX.toHtml {n m : Nat} (z : ZX n m) : Html := z.toSkel.toHtml
 
 end SpLean.Algebraic

@@ -106,11 +106,16 @@ def ZXPanel : Component PanelWidgetProps :=
     ```lean
     #zx zHadX          -- graph-style `ZXDiagram`
     #zx algCnot        -- algebraic `ZX n m`
+    #zx greenAlpha     -- `(α : AlgPhase) → ZX 0 0`, drawn with `α` on the spider
     ```
 
     Both representations are accepted, so `#zx` replaces ProofWidgets'
-    `#html d.toHtml` for either one. The term must be closed, since it is
-    evaluated to a concrete value to be drawn.
+    `#html d.toHtml` for either one. A `ZXDiagram` must be closed, since it is
+    evaluated to a concrete value to be drawn. An algebraic term need not be:
+    it is walked at the `Expr` level, so a phase it cannot evaluate is drawn
+    as its own source text, and any leading `∀`s are instantiated with their
+    own binders — which is what makes a phase-parameterized diagram
+    displayable at all.
 
     Unlike the `ZXDiagram`-only form this had before, the argument is
     elaborated without an expected type — `ZX n m` is arity-indexed, so
@@ -129,12 +134,14 @@ def elabZxCmd : CommandElab := fun
       let e ← instantiateMVars e
       if let some html ← zxDiagramHtml? e then return html
       if let some html ← Algebraic.zxTermHtml? e then return html
-      -- Neither branch fired: either the term has the wrong type entirely,
-      -- or it is a diagram that could not be evaluated (open term, symbolic
-      -- phase). Report the type so the two cases are told apart.
+      -- Neither branch fired: either the term has the wrong type entirely, or
+      -- it is a `ZXDiagram` that could not be evaluated (an open term). An
+      -- algebraic term that is the right type but cannot be walked reports
+      -- that itself, from `zxTermHtml?`. Report the type so the cases are
+      -- told apart.
       throwError "#zx expects a `ZXDiagram` or an algebraic `ZX n m` term, \
-        and needs it closed enough to evaluate. Got{indentExpr e}\nof type\
-        {indentExpr (← inferType e)}"
+        and a `ZXDiagram` has to be closed enough to evaluate. Got{indentExpr e}\
+        \nof type{indentExpr (← inferType e)}"
     liftCoreM <| Widget.savePanelWidgetInfo
       (hash HtmlDisplay.javascript)
       (return json% { html: $(← rpcEncode html) })
