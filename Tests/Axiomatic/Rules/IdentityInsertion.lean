@@ -34,5 +34,3 @@ def identityInsertionTests : TestSeq :=
     test "insert between two spiders" ((twoSpiders.identityInsertion 1 2 .Z).get! ≈z twoSpidersZInserted) $
     test "disconnected nodes rejected" ((disconnected.identityInsertion 0 1 .Z).isError) $
     test "missing node rejected" ((simpleWire.identityInsertion 0 99 .Z).isError)
-
-#lspec identityInsertionTests

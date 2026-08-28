@@ -29,5 +29,3 @@ def identityRemovalTests : TestSeq :=
     test "removing phase-free Z spider" ((justPhaseFreeZSpider.identityRemoval 1).get! ≈z justPhaseFreeZSpiderIdentityRemoved) $
     test "removing phase-free X spider" ((justPhaseFreeXSpider.identityRemoval 1).get! ≈z justPhaseFreeXSpiderIdentityRemoved) $
     test "identity remove spider with phase should fail" ((aZSpiderWithPhase.identityRemoval 1).isError)
-
-#lspec identityRemovalTests

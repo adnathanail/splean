@@ -96,3 +96,7 @@ lean_lib SemanticsTesting where
 @[default_target]
 lean_exe splean where
   root := `Main
+
+@[test_driver]
+lean_exe tests where
+  root := `Tests.Main

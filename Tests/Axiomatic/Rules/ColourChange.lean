@@ -29,5 +29,3 @@ def colourChangeTests : TestSeq :=
     test "Z to X colour change" ((zSpider.colourChange 1).get! ≈z zSpiderColourChanged) $
     test "X to Z colour change" ((xSpider.colourChange 1).get! ≈z xSpiderColourChanged) $
     test "non-spider rejected" ((hadamardNode.colourChange 1).isError)
-
-#lspec colourChangeTests

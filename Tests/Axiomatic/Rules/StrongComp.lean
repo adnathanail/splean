@@ -65,5 +65,3 @@ def strongCompTests : TestSeq :=
     test "non-zero phase rejected" ((nonZeroPhase.strongComp 1 2).isError) $
     test "not connected rejected" ((notConnected.strongComp 1 2).isError) $
     test "non-spider node rejected" ((nonSpider.strongComp 1 2).isError)
-
-#lspec strongCompTests

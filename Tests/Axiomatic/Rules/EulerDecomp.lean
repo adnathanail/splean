@@ -61,5 +61,3 @@ def eulerDecompTests : TestSeq :=
     test "branched Hadamard rejected" ((branchedHadamard.eulerDecomp 1 1).isError) $
     test "invalid variant rejected" ((hadWire.eulerDecomp 1 7).isError) $
     test "node not found rejected" ((hadWire.eulerDecomp 99 1).isError)
-
-#lspec eulerDecompTests

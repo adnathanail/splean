@@ -16,7 +16,7 @@ jobs:
           cache-dependency-path: zx_view_widget/package-lock.json
       - uses: leanprover/lean-action@v1
       - name: Run tests
-        run: lake build Tests
+        run: lake test
 
       - name: Build demos
         run: lake build Demos

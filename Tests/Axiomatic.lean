@@ -7,5 +7,3 @@ def axiomaticTests : TestSeq :=
   group "Axiomatic" $
     normalizationTests ++
     rulesTests
-
-#lspec axiomaticTests

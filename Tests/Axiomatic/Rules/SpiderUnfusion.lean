@@ -85,5 +85,3 @@ def spiderUnfusionTests : TestSeq :=
     test "unfusion fails when rewire target not a neighbor"
       (let fused := (twoSpiders.spiderFusion 1 2).get!
       (fused.spiderUnfusion 1 ⟨1, 2⟩ ⟨1, 1⟩ [2]).isError)
-
-#lspec spiderUnfusionTests

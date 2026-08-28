@@ -103,5 +103,3 @@ def normalizationTests : TestSeq :=
     test "phase 3π wraps to π" (phase3Pi ≈z phasePi) $
     -- Combined
     test "compaction + normalization together" (messy ≈z clean)
-
-#lspec normalizationTests
