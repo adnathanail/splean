@@ -15,7 +15,7 @@ lemma x_sem_zero_state_ampl (f : Wires 0) (b : Bool) :
     zeroState.sem f (fun _ => b) = if b then 0 else rootTwo := by
   rw [ZX.sem, xSpiderSem, Fintype.sum_unique]
   simp only [sum_wires1, hadSem, zSpiderSem]
-  cases b <;> norm_num [two_times_one_over_root_two_eq_root_two_complex]
+  cases b <;> norm_num [inv_root_two_add_inv_root_two_eq_root_two_complex]
 
 -- Then use it in the proof against a vector
 theorem x_sem_zero_state (f : Wires 0) : zeroState.sem f = (![rootTwo, 0] : Fin 2 → ℂ) := by
@@ -33,7 +33,7 @@ lemma x_sem_one_state_ampl (f : Wires 0) (b : Bool) :
   rw [ZX.sem, xSpiderSem, Fintype.sum_unique, rootTwo]
   simp only [sum_wires1, hadSem, zSpiderSem]
   push_cast
-  cases b <;> norm_num [two_times_one_over_root_two_eq_root_two_complex]
+  cases b <;> norm_num [inv_root_two_add_inv_root_two_eq_root_two_complex]
 theorem x_sem_one_state (f : Wires 0) : oneState.sem f = (![0, rootTwo] : Fin 2 → ℂ) := by
   unfold wiresVec1
   ext g
@@ -71,7 +71,7 @@ theorem x_sem_x_gate : xGate.sem = (!![0, 1; 1, 0] : Matrix (Fin 2) (Fin 2) ℂ)
     <;> push_cast  -- Make inner expressions reals
     <;> norm_num   -- Lose the Complex.exp
     <;> norm_cast  -- Make the whole expressionr eal
-    <;> norm_num [one_over_root_two_times_itself_eq_half]
+    <;> norm_num [inv_root_two_mul_inv_root_two_eq_half]
 
 abbrev xRotation (α : AlgPhase) : ZX 1 1 := .spider .X 1 1 α
 #zx xRotation
@@ -91,6 +91,6 @@ theorem x_sem_x_rotation (α : AlgPhase) :
       -- Pulls the two `(√2)⁻¹` factors flanking `e^{iα}` together.
       mul_right_comm,
       -- Destroy them
-      one_over_root_two_times_itself_eq_half_complex
+      inv_root_two_mul_inv_root_two_eq_half_complex
     ]
     <;> ring

@@ -64,23 +64,23 @@ lemma sum_bool_endpoints₂ {n m : ℕ} {M : Type*} [AddCommMonoid M]
 
 
 -- Common lemmas
-lemma two_times_one_over_root_two_eq_root_two :
+lemma inv_root_two_add_inv_root_two_eq_root_two :
     (√2)⁻¹ + (√2)⁻¹ = √2 := by
   field_simp
   norm_num
-lemma two_times_one_over_root_two_eq_root_two_complex :
+lemma inv_root_two_add_inv_root_two_eq_root_two_complex :
     ((√2 : ℝ) : ℂ)⁻¹ + ((√2 : ℝ) : ℂ)⁻¹ = √2 := by
   norm_cast
-  rw [two_times_one_over_root_two_eq_root_two]
+  rw [inv_root_two_add_inv_root_two_eq_root_two]
 
-lemma one_over_root_two_times_itself_eq_half :
+lemma inv_root_two_mul_inv_root_two_eq_half :
     (√2)⁻¹ * (√2)⁻¹ = 1/2 := by
   rw [← mul_inv, Real.mul_self_sqrt (by norm_num)]
   norm_num
-lemma one_over_root_two_times_itself_eq_half_complex :
+lemma inv_root_two_mul_inv_root_two_eq_half_complex :
     ((√2 : ℝ) : ℂ)⁻¹ * ((√2 : ℝ) : ℂ)⁻¹ = 1/2 := by
   norm_cast
-  rw [one_over_root_two_times_itself_eq_half]
+  rw [inv_root_two_mul_inv_root_two_eq_half]
   norm_num
 
 lemma root_two_inv_sq_eq_two_inv : (√2)⁻¹ ^ 2 = 2⁻¹ := by
