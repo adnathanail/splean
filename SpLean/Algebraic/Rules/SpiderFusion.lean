@@ -11,7 +11,7 @@ theorem zSpider_fusion (n m : ℕ) (α β : AlgPhase) :
   simp only [ZX.sem]
   simp only [sum_wires1, zSpiderSem]
   norm_num
-  simp only [ite_and, add_mul, Complex.exp_add]
+  simp only [ite_and]
   split_ifs <;> ring
 
 theorem xSpider_fusion (n m : ℕ) (α β : AlgPhase) :
@@ -29,7 +29,6 @@ theorem xSpider_fusion (n m : ℕ) (α β : AlgPhase) :
   -- Collapse the RHS double sum: distribute so each `ite` is the whole summand.
   conv_rhs => simp only [mul_add, add_mul, mul_ite, ite_mul, mul_zero, zero_mul]
   ring_nf
-  rw [Complex.exp_add]
   simp only [sum_bool_endpoints₂]
   -- Both sides now mention the same four Hadamard products, so they never need
   -- expanding: (A+B)(C+D) + (A-B)(C-D) = 2(AC+BD), and the two ½s cancel it.

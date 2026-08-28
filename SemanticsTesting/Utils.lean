@@ -5,7 +5,6 @@ import SpLean.Panel
 open SpLean.Algebraic
 
 -- Common scalar values
-noncomputable abbrev eiTheta (θ : ℝ) : ℂ := Complex.exp (θ * Complex.I)
 noncomputable abbrev rootTwo : ℂ := Real.sqrt 2
 
 /-! ### Vector bits helpers -/
