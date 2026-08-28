@@ -68,8 +68,6 @@ theorem x_sem_x_gate : xGate.sem = (!![0, 1; 1, 0] : Matrix (Fin 2) (Fin 2) ℂ)
   simp only [sum_wires1]
   rw [wires1_eq_const f, wires1_eq_const g]
   cases f 0 <;> cases g 0 <;> norm_num [zSpiderSem, hadSem]
-    <;> push_cast  -- Make inner expressions reals
-    <;> norm_num   -- Lose the Complex.exp
     <;> norm_cast  -- Make the whole expressionr eal
     <;> norm_num [inv_root_two_mul_self]
 
@@ -77,8 +75,8 @@ abbrev xRotation (α : AlgPhase) : ZX 1 1 := .spider .X 1 1 α
 #zx xRotation
 theorem x_sem_x_rotation (α : AlgPhase) :
     (xRotation α).sem = (!![
-      (1 + Complex.exp (α.angle * Complex.I)) / 2, (1 - Complex.exp (α.angle * Complex.I)) / 2;
-      (1 - Complex.exp (α.angle * Complex.I)) / 2, (1 + Complex.exp (α.angle * Complex.I)) / 2
+      (1 + α.expI) / 2, (1 - α.expI) / 2;
+      (1 - α.expI) / 2, (1 + α.expI) / 2
     ] : Matrix (Fin 2) (Fin 2) ℂ) := by
   unfold wiresMat2
   apply funext; intro f

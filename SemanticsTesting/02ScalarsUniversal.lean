@@ -14,8 +14,6 @@ lemma scalar_univ_neg_one (f g : Wires 0) :
   scalarDiagNegOne.sem f g = -1 := by
   rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton]
   rw [scalar_sem_sqrt_two_e_i_alpha, scalar_sem_one_over_sqrt_two]
-  push_cast
-  unfold rootTwo eiTheta
   norm_num
 
 
@@ -23,11 +21,10 @@ lemma scalar_univ_neg_one (f g : Wires 0) :
 abbrev scalarDiagEuler (θ : AlgPhase) := redPiCircleAnyGreen θ ≫ redCircleTripleLinkGreenCircle
 #zx scalarDiagEuler
 lemma scalar_univ_euler_form (θ : AlgPhase) (f g : Wires 0) :
-    (scalarDiagEuler θ).sem f g = eiTheta θ.angle := by
+    (scalarDiagEuler θ).sem f g = θ.expI := by
   -- Composition of scalars is a sum over the unique element of `Wires 0`
   rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton,
     scalar_sem_sqrt_two_e_i_alpha, scalar_sem_one_over_sqrt_two]
-  unfold rootTwo eiTheta
   field_simp
 
 -- c) z = 1/2
@@ -57,7 +54,7 @@ lemma scalar_uni_cos_theta (θ : AlgPhase) (f g : Wires 0) :
   rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_one_over_sqrt_two]
   rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_alpha]
   rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_one_over_sqrt_two, scalar_sem_sqrt_two_e_i_alpha]
-  unfold rootTwo eiTheta
+  unfold rootTwo
   -- Rewrite cos in terms of exp
   rw [Complex.cos]
   -- Shuffle expressions around
@@ -65,15 +62,14 @@ lemma scalar_uni_cos_theta (θ : AlgPhase) (f g : Wires 0) :
   rw [mul_one_div_cancel]
   on_goal 2 => norm_num
   rw [one_mul, mul_add]
-  -- e^x * e^y = e^{x + y}
-  rw [← Complex.exp_add]
-  -- Turn every `angle` into `π` times a rational, so `ring_nf` can normalise the
-  -- exponents (`θ + -2θ = -θ`) instead of needing a hand-rolled lemma
-  push_cast
-  -- Normalise expressions
-  ring_nf
-  -- Deal with complex casting nastiness
-  rw [show ((√2 : ℂ)⁻¹ ^ 2) = 1 / 2 by norm_cast ; simp]
+  -- Put both sides in terms of `expI`
+  -- `expI_eq_exp_angle` is the bridge back.
+  rw [← AlgPhase.expI_eq_exp_angle, neg_mul, Complex.exp_neg,
+    ← AlgPhase.expI_eq_exp_angle, AlgPhase.expI_zsmul]
+  -- `θ + -2θ = -θ` is now `z * z⁻² = z⁻¹`, plain field arithmetic
+  field_simp
+  norm_cast
+  norm_num
 
 -- TODO complete proof
 --   our phases are rationals, so they cannot be used to construct ℝ and therefore ℂ

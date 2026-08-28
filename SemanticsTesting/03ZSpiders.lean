@@ -30,7 +30,6 @@ theorem z_sem_minus_state (f : Wires 0) : minusState.sem f = (![1, -1] : Fin 2 �
   unfold wiresVec1
   ext g
   rw [ZX.sem, zSpiderSem]
-  push_cast
   cases h : g 0 <;> norm_num [h]
 
 /--
@@ -105,13 +104,12 @@ theorem z_sem_z_gate : zGate.sem = (!![1, 0; 0, -1] : Matrix (Fin 2) (Fin 2) ℂ
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, zSpiderSem]
-  push_cast
   simp only [Fin.forall_fin_one]
   cases f 0 <;> cases g 0 <;> norm_num
 
 abbrev zRotation (α : AlgPhase) : ZX 1 1 := .spider .Z 1 1 α
 #zx zRotation
-theorem z_sem_z_rotation (α : AlgPhase) : (zRotation α).sem = (!![1, 0; 0, Complex.exp (α.angle * Complex.I)] : Matrix (Fin 2) (Fin 2) ℂ) := by
+theorem z_sem_z_rotation (α : AlgPhase) : (zRotation α).sem = (!![1, 0; 0, α.expI] : Matrix (Fin 2) (Fin 2) ℂ) := by
   unfold wiresMat2
   apply funext; intro f
   apply funext; intro g

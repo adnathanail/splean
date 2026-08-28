@@ -100,4 +100,8 @@ lemma inv_root_two_sq : (√2)⁻¹ ^ 2 = 1/2 := by
 lemma inv_root_two_sq_complex : ((√2 : ℝ) : ℂ)⁻¹ ^ 2 = 1/2 := by
   rw [sq, inv_root_two_mul_self_complex]
 
+lemma root_two_mul_self_complex : ((√2 : ℝ) : ℂ) * ((√2 : ℝ) : ℂ) = 2 := by
+  norm_cast
+  norm_num
+
 end SpLean.Algebraic
