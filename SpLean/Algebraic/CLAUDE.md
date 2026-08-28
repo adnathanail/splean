@@ -5,20 +5,47 @@ living *alongside* the graph-style `ZXDiagram`. There is a one-way
 `ZX → ZXDiagram` translation for **rendering only** (`Visualize.lean` — see
 below); the `Axiomatic/Rules/*` rewrite machinery still operates on `ZXDiagram` directly.
 
-## Scope on this branch
+## Scope
 
-This module is currently **structure and rendering only** — `ZX.lean` (the
-ADT), `Visualize.lean` (pure lowering to a positioned diagram), and
-`Render.lean` (the `MetaM` glue for `#zx`). There is no denotational semantics
-here: no `ZX.sem`, no `≃ZX`, no `Semantics.lean`, no `SpiderFusion.lean`.
+This module holds the `ZX n m` ADT (`ZX.lean`), its phase type (`AlgPhase/`),
+a denotational semantics (`Semantics.lean`), and the rendering path
+(`Visualize.lean` + `Render.lean`).
 
-Those live on the stacked `algebraic-semantics` branch, and are the *reason*
-this module exists: `SpLean/Axiomatic/Axioms.lean` defines `≈z` as syntactic equality
-after compaction, which is too weak to prove rewrite-rule soundness, so every
-rule in `SpLean/Axiomatic/Rules/` is axiomatised. A semantic equivalence (matrix
-equality) is what lets those rules be proved outright. Do not document that
-work as present here — check what the branch actually contains before writing
-about semantics.
+### The semantics
+
+`ZX.sem` denotes a term as a boundary tensor
+`(Fin n → Bool) → (Fin m → Bool) → ℂ` — one complex amplitude per assignment of
+Booleans to the open wires — rather than as a `Matrix (Fin (2^m)) (Fin (2^n)) ℂ`.
+That choice is load-bearing: `stack` splits a boundary assignment with
+`Fin.castAdd`/`Fin.natAdd` and `compose` is a `Fintype` sum over the shared
+boundary, so no `2^(n+p)` cast lemmas ever appear. It is also the
+tensor-network view, which is the right vocabulary for the planned
+hypergraph-isomorphism work: permuting wires becomes reindexing a sum (an
+`Equiv`), not conjugating a matrix. `xSpiderSem` is *defined* as `zSpiderSem`
+conjugated by Hadamards on every wire, so colour-change facts should be proved
+through that route rather than from scratch.
+
+### What is not here yet
+
+There is no equivalence relation on `ZX n m` — no `≈zx`, no proportionality
+(equality up to a nonzero scalar), and no rewrite rule proved against `sem`.
+Nothing connects this module to `SpLean/Axiomatic/` either: `≈z` there is still
+syntactic equality after compaction, which is too weak to prove rewrite-rule
+soundness, so every rule in `SpLean/Axiomatic/Rules/` remains axiomatised.
+Proving those rules instead of assuming them is the *reason* this module
+exists, but it is future work — check what the tree actually contains before
+writing about it.
+
+### `SemanticsTesting/`
+
+`ZX.sem` is exercised by the separate `SemanticsTesting` lake library (not part
+of `SpLean`, not imported by `SpLean.All`), which pins concrete denotations
+against Mathlib vectors and matrices: the empty diagram and wire, scalars, Z
+spiders (plus/minus/Bell/GHZ states, Z rotation), X spiders, Hadamard, and
+`compose`/`stack` — including the Hadamard Euler decomposition.
+`SemanticsTesting/Utils.lean` holds the shared machinery: `sum_wires1` for
+expanding a sum over single-wire assignments, and the `wiresVec*`/`wiresMat*`
+coercions that let a goal be stated as `!![1, 0; 0, -1]`.
 
 ## Conventions
 
