@@ -2,7 +2,7 @@ import SpLean.Algebraic.AlgPhase
 
 namespace SpLean.Algebraic
 
-/-- Separate copy of `SpiderColor` from `SpLean/Axiomatic/Data.lean`
+/-- Separate copy of `SpiderColor` from `SpLean/Axiomatic/ZXDiagram.lean`
     Seems neat to just have them fully separate data structures -/
 inductive AlgSpColor where
   | Z  -- green

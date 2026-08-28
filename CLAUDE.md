@@ -15,7 +15,7 @@ Make changes in new commits, as opposed to modifying existing commits, unless ex
 - `SpLean/` — Lean 4 library, split into one folder per representation plus the little that is genuinely shared:
   - `Widget.lean` — the zxcc **wire format** (`SpLean.Wire`: `NodeKind`, `Node`, `Edge`, `BoxKind`, `Box`, `Diagram`, `toJson`) and the ProofWidgets `ZXWidget` that eats it. A pure data-transfer type: no `Phase`, no `SpiderColor`, phases already display strings.
   - `Panel.lean` — the InfoView panel widget, expression presenter, and `#zx` command. The one file that knows both representations, because `#zx` dispatches on which it was handed.
-  - `Axiomatic/` — the graph-based approach: `Data.lean` (`SpiderColor`, `Phase`, `Node`, `Edge`, `ZXDiagram` + graph ops), `Visualize.lean` (`ZXDiagram → Wire.Diagram`), `Axioms.lean` (`≈z`), `Tactics.lean` (the rewrite tactics), `Rules/`, `DerivedRules/`, `Examples.lean`.
+  - `Axiomatic/` — the graph-based approach: `ZXDiagram.lean` (`SpiderColor`, `Phase`, `Node`, `Edge`, `ZXDiagram` + graph ops), `Visualize.lean` (`ZXDiagram → Wire.Diagram`), `Axioms.lean` (`≈z`), `Tactics.lean` (the rewrite tactics), `Rules/`, `DerivedRules/`, `Examples.lean`.
   - `Algebraic/` — the arity-indexed `ZX n m` approach, with its own spider colour (`AlgSpColor`), phase type and renderer; see `SpLean/Algebraic/CLAUDE.md`.
   - `Utils.lean` — generic `List`/`Except`/`Option` helpers. `All.lean` imports everything.
 
@@ -68,7 +68,7 @@ Tactics do not log diagrams. `zx_debug` is the one tactic that writes to the Inf
 
 ## Two ZX representations
 
-- **`ZXDiagram`** (`SpLean/Axiomatic/Data.lean`) — graph-style: nodes + edges. Used by all rewrite rules in `Axiomatic/Rules/*` and the `≈z` equivalence. It used to sit in the shared root because the algebraic renderer lowered into it; it no longer does, so it lives with the rules that use it.
+- **`ZXDiagram`** (`SpLean/Axiomatic/ZXDiagram.lean`) — graph-style: nodes + edges. Used by all rewrite rules in `Axiomatic/Rules/*` and the `≈z` equivalence. It used to sit in the shared root because the algebraic renderer lowered into it; it no longer does, so it lives with the rules that use it.
 - **`ZX n m`** (`SpLean/Algebraic/ZX.lean`) — free-algebra ADT indexed by arity. On this branch it exists for rendering only; the denotational matrix semantics that will let rules be *proved* rather than axiomatised live on the stacked `algebraic-semantics` branch.
 
 Both render through `SpLean.Wire`, by separate lowerings: `ZXDiagram.toWire` supplies no positions, so zxcc lays the graph out itself; `ZXSkel.toWire` supplies a `(col, qubit)` for every node from the algebraic structure — `compose` advances col, `stack` advances qubit; a `wire` stays a real `wire` node so the boxes around it are non-empty — so zxcc skips its layout. Each `stack`/`compose` subtree also records a bounding rectangle drawn behind the diagram. Algebraic terms are walked at the `Expr` level rather than evaluated, so a diagram parameterized by a phase (`(α : AlgPhase) → ZX 0 0`) renders with `α` written on the spider. See `SpLean/Algebraic/CLAUDE.md` for details.
