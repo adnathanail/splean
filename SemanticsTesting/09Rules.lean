@@ -30,3 +30,8 @@ theorem fuse_symbolic (α β γ : AlgPhase) :
 theorem unfuse (α β : AlgPhase) :
     ZX.spider .Z 1 1 (α + β) ≈zx (ZX.spider .Z 1 1 α ≫ ZX.spider .Z 1 1 β) := by
   zx_rw [← zSpider_fusion]
+
+theorem colour_change_fusion :
+    (Gate.Z ≫ ZX.hadamard) ≫ Gate.X ≈zx Gate.I := by
+  unfold Gate.X
+  zx_rw [← colour_change_one]
