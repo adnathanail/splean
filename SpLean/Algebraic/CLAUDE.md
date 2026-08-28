@@ -9,8 +9,10 @@ renders through its own lowering.
 ## Scope
 
 This module holds the `ZX n m` ADT (`ZX.lean`), its phase type (`AlgPhase/`),
-a denotational semantics (`Semantics.lean`), and the rendering path
-(`Visualize.lean` + `Render.lean`).
+a denotational semantics (`Semantics.lean`), the equivalence proved against it
+(`Equiv.lean` + `Rules/`) and the tactic that rewrites with it
+(`Tactics.lean`), a handful of named gates (`Gate.lean`), and the rendering
+path (`Visualize.lean` + `Render.lean`).
 
 ### The semantics
 
@@ -26,16 +28,37 @@ hypergraph-isomorphism work: permuting wires becomes reindexing a sum (an
 conjugated by Hadamards on every wire, so colour-change facts should be proved
 through that route rather than from scratch.
 
+### The equivalence
+
+`Equiv.lean` defines `a ≈zx b` as proportionality — VyZX's `∝` — namely
+`∃ c ≠ 0, ∀ f g, a.sem f g = c * b.sem f g`. Equality up to a nonzero global
+scalar, not on the nose, because ZX rules are only true up to scalars: `(Z0)-`
+denotes `√2|+⟩`, not `|+⟩`. The scalar is currently *discarded* rather than
+tracked, which is why the definition is an `∃`; recovering it (so that a chain
+of rewrites reports the accumulated factor) is the `TODO` on the definition.
+
+`refl`/`symm`/`trans` are proved, and `compose_congr`/`stack_congr` say `≈zx` is
+a congruence for `≫` and `⊗` — which is what lets a rule fire inside a larger
+diagram. See the root `CLAUDE.md` for how `zx_rw` uses them.
+
+`Rules/` proves rules against `sem` rather than assuming them.
+`Rules/SpiderFusion.lean` has Z and X fusion; both come out with `c = 1`, and X
+fusion goes through the Hadamard-conjugated definition of `xSpiderSem` rather
+than being proved from scratch. Note that fusion is stated only for
+`(n,1) ≫ (1,m)` — spiders joined by *k* parallel wires do not follow from it,
+and that is the shape the axiomatic rule actually covers.
+`Rules/Lemmas.lean` holds the shared sum-collapsing machinery (`sum_wires1`,
+the `sum_bool_*` endpoint lemmas, the `√2` arithmetic), moved here out of
+`SemanticsTesting/Utils.lean` when the rules started needing it.
+
 ### What is not here yet
 
-There is no equivalence relation on `ZX n m` — no `≈zx`, no proportionality
-(equality up to a nonzero scalar), and no rewrite rule proved against `sem`.
-Nothing connects this module to `SpLean/Axiomatic/` either: `≈z` there is still
+Nothing connects this module to `SpLean/Axiomatic/`: `≈z` there is still
 syntactic equality after compaction, which is too weak to prove rewrite-rule
 soundness, so every rule in `SpLean/Axiomatic/Rules/` remains axiomatised.
 Proving those rules instead of assuming them is the *reason* this module
-exists, but it is future work — check what the tree actually contains before
-writing about it.
+exists, and the machinery is now in place on this side, but the bridge is not
+built — check what the tree actually contains before writing about it.
 
 ### `SemanticsTesting/`
 
@@ -43,10 +66,14 @@ writing about it.
 of `SpLean`, not imported by `SpLean.All`), which pins concrete denotations
 against Mathlib vectors and matrices: the empty diagram and wire, scalars, Z
 spiders (plus/minus/Bell/GHZ states, Z rotation), X spiders, Hadamard, and
-`compose`/`stack` — including the Hadamard Euler decomposition.
-`SemanticsTesting/Utils.lean` holds the shared machinery: `sum_wires1` for
-expanding a sum over single-wire assignments, and the `wiresVec*`/`wiresMat*`
-coercions that let a goal be stated as `!![1, 0; 0, -1]`.
+`compose`/`stack` — including the Hadamard Euler decomposition. `08Equiv.lean`
+and `09Rules.lean` then exercise `≈zx` and `zx_rw` themselves, so a change to
+the tactic fails the build rather than being found later.
+
+`SemanticsTesting/Utils.lean` holds what is only useful for pinning concrete
+denotations: the `wiresVec*`/`wiresMat*` coercions that let a goal be stated as
+`!![1, 0; 0, -1]`. The lemmas the *rules* also need — `sum_wires1` and friends
+— live in `SpLean/Algebraic/Rules/Lemmas.lean` and are imported back here.
 
 ## Conventions
 

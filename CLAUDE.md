@@ -16,7 +16,7 @@ Make changes in new commits, as opposed to modifying existing commits, unless ex
   - `Widget.lean` — the zxcc **wire format** (`SpLean.Wire`: `NodeKind`, `Node`, `Edge`, `BoxKind`, `Box`, `Diagram`, `toJson`) and the ProofWidgets `ZXWidget` that eats it. A pure data-transfer type: no `Phase`, no `SpiderColor`, phases already display strings.
   - `Panel.lean` — the InfoView panel widget, expression presenter, and `#zx` command. The one file that knows both representations, because `#zx` dispatches on which it was handed.
   - `Axiomatic/` — the graph-based approach: `ZXDiagram.lean` (`SpiderColor`, `Phase`, `Node`, `Edge`, `ZXDiagram` + graph ops), `Visualize.lean` (`ZXDiagram → Wire.Diagram`), `Axioms.lean` (`≈z`), `Tactics.lean` (the rewrite tactics), `Rules/`, `DerivedRules/`, `Examples.lean`.
-  - `Algebraic/` — the arity-indexed `ZX n m` approach, with its own spider colour (`AlgSpColor`), phase type and renderer; see `SpLean/Algebraic/CLAUDE.md`.
+  - `Algebraic/` — the arity-indexed `ZX n m` approach, with its own spider colour (`AlgSpColor`), phase type and renderer, plus the denotational semantics (`Semantics.lean`), the proportionality equivalence (`Equiv.lean`), the rules proved against it (`Rules/`), the `zx_rw` tactic (`Tactics.lean`) and a few named gates (`Gate.lean`); see `SpLean/Algebraic/CLAUDE.md`.
   - `Utils.lean` — generic `List`/`Except`/`Option` helpers. `All.lean` imports everything.
 
   **`Axiomatic/` and `Algebraic/` import nothing from each other** — check with `grep -rh "^import" SpLean/Algebraic/`. They meet at `SpLean.Wire` and at `Panel.lean`, and nowhere else. The spider colour is deliberately defined twice rather than shared — `SpiderColor` in `Axiomatic/`, `AlgSpColor` in `Algebraic/` — since two three-line types are cheaper than an arrow between the halves. They are named apart so neither has to be identified by its namespace.
@@ -45,9 +45,19 @@ The JS bundle is built by rollup and written to `.lake/build/js/`. zxcc is bundl
 
 ## Rewrite tactics
 
+The two representations rewrite by completely different mechanisms: `≈z` is decided by evaluating diagrams, `≈zx` by `grw` over a proved relation. Neither tactic works on the other's goals.
+
+### Axiomatic (`≈z`)
+
 `applyRewrite` in `SpLean/Axiomatic/Tactics.lean` reduces a rule application with `whnf`, which exposes the `Except.ok` head but leaves the diagram's fields unevaluated. It then evaluates that diagram with `evalZXDiagram` and reflects the value back into an `Expr` with `reflectDiagram`, so the goal holds a flat literal rather than an application tree that grows with each tactic line.
 
 `reflectDiagram`/`reflectNode`/`reflectPhase` mirror the `Node` and `Phase` definitions by hand and must be updated alongside them — a new constructor or field will otherwise reflect wrongly or fail to compile. They are `MetaM` rather than a `ToExpr` instance because an `ℕ+` denominator needs `mkNumeral` to synthesize its `OfNat` instance; that synthesis is cached per distinct denominator, since repeating it per phase measurably slows elaboration.
+
+### Algebraic (`≈zx`)
+
+`zx_rw` in `SpLean/Algebraic/Tactics.lean` is `rw` for `≈zx` rules — `zx_rw [zSpider_fusion]`, `zx_rw [← zSpider_fusion]` to unfuse. It is a thin macro over Mathlib's `grw`, which generalises `rw` to any relation that is reflexive, transitive and has congruence lemmas; `≈zx` supplies all three (`ZX.Equiv.refl` is `@[refl]`, and `compose_congr`/`stack_congr` are tagged `@[gcongr]` in `Tactics.lean` rather than at their definitions, to keep the `grw` import out of `Equiv.lean`). The `@[gcongr]` tags are what let a rule fire *inside* a larger diagram rather than only at the top.
+
+Each goal `grw` leaves then gets a `zx_phase` pass, which normalises the phase arithmetic a rewrite produces — fusion outputs `α + β`, so `π/4 ≫ π/4` lands as `π/4 + π/4` where the goal says `π/2`. `zx_phase` pushes the `AlgPhase`s together with `← AlgPhase.ofRat_add`, hands the rational arithmetic to `norm_num`, and closes with `rfl` (which works on `≈zx` because of the `@[refl]`). It is kept behind `done`, so a goal it cannot close is handed back exactly as `grw` left it rather than half-normalised.
 
 ## Widget architecture
 
@@ -69,7 +79,7 @@ Tactics do not log diagrams. `zx_debug` is the one tactic that writes to the Inf
 ## Two ZX representations
 
 - **`ZXDiagram`** (`SpLean/Axiomatic/ZXDiagram.lean`) — graph-style: nodes + edges. Used by all rewrite rules in `Axiomatic/Rules/*` and the `≈z` equivalence. It used to sit in the shared root because the algebraic renderer lowered into it; it no longer does, so it lives with the rules that use it.
-- **`ZX n m`** (`SpLean/Algebraic/ZX.lean`) — free-algebra ADT indexed by arity. On this branch it exists for rendering only; the denotational matrix semantics that will let rules be *proved* rather than axiomatised live on the stacked `algebraic-semantics` branch.
+- **`ZX n m`** (`SpLean/Algebraic/ZX.lean`) — free-algebra ADT indexed by arity, with a denotational semantics (`ZX.sem`) and a proportionality equivalence `≈zx` proved against it. Spider fusion is *proved* here rather than axiomatised, and rewritten with `zx_rw`; the two halves are still unconnected, so the rules in `Axiomatic/Rules/` do not yet benefit.
 
 Both render through `SpLean.Wire`, by separate lowerings: `ZXDiagram.toWire` supplies no positions, so zxcc lays the graph out itself; `ZXSkel.toWire` supplies a `(col, qubit)` for every node from the algebraic structure — `compose` advances col, `stack` advances qubit; a `wire` stays a real `wire` node so the boxes around it are non-empty — so zxcc skips its layout. Each `stack`/`compose` subtree also records a bounding rectangle drawn behind the diagram. Algebraic terms are walked at the `Expr` level rather than evaluated, so a diagram parameterized by a phase (`(α : AlgPhase) → ZX 0 0`) renders with `α` written on the spider. See `SpLean/Algebraic/CLAUDE.md` for details.
 
