@@ -1,6 +1,8 @@
 import LSpec
 import SpLean.All
 
+namespace Tests.Axiomatic.Rules.ColourChange
+
 open LSpec SpLean
 
 -- Colour change a Z spider to X, surrounded by Hadamards
@@ -24,8 +26,10 @@ private def hadamardNode : ZXDiagram :=
   .ofList [.input 0, .hadamard, .output 0]
           [⟨0, 1⟩, ⟨1, 2⟩]
 
-def colourChangeTests : TestSeq :=
+def tests : TestSeq :=
   group "Colour change" $
     test "Z to X colour change" ((zSpider.colourChange 1).get! ≈z zSpiderColourChanged) $
     test "X to Z colour change" ((xSpider.colourChange 1).get! ≈z xSpiderColourChanged) $
     test "non-spider rejected" ((hadamardNode.colourChange 1).isError)
+
+end Tests.Axiomatic.Rules.ColourChange

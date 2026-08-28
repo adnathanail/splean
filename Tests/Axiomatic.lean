@@ -1,9 +1,13 @@
 import Tests.Axiomatic.Normalization
 import Tests.Axiomatic.Rules
 
+namespace Tests.Axiomatic
+
 open LSpec
 
-def axiomaticTests : TestSeq :=
+def tests : TestSeq :=
   group "Axiomatic" $
-    normalizationTests ++
-    rulesTests
+    Normalization.tests ++
+    Rules.tests
+
+end Tests.Axiomatic

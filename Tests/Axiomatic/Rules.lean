@@ -8,15 +8,20 @@ import Tests.Axiomatic.Rules.SpiderFusion
 import Tests.Axiomatic.Rules.SpiderUnfusion
 import Tests.Axiomatic.Rules.StrongComp
 
+namespace Tests.Axiomatic.Rules
+
 open LSpec
 
-def rulesTests : TestSeq :=
+def tests : TestSeq :=
   group "Rewrite rules" $
-    colourChangeTests ++
-    eulerDecompTests ++
-    hadamardHadamardTests ++
-    identityInsertionTests ++
-    piCopyTests ++
-    spiderFusionTests ++
-    spiderUnfusionTests ++
-    strongCompTests
+    ColourChange.tests ++
+    EulerDecomp.tests ++
+    HadamardHadamard.tests ++
+    IdentityInsertion.tests ++
+    IdentityRemoval.tests ++
+    PiCopy.tests ++
+    SpiderFusion.tests ++
+    SpiderUnfusion.tests ++
+    StrongComp.tests
+
+end Tests.Axiomatic.Rules

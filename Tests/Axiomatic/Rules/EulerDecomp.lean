@@ -1,6 +1,8 @@
 import LSpec
 import SpLean.All
 
+namespace Tests.Axiomatic.Rules.EulerDecomp
+
 open LSpec SpLean
 
 private def hadWire : ZXDiagram :=
@@ -49,7 +51,7 @@ private def branchedHadamard : ZXDiagram :=
   .ofList [.input 0, .hadamard, .output 0, .input 1]
           [⟨0, 1⟩, ⟨1, 2⟩, ⟨1, 3⟩]
 
-def eulerDecompTests : TestSeq :=
+def tests : TestSeq :=
   group "Euler decomposition" $
     test "variant 1: Z(π/2)-X(π/2)-Z(π/2)" ((hadWire.eulerDecomp 1 1).get! ≈z euExpected1) $
     test "variant 2: Z(-π/2)-X(-π/2)-Z(-π/2)" ((hadWire.eulerDecomp 1 2).get! ≈z euExpected2) $
@@ -61,3 +63,5 @@ def eulerDecompTests : TestSeq :=
     test "branched Hadamard rejected" ((branchedHadamard.eulerDecomp 1 1).isError) $
     test "invalid variant rejected" ((hadWire.eulerDecomp 1 7).isError) $
     test "node not found rejected" ((hadWire.eulerDecomp 99 1).isError)
+
+end Tests.Axiomatic.Rules.EulerDecomp
