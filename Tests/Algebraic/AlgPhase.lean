@@ -22,6 +22,28 @@ private def formatTests : TestSeq :=
     test "minus pi" (minusPi.format = "-π") $
     test "minus pi over two" (minusPiOverTwo.format = "-π/2")
 
+/-! Display, pinned. `AlgPhase.format` above is the string a *closed* phase is
+drawn with; these are the pretty-printer forms, which is what a symbolic phase
+reaches the viewer as (see `SpLean/Algebraic/Render.lean`). They are what
+`unexpandOfRat` in `AlgPhase/Notation.lean` exists to get right: the specific
+shapes have to be matched before the general `kπ`, or `π` prints as `1π` and
+`π/4` as `1 / 4π`. -/
+
+/-- info: π : AlgPhase -/
+#guard_msgs in #check (π : _root_.AlgPhase)
+
+/-- info: π/4 : AlgPhase -/
+#guard_msgs in #check (π/4 : _root_.AlgPhase)
+
+/-- info: 3π/4 : AlgPhase -/
+#guard_msgs in #check (3π/4 : _root_.AlgPhase)
+
+/-- info: 2π : AlgPhase -/
+#guard_msgs in #check (2π : _root_.AlgPhase)
+
+/-- info: fun α => α + π/4 : AlgPhase → AlgPhase -/
+#guard_msgs in #check fun (α : _root_.AlgPhase) => α + π/4
+
 def tests : TestSeq :=
   group "AlgPhase" $
     formatTests
