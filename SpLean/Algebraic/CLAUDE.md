@@ -105,8 +105,8 @@ is the midpoint of slots `0..max-1` in halves):
   visual extent of a subtree matches its algebraic shape.
   `left = right = [(id, 0)]`, width 1, height 1.
 - `hadamard` → one `hadamard` node at `(col 0, q 0)`, same ports, width 1,
-  height 1. It sends no `phase`: zxcc defaults an H-box to `π` and draws no
-  text for that.
+  height 1. Its `phase` is sent as `π` explicitly, like every other phase —
+  zxcc draws no text for it, but that is zxcc's decision to make.
 - `spider c n m φ` → one node at `(col 0, q centre)`. Each port is paired
   with its qubitHalves: when the arity is `1` the lone port sits at `centre`
   (so a single-leg connection is horizontal); when arity > 1 the ports occupy

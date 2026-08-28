@@ -36,10 +36,17 @@ structure Node where
   kind : NodeKind
   /-- `"Z"` or `"X"`. Spiders only. -/
   color : Option String := none
-  /-- Display-ready phase text, printed verbatim. zxcc draws nothing for a
-      spider whose phase is `"0"`, or a Hadamard whose phase is `"π"` (its
-      default) — so a plain node omits the field rather than spelling out a
-      value that would be hidden anyway. -/
+  /-- Display-ready phase text, printed verbatim.
+
+      Every node that *has* a phase sends it, including a spider's `"0"` and a
+      Hadamard's `"π"`. zxcc draws no text for either of those, and it also
+      defaults an absent Hadamard phase to `"π"` — so omitting them would
+      render identically. Don't. Whether a phase is worth drawing is a
+      rendering decision and belongs at the end of the pipeline, in zxcc,
+      where it can be changed for every producer at once; a lowering that
+      pre-empts it has quietly moved that decision here.
+
+      `none` means the node has no phase at all: a boundary or a wire. -/
   phase : Option String := none
   /-- Boundary index. `input`/`output` only. -/
   ioId : Option Nat := none

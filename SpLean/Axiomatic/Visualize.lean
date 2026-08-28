@@ -26,12 +26,15 @@ def Phase.format (p : Phase) : String :=
 def SpiderColor.wireName : SpiderColor → String
   | .Z => "Z" | .X => "X"
 
-/-- Lower one node. A Hadamard sends no phase: zxcc defaults it to `π` and
-    draws no text for that, which is what a plain H-box should look like. -/
+/-- A Hadamard box carries a phase of π by convention. It is sent explicitly,
+    like every other phase — see `Wire.Node.phase`. -/
+def hadamardPhase : Phase := ⟨1, 1⟩
+
+/-- Lower one node. -/
 def Node.toWire (n : Node) (id : NodeId) : Wire.Node :=
   match n with
   | .spider c p => { id, kind := .spider, color := some c.wireName, phase := some p.format }
-  | .hadamard   => { id, kind := .hadamard }
+  | .hadamard   => { id, kind := .hadamard, phase := some hadamardPhase.format }
   | .wire       => { id, kind := .wire }
   | .input ioId  => { id, kind := .input,  ioId := some ioId }
   | .output ioId => { id, kind := .output, ioId := some ioId }
