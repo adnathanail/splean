@@ -120,6 +120,15 @@ syntactically, and `simp` matches syntactically. -/
     (no_index (OfNat.ofNat n) : AlgPhase).expI = (-1 : ℂ) ^ (OfNat.ofNat n : ℕ) := by
   rw [← Nat.cast_ofNat (R := AlgPhase), expI_natCast]
 
+/-- `kπ` for a numeral `k ≥ 2` — `2π`, `3π`, … — as the notation writes it. The
+`ofRat` forms need their own lemmas because `simp` matches syntactically and the
+notation never produces the `AlgPhase` numeral. -/
+@[simp] theorem expI_ofRat_ofNat (n : ℕ) [n.AtLeastTwo] :
+    (ofRat (no_index (OfNat.ofNat n) : ℚ)).expI = (-1 : ℂ) ^ (OfNat.ofNat n : ℕ) := by
+  rw [show (ofRat (OfNat.ofNat n : ℚ)) = ((OfNat.ofNat n : ℕ) : AlgPhase) from
+        ext (by push_cast; ring),
+      expI_natCast]
+
 /-! ### Equivalence mod 2π -/
 
 @[simp] theorem expI_ofRat_two_mul_intCast (n : ℤ) : (ofRat (2 * (n : ℚ))).expI = 1 := by
