@@ -1,4 +1,4 @@
-import SpLean.Axiomatic.Tactics
+import SpLean.Axiomatic.Render
 import SpLean.Algebraic.Render
 import ProofWidgets.Component.OfRpcMethod
 import ProofWidgets.Component.Panel.Basic
@@ -8,35 +8,22 @@ open Lean Server Elab Meta ProofWidgets
 
 namespace SpLean
 
-/-- "Cannot be drawn" is a `none`, but an interrupt or a blown recursion depth is
-    not an answer about the diagram: the first aborts a superseded request when the
-    user edits the file, the second means we ran out of stack rather than out of
-    diagram. Both must propagate, or a cancelled request resolves with a misleading
+/-- Run a renderer, turning "this cannot be drawn" into a `none`. The renderers
+    in `Axiomatic/Render.lean` return `none` only for an expression of the wrong
+    shape entirely, and *throw* on one of the right shape they cannot draw — a
+    `ZXDiagram` too open to evaluate, say. In a panel that is nothing to show
+    yet, not an error to put in front of the user.
+
+    An interrupt or a blown recursion depth is *not* an answer about the
+    diagram: the first aborts a superseded request when the user edits the
+    file, the second means we ran out of stack rather than out of diagram.
+    Both must propagate, or a cancelled request resolves with a misleading
     "No ZX diagram." -/
-private def asRenderFailure (ex : Exception) : MetaM (Option Html) := do
-  if ex.isInterrupt || ex.isMaxRecDepth then throw ex
-  return none
-
-/-- Render a goal `d₁ ≈z d₂` as the current diagram with the goal diagram alongside.
-    Returns `none` if `e` is not a ZX equivalence, or if a side still contains
-    metavariables or free variables (so cannot be evaluated to a concrete diagram). -/
-def zxEquivHtml? (e : Expr) : MetaM (Option Html) := do
-  let e ← instantiateMVars e
-  let some (lhs, rhs) := e.app2? ``ZXDiagram.equiv | return none
-  try
-    let dLhs ← evalZXDiagram lhs
-    -- An unassigned RHS (e.g. from `zx_explore`) means there is no goal to show yet.
-    let goal? ← if rhs.hasExprMVar then pure none else some <$> evalZXDiagram rhs
-    return some (dLhs.toHtml goal?)
-  catch ex => asRenderFailure ex
-
-/-- Render a bare `ZXDiagram`-valued term, e.g. a subterm selected with shift-click. -/
-def zxDiagramHtml? (e : Expr) : MetaM (Option Html) := do
-  let e ← instantiateMVars e
-  try
-    if !(← inferType e).isConstOf ``ZXDiagram then return none
-    return some (← evalZXDiagram e).toHtml
-  catch ex => asRenderFailure ex
+private def softly (act : MetaM (Option Html)) : MetaM (Option Html) := do
+  try act
+  catch ex =>
+    if ex.isInterrupt || ex.isMaxRecDepth then throw ex
+    return none
 
 /-- Presents `≈z` goals and `ZXDiagram` subterms as diagrams. Surfaced by
     `ProofWidgets.GoalTypePanel` and, for shift-click selections,
@@ -49,8 +36,8 @@ def zxPresenter : ExprPresenter where
   userName := "ZX diagram"
   layoutKind := .block
   present e := do
-    if let some html ← zxEquivHtml? e then return html
-    if let some html ← zxDiagramHtml? e then return html
+    if let some html ← softly (zxEquivHtml? e) then return html
+    if let some html ← softly (zxDiagramHtml? e) then return html
     throwError "Not a ZX diagram or `≈z` goal."
 
 /-- How many goals to draw at once. A case split can leave many goals live, and a
@@ -77,7 +64,7 @@ def ZXPanel.rpc (props : PanelWidgetProps) : RequestM (RequestTask Html) :=
     for g in shown do
       let html? ← g.ctx.val.runMetaM {} do
         g.mvarId.withContext do
-          zxEquivHtml? (← g.mvarId.getType)
+          softly (zxEquivHtml? (← g.mvarId.getType))
       if let some html := html? then
         -- Only label when there is more than one diagram; a heading above a lone
         -- diagram is noise.
@@ -132,7 +119,11 @@ def elabZxCmd : CommandElab := fun
       let e ← Term.elabTerm t none
       Term.synthesizeSyntheticMVarsNoPostponing
       let e ← instantiateMVars e
-      if let some html ← zxDiagramHtml? e then return html
+      -- Softened, so that an *open* `ZXDiagram` falls through to the error
+      -- below — which says it has to be closed — rather than surfacing
+      -- `evalExpr`'s own complaint. The algebraic attempt is not softened:
+      -- a term of the right type that cannot be walked reports that itself.
+      if let some html ← softly (zxDiagramHtml? e) then return html
       if let some html ← Algebraic.zxTermHtml? e then return html
       -- Neither branch fired: either the term has the wrong type entirely, or
       -- it is a `ZXDiagram` that could not be evaluated (an open term). An
