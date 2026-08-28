@@ -41,11 +41,19 @@ lemma scalar_univ_half (f g : Wires 0) :
   ring_nf
   norm_num
 
+lemma test (θ : AlgPhase) :
+  θ.angle * Complex.I + (-2 * θ).angle * Complex.I = - θ.angle * Complex.I := by
+  field_simp
+  norm_cast
+  rw [← AlgPhase.angle_add]
+  rw [show ((θ + -(2 * θ)) = -θ) by noncomm_ring]
+  rw [AlgPhase.angle_neg]
+
 -- d) z = cos θ for any value of θ
 abbrev scalarDiagCosTheta (θ : AlgPhase) :=
   redPiCircleAnyGreen θ ≫
   redCircleTripleLinkGreenCircle ≫
-  greenAlphaCircle (-2 • θ) ≫
+  greenAlphaCircle (-2 * θ) ≫
   redCircleTripleLinkGreenCircle ≫
   redCircleTripleLinkGreenCircle
 #zx scalarDiagCosTheta (1 / 4)
@@ -57,8 +65,6 @@ lemma scalar_uni_cos_theta (θ : AlgPhase) (f g : Wires 0) :
   rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_alpha]
   rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_one_over_sqrt_two, scalar_sem_sqrt_two_e_i_alpha]
   unfold rootTwo eiTheta
-  -- Neaten casting
-  push_cast
   -- Rewrite cos in terms of exp
   rw [Complex.cos]
   -- Shuffle expressions around
@@ -68,6 +74,7 @@ lemma scalar_uni_cos_theta (θ : AlgPhase) (f g : Wires 0) :
   rw [one_mul, mul_add]
   -- e^x * e^y = e^{x + y}
   rw [← Complex.exp_add]
+  rw [test]
   -- Normalise expressions
   ring_nf
   -- Deal with complex casting nastiness
