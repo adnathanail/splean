@@ -2,7 +2,6 @@ import SpLean.Algebraic.ZX
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Rules.Lemmas
 import SpLean.Panel
-import Splean.Claude
 
 show_panel_widgets [local SpLean.ZXPanel]
 

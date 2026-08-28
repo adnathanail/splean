@@ -1,7 +1,6 @@
 import SpLean.Algebraic.ZX
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Rules.Lemmas
-import SpLean.Claude
 
 /-!
 # Structural laws for `≫`
