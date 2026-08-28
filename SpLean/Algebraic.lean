@@ -4,3 +4,4 @@ import SpLean.Algebraic.Render
 import SpLean.Algebraic.Semantics
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Rules
+import SpLean.Algebraic.Tactics

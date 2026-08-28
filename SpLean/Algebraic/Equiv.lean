@@ -13,11 +13,11 @@ def ZX.Equiv {n m : ℕ} (a b : ZX n m) : Prop :=
 
 namespace ZX.Equiv
 
-theorem refl {n m : ℕ} (a : ZX n m) : a ≈zx a := by
+@[refl] theorem refl {n m : ℕ} (a : ZX n m) : a ≈zx a := by
   use 1
   norm_num
 
-theorem symm {n m : ℕ} {a b : ZX n m} : a ≈zx b → b ≈zx a := by
+@[symm] theorem symm {n m : ℕ} {a b : ZX n m} : a ≈zx b → b ≈zx a := by
   -- Expand a→b equivalence into existential
   rw [ZX.Equiv]
   -- Split implication into hypothesis and goal
@@ -39,6 +39,8 @@ theorem trans {n m : ℕ} {a b c : ZX n m} : a ≈zx b → b ≈zx c → a ≈zx
   rintro ⟨c₁, hc₁, h₁⟩ ⟨c₂, hc₂, h₂⟩
   refine ⟨c₁ * c₂, mul_ne_zero hc₁ hc₂, fun f g => ?_⟩
   rw [h₁ f g, h₂ f g, mul_assoc]
+
+instance {n m : ℕ} : Trans (α := ZX n m) ZX.Equiv ZX.Equiv ZX.Equiv := ⟨ZX.Equiv.trans⟩
 
 end ZX.Equiv
 
