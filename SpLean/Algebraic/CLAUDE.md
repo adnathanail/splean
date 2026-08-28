@@ -25,9 +25,8 @@ about semantics.
 - **Composition order**: `compose a b` reads "first `a`, then `b`". Written
   `a ≫ b`; stacking is `a ⊗ b`. Both are `scoped` notation, so a file needs
   `open SpLean.Algebraic` (see `Main.lean`).
-- **`spider c n m φ`** takes its phase last and defaults it to `⟨0, 1⟩`, so a
+- **`spider c n m φ`** takes its phase last and defaults it to `0`, so a
   phase-free spider is just `.spider .Z 1 2`.
-- **`Phase.den : ℕ+`**, so `den = 0` is ruled out at the type level.
 
 ## Visualization (`Visualize.lean`, `Render.lean`)
 

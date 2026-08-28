@@ -13,7 +13,8 @@ abbrev scalarDiagNegOne := redPiCircleAnyGreen 1 ≫ redCircleTripleLinkGreenCir
 lemma scalar_univ_neg_one (f g : Wires 0) :
   scalarDiagNegOne.sem f g = -1 := by
   rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton]
-  rw [scalar_sem_sqrt_two_e_i_alpha, scalar_sem_one_over_sqrt_two, AlgPhase.angle, AlgPhase.toRat]
+  rw [scalar_sem_sqrt_two_e_i_alpha, scalar_sem_one_over_sqrt_two]
+  push_cast
   unfold rootTwo eiTheta
   norm_num
 

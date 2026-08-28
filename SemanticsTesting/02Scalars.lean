@@ -7,7 +7,7 @@ open SpLean.Algebraic
 --/
 
 -- Zero-arity phaseless Z spider = 2
-abbrev greenCircle : ZX 0 0 := .spider .Z 0 0 0
+abbrev greenCircle : ZX 0 0 := .spider .Z 0 0
 #zx greenCircle
 theorem scalar_sem_two (f g : Wires 0) : greenCircle.sem f g = 2 := by
   rw [ZX.sem, zSpiderSem]
