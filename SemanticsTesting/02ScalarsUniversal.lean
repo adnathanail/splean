@@ -41,14 +41,6 @@ lemma scalar_univ_half (f g : Wires 0) :
   ring_nf
   norm_num
 
-lemma test (θ : AlgPhase) :
-  θ.angle * Complex.I + (-2 * θ).angle * Complex.I = - θ.angle * Complex.I := by
-  field_simp
-  norm_cast
-  rw [← AlgPhase.angle_add]
-  rw [show ((θ + -(2 * θ)) = -θ) by noncomm_ring]
-  rw [AlgPhase.angle_neg]
-
 -- d) z = cos θ for any value of θ
 abbrev scalarDiagCosTheta (θ : AlgPhase) :=
   redPiCircleAnyGreen θ ≫
@@ -74,7 +66,9 @@ lemma scalar_uni_cos_theta (θ : AlgPhase) (f g : Wires 0) :
   rw [one_mul, mul_add]
   -- e^x * e^y = e^{x + y}
   rw [← Complex.exp_add]
-  rw [test]
+  -- Turn every `angle` into `π` times a rational, so `ring_nf` can normalise the
+  -- exponents (`θ + -2θ = -θ`) instead of needing a hand-rolled lemma
+  push_cast
   -- Normalise expressions
   ring_nf
   -- Deal with complex casting nastiness
