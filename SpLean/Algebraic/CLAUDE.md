@@ -104,10 +104,13 @@ Keep the seal there rather than at the top of the walk.
 Spider *arities* get no such treatment — the layout has to place the legs, so
 a non-literal `n`/`m` is an error rather than a label.
 
-This is why the display priority of the `π` notations in
-`AlgPhase/Notation.lean` matters: a symbolic phase is whatever the
-pretty-printer produces. They are declared in reverse priority order (the
-last-declared unexpander is tried first) so that `π` does not print as `1π`.
+This is why the display of the `π` notations in `AlgPhase/Notation.lean`
+matters: a symbolic phase is whatever the pretty-printer produces. The four
+forms are `syntax` + `macro_rules` rather than `notation` precisely so that
+display is not left to `notation`'s per-form generated unexpanders, whose
+priority is the order the declarations appear in the file. One hand-written
+`unexpandOfRat` matches the specific shapes before the `kπ` catch-all, so
+`π` does not print as `1π` and `π/4` does not print as `1 / 4π`.
 
 ### The layout walk
 

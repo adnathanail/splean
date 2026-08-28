@@ -27,24 +27,54 @@ the project currently uses `π` for `Real.pi`; it is spelled out.
 
 namespace SpLean.Algebraic
 
-/-! Declaration order below is *reverse* display priority: each `notation`
-generates an unexpander for `AlgPhase.ofRat`, and the last one declared is
-tried first. Every phase matches `kπ`, so the more specific forms have to come
-after it or nothing else would ever print — `π` would show as `1π` and `π/4` as
-`1 / 4π`. Symbolic phases reach the viewer as pretty-printed source (see
-`Algebraic/Render.lean`), so this ordering is what a spider labelled `α + π/4`
-is drawn with. Parsing is unaffected: `π` and `π/` are distinct tokens. -/
+/-! ### Parsing
 
-/-- The phase `kπ`. See the note above on why this is not `notation:max`. -/
-scoped notation:70 k "π" => AlgPhase.ofRat k
+Plain `syntax` + `macro_rules` rather than `notation`, because `notation` also
+generates one unexpander per form, and *which* of the four then prints is
+decided by the order the declarations happen to appear in this file (the
+last-declared is tried first). Display order matters here — a symbolic phase
+reaches the viewer as pretty-printer output, see `Algebraic/Render.lean` — so
+it is written out in `unexpandOfRat` below instead of left to file order.
+These four parsers are byte-identical to the ones `notation` built. -/
 
-/-- The phase `kπ/n`. -/
-scoped notation:max k "π/" n => AlgPhase.ofRat (k / n)
-
-/-- The phase `π/n`. -/
-scoped notation:max "π/" n => AlgPhase.ofRat (1 / n)
+/-- The phase `kπ`. See the note above on why this is not at `max`. -/
+scoped syntax:70 (name := kPi) term:0 "π" : term
 
 /-- The phase `π`. -/
-scoped notation:max "π" => AlgPhase.ofRat 1
+scoped syntax:max (name := piLit) "π" : term
+
+/-- The phase `π/n`. -/
+scoped syntax:max (name := piOver) "π/" term : term
+
+/-- The phase `kπ/n`. -/
+scoped syntax:max (name := kPiOver) term:0 "π/" term : term
+
+-- The `kind :=` is needed because `$k π` also parses as an application of `$k`
+-- to `π`, and a `macro_rules` pattern may not be ambiguous.
+macro_rules (kind := kPi)     | `($k π)     => `(AlgPhase.ofRat $k)
+macro_rules (kind := piLit)   | `(π)        => `(AlgPhase.ofRat 1)
+macro_rules (kind := piOver)  | `(π/ $n)    => `(AlgPhase.ofRat (1 / $n))
+macro_rules (kind := kPiOver) | `($k π/ $n) => `(AlgPhase.ofRat ($k / $n))
+
+/-! ### Display
+
+One unexpander for all four forms, tried top to bottom: the specific shapes
+first and `kπ` as the catch-all. `AlgPhase.format` is what a *closed* phase is
+drawn with, so this is what governs the symbolic ones — `α`, `β + π`, `α + π/4`.
+
+The `kπ` and `kπ/n` results are built as nodes rather than written as
+quotations for the same reason the `macro_rules` above need their `kind :=`:
+`` `($k π) `` is ambiguous with an application. -/
+
+open Lean in
+/-- Print `AlgPhase.ofRat` back as phase notation. -/
+@[app_unexpander AlgPhase.ofRat]
+def unexpandOfRat : PrettyPrinter.Unexpander := fun stx => do
+  let `($_ $q) := stx | throw ()
+  match q with
+  | `(1)       => `(π)
+  | `(1 / $n)  => `(π/ $n)
+  | `($k / $n) => return mkNode ``kPiOver #[k, mkAtom "π/", n]
+  | _          => return mkNode ``kPi #[q, mkAtom "π"]
 
 end SpLean.Algebraic
