@@ -32,5 +32,3 @@ def hadamardHadamardTests : TestSeq :=
     test "non-Hadamard rejected" ((hadamardAndSpider.hadamardHadamard 1 2).isError) $
     test "disconnected rejected" ((disconnectedHadamards.hadamardHadamard 1 2).isError) $
     test "branched Hadamard rejected" ((branchedHadamard.hadamardHadamard 1 2).isError)
-
-#lspec hadamardHadamardTests

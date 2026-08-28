@@ -37,5 +37,3 @@ def spiderFusionTests : TestSeq :=
     test "merging three spiders twice" (((threeSpiders.spiderFusion 1 2).get!.spiderFusion 1 3).get! ≈z threeSpidersMerged2) $
     test "simplifying Z CNOT Z to just CNOT" ((((zCnotZ.spiderFusion 1 2).get!).spiderFusion 1 3).get! ≈z cnot) $
     test "two π spiders fuse to identity (phase 0)" ((twoPiSpiders.spiderFusion 1 2).get! ≈z twoPiSpidersMerged)
-
-#lspec spiderFusionTests

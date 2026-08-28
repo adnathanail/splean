@@ -20,5 +20,3 @@ def rulesTests : TestSeq :=
     spiderFusionTests ++
     spiderUnfusionTests ++
     strongCompTests
-
-#lspec rulesTests
