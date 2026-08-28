@@ -39,7 +39,7 @@ lemma x_gate_ampl (f g : Wires 1) :
   simp only [sum_wires1, zSpiderSem, hadSem]
   push_cast
   cases hf : f 0 <;> cases hg : g 0 <;>
-    norm_num [hf, hg, one_over_root_two_times_itself_eq_half_complex]
+    norm_num [hf, hg, inv_root_two_mul_inv_root_two_eq_half_complex]
 theorem two_x_gates_sem : twoXGates.sem = identityMatrix := by
   unfold wiresMat2
   apply funext; intro f
