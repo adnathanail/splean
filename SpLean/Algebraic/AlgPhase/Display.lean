@@ -1,5 +1,5 @@
 import SpLean.Algebraic.AlgPhase.Defs
-import SpLean.ZXDiagram
+import SpLean.Data
 
 namespace AlgPhase
 

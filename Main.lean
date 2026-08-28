@@ -1,7 +1,7 @@
 import SpLean.All
 
 open SpLean
--- zCnotZ and cnot below come from SpLean/Examples.lean
+-- zCnotZ and cnot below come from SpLean/Axiomatic/Examples.lean
 open SpLean.Examples
 
 -- Show the current diagram in a panel alongside the tactic state
