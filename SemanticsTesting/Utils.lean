@@ -29,14 +29,6 @@ lemma one_over_root_two_times_itself_eq_half_complex :
   rw [one_over_root_two_times_itself_eq_half]
   norm_num
 
--- Boundary assignments for wires where all are false/true
-lemma all_wires_false {n : ℕ} :
-  ∀ x : Fin n → Bool, (∀ i, x i = false) ↔ x = fun _ => false := by
-  exact fun x => Iff.symm funext_iff
-lemma all_wires_true {n : ℕ} :
-  ∀ x : Fin n → Bool, (∀ i, x i = true) ↔ x = fun _ => true := by
-  exact fun x => Iff.symm funext_iff
-
 /-- A single-wire boundary assignment is the constant function at its one bit. -/
 lemma wires1_eq_const (g : Wires 1) : g = fun _ => g 0 :=
   funext fun i => by rw [Fin.fin_one_eq_zero i]
