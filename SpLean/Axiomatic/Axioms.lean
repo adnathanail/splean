@@ -1,4 +1,4 @@
-import SpLean.Data
+import SpLean.Axiomatic.Data
 
 namespace SpLean
 

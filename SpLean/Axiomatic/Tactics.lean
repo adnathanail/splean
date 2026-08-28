@@ -1,5 +1,5 @@
 import SpLean.Axiomatic.Axioms
-import SpLean.Visualize
+import SpLean.Axiomatic.Visualize
 import Mathlib.Tactic.Linter.UnusedTacticExtension
 
 open Lean Elab Tactic Meta
@@ -126,11 +126,11 @@ elab "zx_debug" : tactic => withMainContext do
   let goalType ← goal.getType
   let (lhs, rhs) ← parseEquivGoal goalType
   let dLhs ← evalZXDiagram lhs
-  let lhsJson := dLhs.toJson (includeNones := true)
+  let lhsJson := dLhs.debugJson
   let mut msg := s!"LHS:\n{lhsJson.pretty}"
   if !rhs.isMVar then
     let dRhs ← evalZXDiagram rhs
-    let rhsJson := dRhs.toJson (includeNones := true)
+    let rhsJson := dRhs.debugJson
     msg := msg ++ s!"\n\nRHS:\n{rhsJson.pretty}"
   logInfo msg
 
