@@ -17,6 +17,5 @@ theorem plus_state_equiv_mod_two_pi :
     use 1
     norm_num
     intro g
-    simp only [ZX.sem, zSpiderSem]
-    push_cast
-    simp
+    -- `2π` is `ofRat 2`, so `expI_ofRat_ofNat` reduces it to `(-1) ^ 2`
+    simp [ZX.sem, zSpiderSem]
