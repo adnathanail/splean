@@ -3,14 +3,14 @@ import SpLean.Algebraic.AlgPhase
 
 namespace Tests.Algebraic.AlgPhase
 
-open LSpec
+open LSpec SpLean.Algebraic
 
 private def zero : _root_.AlgPhase := 0
-private def pi : _root_.AlgPhase := 1
+private def pi : _root_.AlgPhase := π
 private def twoPi : _root_.AlgPhase := 2
-private def piOverTwo : _root_.AlgPhase := (1 / 2)
+private def piOverTwo : _root_.AlgPhase := π/2
 private def minusPi : _root_.AlgPhase := -1
-private def minusPiOverTwo : _root_.AlgPhase := -(1 / 2)
+private def minusPiOverTwo : _root_.AlgPhase := -π/2
 private def threePi : _root_.AlgPhase := 3
 
 private def formatTests : TestSeq :=
