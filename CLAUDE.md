@@ -16,10 +16,10 @@ Make changes in new commits, as opposed to modifying existing commits, unless ex
   - `Widget.lean` — the zxcc **wire format** (`SpLean.Wire`: `NodeKind`, `Node`, `Edge`, `BoxKind`, `Box`, `Diagram`, `toJson`) and the ProofWidgets `ZXWidget` that eats it. A pure data-transfer type: no `Phase`, no `SpiderColor`, phases already display strings.
   - `Panel.lean` — the InfoView panel widget, expression presenter, and `#zx` command. The one file that knows both representations, because `#zx` dispatches on which it was handed.
   - `Axiomatic/` — the graph-based approach: `Data.lean` (`SpiderColor`, `Phase`, `Node`, `Edge`, `ZXDiagram` + graph ops), `Visualize.lean` (`ZXDiagram → Wire.Diagram`), `Axioms.lean` (`≈z`), `Tactics.lean` (the rewrite tactics), `Rules/`, `DerivedRules/`, `Examples.lean`.
-  - `Algebraic/` — the arity-indexed `ZX n m` approach, with its own `SpiderColor`, phase type and renderer; see `SpLean/Algebraic/CLAUDE.md`.
+  - `Algebraic/` — the arity-indexed `ZX n m` approach, with its own spider colour (`AlgSpColor`), phase type and renderer; see `SpLean/Algebraic/CLAUDE.md`.
   - `Utils.lean` — generic `List`/`Except`/`Option` helpers. `All.lean` imports everything.
 
-  **`Axiomatic/` and `Algebraic/` import nothing from each other** — check with `grep -rh "^import" SpLean/Algebraic/`. They meet at `SpLean.Wire` and at `Panel.lean`, and nowhere else. `SpiderColor` is deliberately defined twice rather than shared; two three-line types are cheaper than an arrow between the halves.
+  **`Axiomatic/` and `Algebraic/` import nothing from each other** — check with `grep -rh "^import" SpLean/Algebraic/`. They meet at `SpLean.Wire` and at `Panel.lean`, and nowhere else. The spider colour is deliberately defined twice rather than shared — `SpiderColor` in `Axiomatic/`, `AlgSpColor` in `Algebraic/` — since two three-line types are cheaper than an arrow between the halves. They are named apart so neither has to be identified by its namespace.
   **This is not a strict rule, it's just nice to have for now**
 - `zx_view_widget/` — TypeScript ProofWidgets widget (React, rollup). A thin shell that hands the Lean diagram JSON to the `<zx-diagram>` web component from [`@adnathanail/zxcc`](https://www.npmjs.com/package/@adnathanail/zxcc), which does the layout and SVG rendering.
 - `Main.lean` — Entry point with example diagrams shown in InfoView
