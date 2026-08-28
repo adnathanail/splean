@@ -25,10 +25,11 @@ lemma all_wires_true {n : ℕ} :
   ∀ x : Fin n → Bool, (∀ i, x i = true) ↔ x = fun _ => true := by
   exact fun x => Iff.symm funext_iff
 
-lemma sum_bool_endpoints {n : ℕ} {M : Type*} [AddCommMonoid M] (a b : M) :
+lemma sum_bool_endpoints {n : ℕ} {M : Type*} [AddCommMonoid M]
+    (a b : (Fin n → Bool) → M) :
     ∑ x : Fin n → Bool,
-        ((if ∀ i, x i = false then a else 0) + if ∀ i, x i = true then b else 0)
-      = a + b := by
+        ((if ∀ i, x i = false then a x else 0) + if ∀ i, x i = true then b x else 0)
+      = a (fun _ => false) + b (fun _ => true) := by
   simp only [all_wires_false, all_wires_true]
   rw [Finset.sum_add_distrib]
   norm_num
