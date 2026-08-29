@@ -1,5 +1,4 @@
 import SemanticsTesting.Utils
-import SpLean.Claude
 
 open SpLean.Algebraic
 

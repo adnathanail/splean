@@ -2,10 +2,6 @@ import SpLean.Algebraic.ZX
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Rules.Lemmas
 import SpLean.Algebraic.Tactics
-import SpLean.Panel
-
-show_panel_widgets [local SpLean.ZXPanel]
-
 
 namespace SpLean.Algebraic
 
