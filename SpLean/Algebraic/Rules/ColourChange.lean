@@ -12,3 +12,5 @@ theorem colour_change_one (α : AlgPhase) :
   rw [Finset.prod_singleton']
   simp only [Fin.isValue, Fin.default_eq_zero, Finset.univ_unique, Finset.prod_singleton, Finset.sum_mul]
   rw [Finset.sum_comm]
+
+-- TODO n version

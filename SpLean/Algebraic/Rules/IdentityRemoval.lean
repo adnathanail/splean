@@ -21,3 +21,6 @@ theorem identity_removal_Z_two_pi :
     ZX.spider .Z 1 1 (2π) ≈zx ZX.wire := by
   zx_rw [identity_removal_Z_mod_two_pi]
   simp [AlgPhase.equiv]
+
+-- TODO X version
+-- TODO id_simp tactic

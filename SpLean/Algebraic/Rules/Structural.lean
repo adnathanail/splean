@@ -49,4 +49,6 @@ theorem compose_wire {n : ℕ} (a : ZX n 1) : (a ≫ ZX.wire) ≈zx a := by
   · rw [wires1_eq_of_head (g := zeroAmpl) h]
   · rw [wires1_eq_of_head (g := oneAmpl) h]
 
+-- TODO stack version
+
 end SpLean.Algebraic
