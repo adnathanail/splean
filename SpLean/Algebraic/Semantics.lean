@@ -21,9 +21,9 @@ namespace SpLean.Algebraic
 /-- A boundary assignment: one Boolean per open wire. -/
 abbrev Wires (n : ℕ) := Fin n → Bool
 
-/-- Tensor of a Z spider: `1` on the all-`false` boundary, `e^{iα}` on the
+/-- Tensor of a Z spider: `1` on the all-`false` boundary, `φ.expI` on the
 all-`true` boundary, `0` elsewhere. When `n = m = 0` both indicators fire and
-the scalar is `1 + e^{iα}`, as it should be. -/
+the scalar is `1 + φ.expI`, as it should be. -/
 noncomputable def zSpiderSem (φ : AlgPhase) {n m : ℕ} (f : Wires n) (g : Wires m) : ℂ :=
   (if (∀ i, f i = false) ∧ (∀ j, g j = false) then 1 else 0)
     + φ.expI *
