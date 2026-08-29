@@ -16,6 +16,20 @@ lemma sum_wires1 {M : Type*} [AddCommMonoid M] (F : Wires 1 → M) :
   rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
   exact Finset.sum_pair (by decide)
 
+lemma sum_wires2 {M : Type*} [AddCommMonoid M] (F : Wires 2 → M) :
+    ∑ x : Wires 2, F x = ∑ a : Bool, ∑ b : Bool, F ![a, b] := by
+  rw [← Equiv.sum_comp
+    (⟨fun p => ![p.1, p.2], fun x => (x 0, x 1), by decide, by decide⟩ :
+      Bool × Bool ≃ Wires 2) F]
+  simp [Fintype.sum_prod_type]
+
+lemma sum_wires3 {M : Type*} [AddCommMonoid M] (F : Wires 3 → M) :
+    ∑ x : Wires 3, F x = ∑ a : Bool, ∑ b : Bool, ∑ c : Bool, F ![a, b, c] := by
+  rw [← Equiv.sum_comp
+    (⟨fun p => ![p.1, p.2.1, p.2.2], fun x => (x 0, x 1, x 2), by decide, by decide⟩ :
+      Bool × Bool × Bool ≃ Wires 3) F]
+  simp [Fintype.sum_prod_type]
+
 lemma prod_wires1 {M : Type*} [CommMonoid M] (F : Wires 1 → M) :
     ∏ g : Wires 1, F g = F zeroAmpl * F oneAmpl := by
   rw [show (Finset.univ : Finset (Wires 1)) = {zeroAmpl, oneAmpl} from by decide]
