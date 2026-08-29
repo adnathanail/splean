@@ -30,37 +30,11 @@ theorem euler_decomp_ZXZ :
   norm_num
   cases f 0 <;> cases g 0 <;>
     simp <;>
-    field_simp <;>
-    norm_cast <;>
-    rw [exp_neg_i_pi_over_four_eq] <;>
-    rw [mul_add, mul_one]
-  on_goal 1 =>
-    rw [sub_mul]
-    ring_nf
-    rw [Complex.I_sq]
-    rw [mul_neg, mul_one]
-    norm_cast
-    rw [inv_root_two_eq_div]
-    norm_num
-  on_goal 3 =>
-    rw [Complex.I_sq]
-    ring_nf
-    rw [Complex.I_sq, mul_neg, mul_one]
-    norm_cast
-    rw [inv_root_two_eq_div]
-    ring
+    field_simp
   all_goals
-    nth_rw 4 [mul_comm]
-    nth_rw 1 [mul_assoc]
-    rw [mul_neg, Complex.I_mul_I, show (- (- (1 : ℂ)) = 1) by norm_cast, mul_one]
-    rw [mul_sub]
-    nth_rw 3 [mul_comm]
-    nth_rw 1 [← mul_assoc]
-    rw [Complex.I_mul_I, neg_one_mul]
-  all_goals
-    ring_nf
-    norm_cast
-    rw [inv_root_two_eq_div]
-    ring
+  rw [exp_neg_i_pi_over_four_eq,
+      show ((√2 : ℝ) : ℂ)⁻¹ = ((√2 / 2 : ℝ) : ℂ) by
+        rw [← Complex.ofReal_inv, inv_root_two_eq_div]]
+  apply Complex.ext <;> simp [Complex.I_sq] <;> ring
 
 end SpLean.Algebraic
