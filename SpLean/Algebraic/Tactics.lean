@@ -20,14 +20,10 @@ Spider fusion's output phase is `α + β`, so it would leave `π/4 + π/4`
   where we wanted `π/2`
 `← AlgPhase.ofRat_add` pushes `AlgPhase`s together so that `norm_num`
   can simplify
-
-`normalize`/`red` are unfolded for `spider_normalize`, whose output phase is a
-normal form that has not been computed yet. They are handed to `norm_num`
-rather than `decide` because `Int.floor` on `ℚ` does not reduce in the kernel.
 -/
 macro "zx_phase" : tactic =>
   `(tactic| (try simp only [← AlgPhase.ofRat_add]
-             try norm_num [AlgPhase.normalize, AlgPhase.red]
+             try norm_num
              try rfl))
 
 open Lean.Parser.Tactic in
