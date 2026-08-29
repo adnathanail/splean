@@ -26,6 +26,22 @@ macro "zx_phase" : tactic =>
              try norm_num
              try rfl))
 
+/-- Reduce a phase to its normal form in `[0, 2)`.
+
+`spider_normalize`'s output phase is an `AlgPhase.normalize` that has not been
+computed yet, and `zx_phase` deliberately leaves it alone: unfolding `normalize`
+means unfolding `red`, and on a *symbolic* phase that shreds the `AlgPhase`
+arithmetic into raw `toRat` with a stuck `Int.floor` in it, which is worse than
+where it started. So normalisation is opt-in — `zx_rw [spider_normalize]` hands
+the goal back and you follow it with `zx_normalize`.
+
+`norm_num` rather than `decide` because `Int.floor` on `ℚ` does not reduce in
+the kernel. -/
+macro "zx_normalize" : tactic =>
+  `(tactic| (try simp only [← AlgPhase.ofRat_add]
+             norm_num [AlgPhase.normalize, AlgPhase.red]
+             try rfl))
+
 open Lean.Parser.Tactic in
 /-- `rw`, but for `≈zx` rules.
 
