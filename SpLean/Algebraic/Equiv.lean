@@ -42,6 +42,21 @@ namespace ZX.Equiv
 
 instance {n m : ℕ} : Trans (α := ZX n m) ZX.Equiv ZX.Equiv ZX.Equiv := ⟨ZX.Equiv.trans⟩
 
+/-- A spider's denotation depends on its phase only through `AlgPhase.expI`, so
+phases equal *as angles* give equivalent spiders even when they differ as
+rationals: `ZX.spider .Z 1 1 (2π)` and `ZX.spider .Z 1 1 0` are not the same
+term, but they are the same diagram. This is the congruence that makes
+`AlgPhase.equiv` rather than `=` the right notion of phase equality here.
+
+Both colours go through it, because `xSpiderSem` is defined as `zSpiderSem`
+conjugated by Hadamards and so mentions the phase in exactly one place. -/
+theorem spider_congr (c : AlgSpColor) (n m : ℕ) {α β : AlgPhase}
+    (h : AlgPhase.equiv α β) : ZX.spider c n m α ≈zx ZX.spider c n m β := by
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
+  rw [one_mul]
+  cases c <;>
+    simp only [ZX.sem, xSpiderSem, zSpiderSem, AlgPhase.expI_congr h]
+
 /-! ### Congruence
 
 To allow grw to do rewrites within a larger diagram, we have to provide congruence
