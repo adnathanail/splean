@@ -4,6 +4,7 @@ import SpLean.Algebraic.AlgPhase
 namespace Tests.Algebraic.AlgPhase
 
 open LSpec SpLean.Algebraic
+open scoped _root_.AlgPhase
 
 private def zero : _root_.AlgPhase := 0
 private def pi : _root_.AlgPhase := π
