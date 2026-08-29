@@ -1,4 +1,5 @@
 import SemanticsTesting.Utils
+import SpLean.Claude
 
 open SpLean.Algebraic
 
@@ -33,7 +34,7 @@ theorem unfuse (α β : AlgPhase) :
 
 theorem colour_change_fusion :
     Gate.Z ≫ ZX.hadamard ≫ Gate.X  ≫ ZX.hadamard ≈zx Gate.I := by
-  unfold Gate.Z Gate.X
+  unfold Gate.Z Gate.X Gate.I
   -- Colour change
   zx_rw [← colour_change_one]
   -- Shuffle compositions around
@@ -46,9 +47,11 @@ theorem colour_change_fusion :
   zx_rw [← compose_assoc Gate.Z]
   -- Spider fusion
   zx_rw [zSpider_fusion]
-  zx_rw [compose_assoc]
-  zx_rw [hadamard_hadamard, compose_wire]
-  zx_rw [identity_removal_Z_mod_two_pi]
+  zx_phase
+  zx_rw [identity_removal_Z_two_pi]
+  zx_rw [wire_compose]
+  zx_rw [hadamard_hadamard]
+  zx_rw [identity_removal_Z]
 
 theorem two_pi_spider_is_phaseless :
     ZX.spider .Z 0 1 (2π) ≈zx ZX.spider .Z 0 1 0 := by
