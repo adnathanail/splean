@@ -49,3 +49,16 @@ theorem colour_change_fusion :
   zx_rw [compose_assoc]
   zx_rw [hadamard_hadamard, compose_wire]
   zx_rw [identity_removal_Z_mod_two_pi]
+
+theorem two_pi_spider_is_phaseless :
+    ZX.spider .Z 0 1 (2π) ≈zx ZX.spider .Z 0 1 0 := by
+  zx_rw [spider_normalize]
+
+theorem three_pi_spider_is_pi :
+    ZX.spider .X 1 1 (3π) ≈zx ZX.spider .X 1 1 π := by
+  zx_rw [spider_normalize]
+
+/-- The rule fires inside a larger diagram, not only at the top. -/
+theorem two_pi_spider_normalizes_under_compose :
+    (ZX.spider .Z 0 1 (2π) ≫ ZX.hadamard) ≈zx (ZX.spider .Z 0 1 0 ≫ ZX.hadamard) := by
+  zx_rw [spider_normalize]
