@@ -116,8 +116,11 @@ at all: `equiv` as defined is an equation between two transcendental numbers.
 Note that this is a *runtime* decision procedure — `#eval`, `Decidable.decide`,
 LSpec tests — and not one `decide` can use in a proof: `Int.floor` on `ℚ` does
 not reduce in the kernel, so `decide` gets stuck inside `red`. In a proof, unfold
-instead: `rw [equiv_iff_normalize_eq]; norm_num [normalize, red]`. -/
-instance (p q : AlgPhase) : Decidable (equiv p q) :=
+instead: `rw [equiv_iff_normalize_eq]; norm_num [normalize, red]`.
+
+`scoped` so that `decide`, `simp (decide := true)` or `ite` elaboration work.
+Opt in with `open scoped AlgPhase` where the runtime procedure is what you want -/
+scoped instance decidableEquiv (p q : AlgPhase) : Decidable (equiv p q) :=
   decidable_of_iff _ equiv_iff_normalize_eq.symm
 
 end AlgPhase
