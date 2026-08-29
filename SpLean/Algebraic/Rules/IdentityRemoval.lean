@@ -1,6 +1,7 @@
 import SpLean.Algebraic.ZX
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Rules.Lemmas
+import SpLean.Algebraic.Tactics
 import SpLean.Panel
 
 show_panel_widgets [local SpLean.ZXPanel]
@@ -19,3 +20,8 @@ theorem identity_removal_Z :
 theorem identity_removal_Z_mod_two_pi {φ : AlgPhase} (h : AlgPhase.equiv φ 0) :
     ZX.spider .Z 1 1 φ ≈zx ZX.wire :=
   (ZX.Equiv.spider_congr _ _ _ h).trans identity_removal_Z
+
+theorem identity_removal_Z_two_pi :
+    ZX.spider .Z 1 1 (2π) ≈zx ZX.wire := by
+  zx_rw [identity_removal_Z_mod_two_pi]
+  simp [AlgPhase.equiv]
