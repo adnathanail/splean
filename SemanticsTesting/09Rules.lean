@@ -32,7 +32,7 @@ theorem unfuse (α β : AlgPhase) :
   zx_rw [← zSpider_fusion]
 
 theorem colour_change_fusion :
-    Gate.Z ≫ ZX.hadamard ≫ Gate.X ≈zx ZX.spider .Z 1 1 (2π) ≫ ZX.hadamard := by
+    Gate.Z ≫ ZX.hadamard ≫ Gate.X  ≫ ZX.hadamard ≈zx Gate.I := by
   unfold Gate.Z Gate.X
   -- Colour change
   zx_rw [← colour_change_one]
@@ -46,3 +46,6 @@ theorem colour_change_fusion :
   zx_rw [← compose_assoc Gate.Z]
   -- Spider fusion
   zx_rw [zSpider_fusion]
+  zx_rw [compose_assoc]
+  zx_rw [hadamard_hadamard, compose_wire]
+  zx_rw [identity_removal_Z_mod_two_pi]
