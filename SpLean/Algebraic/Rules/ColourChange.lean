@@ -34,7 +34,11 @@ theorem colour_change_Z_X_one (α : AlgPhase) :
 /-- Colour change (arity n m): a Z spider with a Hadamard on every leg is an X spider. -/
 theorem colour_change_X_Z_n (n m : ℕ) (α : AlgPhase) :
     ZX.spider .X n m α ≈zx (ZX.nHadamard n ≫ ZX.spider .Z n m α ≫ ZX.nHadamard m) := by
-  sorry
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
+  rw [one_mul]
+  simp only [ZX.sem, xSpiderSem, n_hadamard_sem]
+  simp only [Finset.sum_mul]
+  rw [Finset.sum_comm]
 
 /-- Colour change (arity n m): an X spider with a Hadamard on every leg is a Z spider. -/
 theorem colour_change_Z_X_n (n m : ℕ) (α : AlgPhase) :

@@ -1,4 +1,5 @@
 import SpLean.Algebraic.ZX
+import SpLean.Algebraic.Semantics
 
 /-!
 # Derived diagram constructions
@@ -29,6 +30,17 @@ abbrev ZX.nWire (k : ℕ) : ZX k k := ZX.nStack k .wire
 
 /-- A Hadamard on each of `k` wires. -/
 abbrev ZX.nHadamard (k : ℕ) : ZX k k := ZX.nStack k .hadamard
+
+theorem n_hadamard_sem (k : ℕ) (u v : Wires k) :
+    (ZX.nHadamard k).sem u v = ∏ i, hadSem (u i) (v i) := by
+  induction k with
+  | zero =>
+    simp only [ZX.nHadamard, ZX.nStack, ZX.sem]
+    norm_num
+  | succ k ih =>
+    simp only [ZX.nHadamard, ZX.nStack, ZX.sem]
+    rw [ih]
+    exact Eq.symm (Fin.prod_univ_castSucc fun i => hadSem (u i) (v i))
 
 /-- `k` parallel copies of a state, stacked. The state version of `nStack`:
 `ZX 0 1` rather than `ZX 1 1`, so the result is a `ZX 0 k`. -/
