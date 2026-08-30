@@ -52,10 +52,24 @@ theorem compose_wire {n : ℕ} (a : ZX n 1) : (a ≫ ZX.wire) ≈zx a := by
 
 /-- `nWire n` is a left identity for `≫` — the `n`-wire form of `wire_compose`. -/
 theorem nWire_compose {n m : ℕ} (a : ZX n m) : (ZX.nWire n ≫ a) ≈zx a := by
-  sorry
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
+  rw [one_mul]
+  simp only [ZX.sem, n_wire_sem]
+  have h : ∀ x : Wires n,
+    (if f = x then 1 else 0) * a.sem x g = if f = x then a.sem f g else 0 := by
+      simp_all only [ite_mul, one_mul, zero_mul, implies_true]
+  simp only [h]
+  norm_num
 
 /-- `nWire m` is a right identity for `≫` — the `n`-wire form of `compose_wire`. -/
 theorem compose_nWire {n m : ℕ} (a : ZX n m) : (a ≫ ZX.nWire m) ≈zx a := by
-  sorry
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
+  rw [one_mul]
+  simp only [ZX.sem, n_wire_sem]
+  have h : ∀ x : Wires m,
+    (a.sem f x * if x = g then 1 else 0) = if x = g then a.sem f g else 0 := by
+      simp_all only [mul_ite, mul_one, mul_zero, implies_true]
+  simp only [h]
+  norm_num
 
 end SpLean.Algebraic
