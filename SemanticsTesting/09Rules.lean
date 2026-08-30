@@ -7,29 +7,29 @@ show_panel_widgets [local SpLean.ZXPanel]
 
 theorem two_t_gates_equiv_s_gate :
     Gate.T ≫ Gate.T ≈zx Gate.S := by
-  zx_rw [zSpider_fusion]
+  zx_rw [spider_fusion_Z_one_wire]
 
 theorem three_t_gates_fusion :
     Gate.T ≫ Gate.T ≫ Gate.T ≈zx ZX.spider .Z 1 1 (3π/4) := by
-  zx_rw [zSpider_fusion, zSpider_fusion]
+  zx_rw [spider_fusion_Z_one_wire, spider_fusion_Z_one_wire]
 
 theorem two_x_gates_fusion :
     Gate.X ≫ Gate.X ≈zx ZX.spider .X 1 1 (2π) := by
-  zx_rw [xSpider_fusion]
+  zx_rw [spider_fusion_X_one_wire]
 
 theorem fuse_under_stack :
     (ZX.wire ⊗ (ZX.hadamard ≫ (Gate.T ≫ Gate.T))) ≈zx
       (ZX.wire ⊗ (ZX.hadamard ≫ Gate.S)) := by
-  zx_rw [zSpider_fusion]
+  zx_rw [spider_fusion_Z_one_wire]
 
 theorem fuse_symbolic (α β γ : AlgPhase) :
     ((ZX.spider .Z 1 1 α ≫ ZX.spider .Z 1 1 β) ≫ ZX.spider .Z 1 1 γ) ≈zx
       ZX.spider .Z 1 1 (α + β + γ) := by
-  zx_rw [zSpider_fusion, zSpider_fusion]
+  zx_rw [spider_fusion_Z_one_wire, spider_fusion_Z_one_wire]
 
 theorem unfuse (α β : AlgPhase) :
     ZX.spider .Z 1 1 (α + β) ≈zx (ZX.spider .Z 1 1 α ≫ ZX.spider .Z 1 1 β) := by
-  zx_rw [← zSpider_fusion]
+  zx_rw [← spider_fusion_Z_one_wire]
 
 theorem colour_change_fusion :
     Gate.Z ≫ ZX.hadamard ≫ Gate.X  ≫ ZX.hadamard ≈zx Gate.I := by
@@ -45,7 +45,7 @@ theorem colour_change_fusion :
   -- Shuffle
   zx_rw [← compose_assoc Gate.Z]
   -- Spider fusion
-  zx_rw [zSpider_fusion]
+  zx_rw [spider_fusion_Z_one_wire]
   zx_phase
   zx_rw [identity_removal_Z_two_pi]
   zx_rw [wire_compose]
@@ -67,3 +67,20 @@ theorem two_pi_spider_normalizes_under_compose :
     (ZX.spider .Z 0 1 (2π) ≫ ZX.hadamard) ≈zx (ZX.spider .Z 0 1 0 ≫ ZX.hadamard) := by
   zx_rw [spider_normalize]
   zx_normalize
+
+-- pqs p123
+-- TODO finish once we have pi copy
+theorem euler_decomp1 :
+    Gate.S ≫ ZX.hadamard ≫ Gate.S ≈zx Gate.Z ≫ ZX.spider .X 1 1 (π/2) ≫ Gate.Z := by
+  zx_rw [euler_decomp_ZXZ]
+  zx_rw [← compose_assoc Gate.S]
+  zx_rw [← compose_assoc Gate.S]
+  zx_rw [compose_assoc _ _ Gate.S]
+  zx_rw [spider_fusion_Z_one_wire]
+
+theorem big_fusion :
+    ZX.spider .Z 1 5 (π) ≫ ZX.spider .Z 5 1 (π/2) ≫ (ZX.spider .X 1 3 ≫ ZX.spider .X 3 4  ≫ ZX.spider .X 4 1) ≈zx
+      ZX.spider .Z 1 1 (3π/2) ≫ ZX.spider .X 1 1 := by
+  zx_rw [spider_fusion_Z]
+  zx_rw [spider_fusion_X]
+  zx_rw [spider_fusion_X]

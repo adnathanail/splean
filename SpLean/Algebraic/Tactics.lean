@@ -4,7 +4,7 @@ import Mathlib.Tactic.GRewrite
 /-!
 # Rewriting with `≈zx`
 
-`≈zx` is a `def`, not an `Eq`, so `rw` can't use rules like `zSpider_fusion`
+`≈zx` is a `def`, not an `Eq`, so `rw` can't use rules like `spider_fusion_Z_one_wire`
 Mathlib's `grw` generalises `rw` to any relation
 
 `zx_rw` does `grw` then phase-normalisation
@@ -45,9 +45,9 @@ macro "zx_normalize" : tactic =>
 open Lean.Parser.Tactic in
 /-- `rw`, but for `≈zx` rules.
 
-    zx_rw [zSpider_fusion]           -- fire once
-    zx_rw [zSpider_fusion, zSpider_fusion]
-    zx_rw [← zSpider_fusion]         -- unfuse
+    zx_rw [spider_fusion_Z_one_wire]           -- fire once
+    zx_rw [spider_fusion_Z_one_wire, spider_fusion_Z_one_wire]
+    zx_rw [← spider_fusion_Z_one_wire]         -- unfuse
 
 Each resulting goal gets a `zx_phase` pass, kept behind `done` so a goal
 it cannot close is handed back unchanged rather than half-rewritten. -/
