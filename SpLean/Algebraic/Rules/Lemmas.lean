@@ -114,4 +114,9 @@ lemma inv_root_two_sq : (√2)⁻¹ ^ 2 = 1/2 := by
 lemma inv_root_two_sq_complex : ((√2 : ℝ) : ℂ)⁻¹ ^ 2 = 1/2 := by
   rw [sq, inv_root_two_mul_self_complex]
 
+theorem inv_root_two_eq_div : ((√2 : ℝ))⁻¹ = √2 / 2 := by
+  rw [eq_div_iff (by norm_num : (2:ℝ) ≠ 0), inv_mul_eq_div,
+    div_eq_iff (Real.sqrt_ne_zero'.2 (by norm_num))]
+  exact (Real.mul_self_sqrt (by norm_num)).symm
+
 end SpLean.Algebraic

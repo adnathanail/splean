@@ -45,7 +45,7 @@ macro "zx_normalize" : tactic =>
 open Lean.Parser.Tactic in
 /-- `rw`, but for `≈zx` rules.
 
-    zx_rw [spider_fusion_Z_one_wire]           -- fire once
+    zx_rw [spider_fusion_Z_one_wire]           -- fires everywhere once in parallel
     zx_rw [spider_fusion_Z_one_wire, spider_fusion_Z_one_wire]
     zx_rw [← spider_fusion_Z_one_wire]         -- unfuse
 

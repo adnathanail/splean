@@ -4,7 +4,6 @@ import SpLean.Algebraic.Combinators
 import SpLean.Algebraic.Tactics
 import SpLean.Algebraic.Rules.Structural
 import SpLean.Algebraic.Rules.HadamardHadamard
-import SpLean.Algebraic.Combinators
 
 namespace SpLean.Algebraic
 

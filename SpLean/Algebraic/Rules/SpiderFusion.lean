@@ -44,33 +44,33 @@ Fusion along k+1 wires, so that fusion along 0 wires (impossible!) is not repres
 
 /-- Z spider fusion along `k + 1` parallel wires. -/
 theorem spider_fusion_Z (n m k : ℕ) (α β : AlgPhase) :
-     (ZX.spider .Z n (k + 1) α ≫ ZX.spider .Z (k + 1) m β) ≈zx
-       ZX.spider .Z n m (α + β) := by
-   refine ⟨1, one_ne_zero, fun f h => ?_⟩
-   rw [one_mul]
-   simp only [ZX.sem]
-   have key : ∀ g : Wires (k + 1),
-       zSpiderSem α f g * zSpiderSem β g h =
-         (if g = (fun _ => false) then
-             (if (∀ i, f i = false) ∧ (∀ j, h j = false) then 1 else 0) else 0)
-           + (if g = (fun _ => true) then
-               α.expI * β.expI *
-                 (if (∀ i, f i = true) ∧ (∀ j, h j = true) then 1 else 0) else 0) := by
-     intro g
-     by_cases hgf : g = fun _ => false
-     · subst hgf
-       simp [zSpiderSem, ite_and, funext_iff]
-       split_ifs <;> rfl
-     · by_cases hgt : g = fun _ => true
-       · subst hgt
-         simp [zSpiderSem, ite_and, funext_iff]
-         split_ifs <;> rfl
-       · have h1 : ¬ ∀ x, g x = false := fun H => hgf (funext H)
-         have h2 : ¬ ∀ x, g x = true := fun H => hgt (funext H)
-         simp [zSpiderSem, hgf, hgt, h1, h2]
-   simp only [key]
-   simp only [Finset.sum_add_distrib, Finset.sum_ite_eq', Finset.mem_univ, if_true]
-   simp [zSpiderSem, ite_and]
+    (ZX.spider .Z n (k + 1) α ≫ ZX.spider .Z (k + 1) m β) ≈zx
+      ZX.spider .Z n m (α + β) := by
+  refine ⟨1, one_ne_zero, fun f h => ?_⟩
+  rw [one_mul]
+  simp only [ZX.sem]
+  have key : ∀ g : Wires (k + 1),
+      zSpiderSem α f g * zSpiderSem β g h =
+        (if g = (fun _ => false) then
+            (if (∀ i, f i = false) ∧ (∀ j, h j = false) then 1 else 0) else 0)
+          + (if g = (fun _ => true) then
+              α.expI * β.expI *
+                (if (∀ i, f i = true) ∧ (∀ j, h j = true) then 1 else 0) else 0) := by
+    intro g
+    by_cases hgf : g = fun _ => false
+    · subst hgf
+      simp [zSpiderSem, ite_and, funext_iff]
+      split_ifs <;> rfl
+    · by_cases hgt : g = fun _ => true
+      · subst hgt
+        simp [zSpiderSem, ite_and, funext_iff]
+        split_ifs <;> rfl
+      · have h1 : ¬ ∀ x, g x = false := fun H => hgf (funext H)
+        have h2 : ¬ ∀ x, g x = true := fun H => hgt (funext H)
+        simp [zSpiderSem, hgf, hgt, h1, h2]
+  simp only [key]
+  simp only [Finset.sum_add_distrib, Finset.sum_ite_eq', Finset.mem_univ, if_true]
+  simp [zSpiderSem, ite_and]
 
 /-- X spider fusion along `k + 1` parallel wires. -/
 theorem spider_fusion_X (n m k : ℕ) (α β : AlgPhase) :

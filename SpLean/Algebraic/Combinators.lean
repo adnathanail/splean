@@ -37,7 +37,7 @@ theorem n_wire_sem (k : ℕ) (u v : Wires k) :
   | succ k ih =>
     simp only [ZX.nWire, ZX.nStack, ZX.sem]
     rw [ih]
-    simp
+    simp only [Fin.isValue, mul_ite, mul_one, mul_zero]
     rw [← ite_and]
     refine if_congr ?_ rfl rfl
     rw [funext_iff, funext_iff]
