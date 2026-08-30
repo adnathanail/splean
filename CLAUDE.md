@@ -57,6 +57,8 @@ The two representations rewrite by completely different mechanisms: `≈z` is de
 
 `zx_rw` in `SpLean/Algebraic/Tactics.lean` is `rw` for `≈zx` rules — `zx_rw [zSpider_fusion]`, `zx_rw [← zSpider_fusion]` to unfuse. It is a thin macro over Mathlib's `grw`, which generalises `rw` to any relation that is reflexive, transitive and has congruence lemmas; `≈zx` supplies all three (`ZX.Equiv.refl` is `@[refl]`, and `compose_congr`/`stack_congr` are tagged `@[gcongr]` in `Tactics.lean` rather than at their definitions, to keep the `grw` import out of `Equiv.lean`). The `@[gcongr]` tags are what let a rule fire *inside* a larger diagram rather than only at the top.
 
+`nth_zx_rw 2 [colour_change_Z_X_one_wire]` is the `nth_rw` of the pair — same rules, same `zx_phase` pass, but firing only at the listed occurrences (`nth_zx_rw 1 3 [...]` for several). It expands to `grw (occs := .pos [...])` rather than to Mathlib's `nth_grw`, since a `(num)+` cannot be spliced back into `nth_grw`'s own syntax from a macro. Needed as soon as a rule's RHS contains its LHS's shape again — colour change on a diagram with several spiders, where plain `zx_rw` rewrites all of them.
+
 Each goal `grw` leaves then gets a `zx_phase` pass, which normalises the phase arithmetic a rewrite produces — fusion outputs `α + β`, so `π/4 ≫ π/4` lands as `π/4 + π/4` where the goal says `π/2`. `zx_phase` pushes the `AlgPhase`s together with `← AlgPhase.ofRat_add`, hands the rational arithmetic to `norm_num`, and closes with `rfl` (which works on `≈zx` because of the `@[refl]`). It is kept behind `done`, so a goal it cannot close is handed back exactly as `grw` left it rather than half-normalised.
 
 ## Widget architecture

@@ -96,3 +96,32 @@ example :
   zx_rw [spider_fusion_Z]
   zx_rw [spider_fusion_X]
   zx_rw [spider_fusion_X]
+
+-- had_pushing
+example :
+    ZX.hadamard ≫ ZX.spider .Z 1 1 ≫ ZX.spider .X 1 1 ≫ ZX.spider .Z 1 1 ≫ ZX.spider .X 1 1 ≈zx
+      ZX.spider .X 1 1 ≫ ZX.spider .Z 1 1 ≫ ZX.spider .X 1 1 ≫ ZX.spider .Z 1 1 ≫ ZX.hadamard := by
+  nth_zx_rw 1 [colour_change_Z_X_one_wire]
+  zx_rw [← compose_assoc ZX.hadamard]
+  zx_rw [← compose_assoc ZX.hadamard]
+  zx_rw [hadamard_hadamard, wire_compose]
+  zx_rw [compose_assoc Gate.I_X]
+  nth_zx_rw 1 [colour_change_X_Z_one_wire]
+  zx_rw [compose_assoc ZX.hadamard _ ZX.hadamard]
+  zx_rw [← compose_assoc ZX.hadamard]
+  zx_rw [hadamard_hadamard, wire_compose]
+  zx_rw [← compose_assoc Gate.I_X]
+  zx_rw [compose_assoc _ ZX.hadamard]
+  nth_zx_rw 2 [colour_change_Z_X_one_wire]
+  zx_rw [← compose_assoc ZX.hadamard]
+  zx_rw [← compose_assoc ZX.hadamard]
+  zx_rw [hadamard_hadamard, wire_compose]
+  zx_rw [compose_assoc Gate.I_X]
+  nth_zx_rw 2 [colour_change_X_Z_one_wire]
+  zx_rw [← compose_assoc Gate.I_X]
+  zx_rw [← compose_assoc _ Gate.I_X ZX.hadamard]
+  zx_rw [compose_assoc _ ZX.hadamard]
+  zx_rw [← compose_assoc ZX.hadamard _ ZX.hadamard]
+  zx_rw [← compose_assoc ZX.hadamard ZX.hadamard]
+  zx_rw [hadamard_hadamard, wire_compose]
+  zx_rw [← compose_assoc]
