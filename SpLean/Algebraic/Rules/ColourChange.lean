@@ -1,16 +1,33 @@
 import SpLean.Algebraic.ZX
 import SpLean.Algebraic.Equiv
+import SpLean.Algebraic.Combinators
 
 namespace SpLean.Algebraic
 
-theorem colour_change_one (α : AlgPhase) :
-    (ZX.hadamard ≫ ZX.spider .Z 1 1 α ≫ ZX.hadamard) ≈zx ZX.spider .X 1 1 α := by
+/-- Colour change (arity 1 1): swap X spider for H Z H -/
+theorem colour_change_X_Z_one (α : AlgPhase) :
+    ZX.spider .X 1 1 α ≈zx (ZX.hadamard ≫ ZX.spider .Z 1 1 α ≫ ZX.hadamard) := by
   refine ⟨1, one_ne_zero, fun f g => ?_⟩
   rw [one_mul]
   simp only [ZX.sem, xSpiderSem]
-  nth_rw 5 [Finset.univ_unique]
+  nth_rw 3 [Finset.univ_unique]
   rw [Finset.prod_singleton']
   simp only [Fin.isValue, Fin.default_eq_zero, Finset.univ_unique, Finset.prod_singleton, Finset.sum_mul]
   rw [Finset.sum_comm]
 
--- TODO n version
+/-- Colour change (arity 1 1): swap Z spider for H X H -/
+theorem colour_change_Z_X_one (α : AlgPhase) :
+    ZX.spider .Z 1 1 α ≈zx (ZX.hadamard ≫ ZX.spider .X 1 1 α ≫ ZX.hadamard) := by
+  sorry
+
+/-- Colour change (arity n m): a Z spider with a Hadamard on every leg is an X spider. -/
+theorem colour_change_X_Z_n (n m : ℕ) (α : AlgPhase) :
+    ZX.spider .X n m α ≈zx (ZX.nHadamard n ≫ ZX.spider .Z n m α ≫ ZX.nHadamard m) := by
+  sorry
+
+/-- Colour change (arity n m): an X spider with a Hadamard on every leg is a Z spider. -/
+theorem colour_change_Z_X_n (n m : ℕ) (α : AlgPhase) :
+    ZX.spider .Z n m α ≈zx (ZX.nHadamard n ≫ ZX.spider .X n m α ≫ ZX.nHadamard m) := by
+  sorry
+
+end SpLean.Algebraic

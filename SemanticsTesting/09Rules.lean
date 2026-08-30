@@ -35,7 +35,7 @@ theorem colour_change_fusion :
     Gate.Z ≫ ZX.hadamard ≫ Gate.X  ≫ ZX.hadamard ≈zx Gate.I := by
   unfold Gate.Z Gate.X Gate.I
   -- Colour change
-  zx_rw [← colour_change_one]
+  zx_rw [colour_change_X_Z_one]
   -- Shuffle compositions around
   zx_rw [compose_assoc ZX.hadamard]
   zx_rw [compose_assoc Gate.Z]
