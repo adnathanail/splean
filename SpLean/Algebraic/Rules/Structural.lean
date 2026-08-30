@@ -1,6 +1,7 @@
 import SpLean.Algebraic.ZX
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Rules.Lemmas
+import SpLean.Algebraic.Combinators
 
 /-!
 # Structural laws for `≫`
@@ -49,6 +50,12 @@ theorem compose_wire {n : ℕ} (a : ZX n 1) : (a ≫ ZX.wire) ≈zx a := by
   · rw [wires1_eq_of_head (g := zeroAmpl) h]
   · rw [wires1_eq_of_head (g := oneAmpl) h]
 
--- TODO stack version
+/-- `nWire n` is a left identity for `≫` — the `n`-wire form of `wire_compose`. -/
+theorem nWire_compose {n m : ℕ} (a : ZX n m) : (ZX.nWire n ≫ a) ≈zx a := by
+  sorry
+
+/-- `nWire m` is a right identity for `≫` — the `n`-wire form of `compose_wire`. -/
+theorem compose_nWire {n m : ℕ} (a : ZX n m) : (a ≫ ZX.nWire m) ≈zx a := by
+  sorry
 
 end SpLean.Algebraic
