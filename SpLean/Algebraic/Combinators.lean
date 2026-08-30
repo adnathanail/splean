@@ -28,6 +28,22 @@ def ZX.nStack : (k : ℕ) → ZX 1 1 → ZX k k
 /-- `k` parallel wires — the identity diagram on `k` wires. -/
 abbrev ZX.nWire (k : ℕ) : ZX k k := ZX.nStack k .wire
 
+theorem n_wire_sem (k : ℕ) (u v : Wires k) :
+    (ZX.nWire k).sem u v = if u = v then 1 else 0 := by
+  induction k with
+  | zero =>
+    simp only [ZX.nWire, ZX.nStack, ZX.sem]
+    trivial
+  | succ k ih =>
+    simp only [ZX.nWire, ZX.nStack, ZX.sem]
+    rw [ih]
+    simp
+    rw [← ite_and]
+    refine if_congr ?_ rfl rfl
+    rw [funext_iff, funext_iff]
+    rw [Fin.forall_fin_succ', and_comm]
+    rfl
+
 /-- A Hadamard on each of `k` wires. -/
 abbrev ZX.nHadamard (k : ℕ) : ZX k k := ZX.nStack k .hadamard
 
