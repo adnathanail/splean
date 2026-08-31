@@ -161,7 +161,11 @@ def algNotc : ZX 2 2 := (.spider .X 1 2 ⊗ .wire) ≫ (.wire ⊗ .spider .Z 2 1
 def algCx : ZX 2 2 :=
   (
     (.spider .Z 1 2 ⊗ .wire) ≫
-    (.wire ⊗ .hadamard ⊗ .wire)
+    -- Ascribed because `⊗` is right-associative:
+    --   the arity of the right-hand stack is `1 + (1 + 1)`,
+    --   which the unifier will not match against the
+    --   `2 + 1` it gets from the left-hand side of the `≫`.
+    (.wire ⊗ .hadamard ⊗ .wire : ZX 3 3)
   ) ≫
   (.wire ⊗ .spider .Z 2 1)
 #zx algCx
