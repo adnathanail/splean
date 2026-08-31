@@ -7,7 +7,7 @@ noncomputable abbrev eulerDecompScalar := Complex.exp (- (Complex.I * Real.pi / 
 
 /-- The scalar for Euler decomp
     casted nicely for `hadSem` and `√2` lemmas in `Rules/Lemmas.lean` -/
-theorem exp_neg_i_pi_over_four_eq :
+lemma exp_neg_i_pi_over_four_eq :
     eulerDecompScalar = ((√2 : ℝ) : ℂ)⁻¹ - ((√2 : ℝ) : ℂ)⁻¹ * Complex.I := by
   unfold eulerDecompScalar
   rw [show (- (Complex.I * Real.pi / 4)) = ((-(Real.pi / 4) : ℝ) : ℂ) * Complex.I by
