@@ -50,7 +50,7 @@ example :
   -- Spider fusion
   zx_rw [spider_fusion_Z_one_wire]
   zx_phase
-  zx_rw [identity_removal_Z_two_pi, identity_removal_Z]
+  zx_rw [identity_removal_Z_two_pi, identity_removal_Z_zero]
 
 -- two_pi_spider_is_phaseless
 example :
