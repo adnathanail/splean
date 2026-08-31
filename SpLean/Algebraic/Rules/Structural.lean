@@ -109,6 +109,24 @@ theorem compose_nWire {n m : ℕ} (a : ZX n m) : (a ≫ ZX.nWire m) ≈zx a := b
 
 /-- Stacking the empty diagram on the right does nothing. -/
 theorem stack_empty {n m : ℕ} (a : ZX n m) : (a ⊗ .empty) ≈zx a := by
-  sorry
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
+  rw [one_mul]
+  simp only [ZX.sem, mul_one]
+  congr 1
+
+ /-- Stacking the empty diagram on the left does nothing either
+  needs the cast because `0 + n` does not reduce. -/
+theorem empty_stack {n m : ℕ} (a : ZX n m) :
+    ZX.cast (Nat.zero_add n) (Nat.zero_add m) (.empty ⊗ a) ≈zx a := by
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
+  rw [one_mul, ZX.sem_cast]
+  simp only [ZX.sem, one_mul]
+  congr 1 <;> funext i <;> congr 1 <;> (apply Fin.ext; simp)
+
+theorem nStack_one (d : ZX 1 1) :
+    (ZX.nStack 1 d) ≈zx d := by
+  simp only [ZX.nStack]
+  zx_rw [← ZX.cast_self _ _ (ZX.empty ⊗ d)]
+  zx_rw [empty_stack]
 
 end SpLean.Algebraic
