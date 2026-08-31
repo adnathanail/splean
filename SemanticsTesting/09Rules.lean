@@ -43,21 +43,14 @@ example :
   unfold Gate.Z Gate.X Gate.I
   -- Colour change
   zx_rw [colour_change_X_Z_one_wire]
-  -- Shuffle compositions around
-  zx_rw [compose_assoc ZX.hadamard]
-  zx_rw [compose_assoc Gate.Z]
-  zx_rw [← compose_assoc ZX.hadamard]
-  -- Hadamard hadamard
-  zx_rw [hadamard_hadamard, wire_compose]
-  -- Shuffle
-  zx_rw [← compose_assoc Gate.Z]
+  repeat grw [compose_assoc]
+  -- Expose the inner Hadamard pair, then cancel both pairs at once
+  grw [← compose_assoc ZX.hadamard ZX.hadamard]
+  zx_rw [hadamard_hadamard, wire_compose, compose_wire]
   -- Spider fusion
   zx_rw [spider_fusion_Z_one_wire]
   zx_phase
-  zx_rw [identity_removal_Z_two_pi]
-  zx_rw [wire_compose]
-  zx_rw [hadamard_hadamard]
-  zx_rw [identity_removal_Z]
+  zx_rw [identity_removal_Z_two_pi, identity_removal_Z]
 
 -- two_pi_spider_is_phaseless
 example :
@@ -83,43 +76,44 @@ example :
 -- euler_decomp1
 example :
     Gate.S ≫ ZX.hadamard ≫ Gate.S ≈zx Gate.Z ≫ ZX.spider .X 1 1 (π/2) ≫ Gate.Z := by
+  unfold Gate.S Gate.Z
   zx_rw [euler_decomp_ZXZ]
-  zx_rw [← compose_assoc Gate.S]
-  zx_rw [← compose_assoc Gate.S]
-  zx_rw [compose_assoc _ _ Gate.S]
+  repeat grw [compose_assoc]
+  -- Fuse the trailing pair, then regroup to expose the leading one
+  zx_rw [spider_fusion_Z_one_wire]
+  grw [← compose_assoc]
   zx_rw [spider_fusion_Z_one_wire]
 
 -- big_fusion
 example :
     ZX.spider .Z 1 5 (π) ≫ ZX.spider .Z 5 1 (π/2) ≫ (ZX.spider .X 1 3 ≫ ZX.spider .X 3 4  ≫ ZX.spider .X 4 1) ≈zx
       ZX.spider .Z 1 1 (3π/2) ≫ ZX.spider .X 1 1 := by
+  grw [← compose_assoc]
   zx_rw [spider_fusion_Z]
+  grw [← compose_assoc]
   zx_rw [spider_fusion_X]
+  grw [compose_assoc]
   zx_rw [spider_fusion_X]
 
 -- had_pushing
 example (α β : AlgPhase) :
     ZX.hadamard ≫ ZX.spider .Z 1 1 α ≫ ZX.spider .X 1 1 π ≫ ZX.spider .Z 1 1 β ≫ ZX.spider .X 1 1 (3π/2) ≈zx
       ZX.spider .X 1 1 α ≫ ZX.spider .Z 1 1 π ≫ ZX.spider .X 1 1 β ≫ ZX.spider .Z 1 1 (3π/2) ≫ ZX.hadamard := by
-  nth_zx_rw 1 [colour_change_Z_X_one_wire]
-  zx_rw [← compose_assoc ZX.hadamard]
-  zx_rw [← compose_assoc ZX.hadamard]
+  -- Push the Hadamard rightwards one spider at a time: colour-change the spider
+  -- it faces, which emits a Hadamard that cancels against it. Each rule is given
+  -- its phase explicitly, so it fires at that spider and nowhere else.
+  zx_rw [colour_change_Z_X_one_wire α]
+  repeat grw [compose_assoc]
+  grw [← compose_assoc ZX.hadamard ZX.hadamard]
   zx_rw [hadamard_hadamard, wire_compose]
-  zx_rw [compose_assoc _ ZX.hadamard]
-  nth_zx_rw 2 [colour_change_X_Z_one_wire]
-  zx_rw [compose_assoc ZX.hadamard _]
-  zx_rw [← compose_assoc ZX.hadamard]
+  zx_rw [colour_change_X_Z_one_wire π]
+  repeat grw [compose_assoc]
+  grw [← compose_assoc ZX.hadamard ZX.hadamard]
   zx_rw [hadamard_hadamard, wire_compose]
-  zx_rw [← compose_assoc _ _ ZX.hadamard]
-  zx_rw [compose_assoc _ ZX.hadamard]
-  nth_zx_rw 2 [colour_change_Z_X_one_wire]
-  zx_rw [← compose_assoc ZX.hadamard]
-  zx_rw [← compose_assoc ZX.hadamard]
+  zx_rw [colour_change_Z_X_one_wire β]
+  repeat grw [compose_assoc]
+  grw [← compose_assoc ZX.hadamard ZX.hadamard]
   zx_rw [hadamard_hadamard, wire_compose]
-  zx_rw [compose_assoc _ _ ZX.hadamard]
-  nth_zx_rw 3 [colour_change_X_Z_one_wire]
-  zx_rw [compose_assoc _ _ ZX.hadamard]
-  zx_rw [← compose_assoc _ _ ZX.hadamard]
-  zx_rw [compose_assoc _ ZX.hadamard]
-  zx_rw [← compose_assoc ZX.hadamard]
+  zx_rw [colour_change_X_Z_one_wire (3π/2)]
+  grw [← compose_assoc ZX.hadamard ZX.hadamard]
   zx_rw [hadamard_hadamard, wire_compose]

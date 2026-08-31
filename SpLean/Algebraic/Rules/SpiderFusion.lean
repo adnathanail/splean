@@ -77,15 +77,11 @@ theorem spider_fusion_X (n m k : ℕ) (α β : AlgPhase) :
     (ZX.spider .X n (k + 1) α ≫ ZX.spider .X (k + 1) m β) ≈zx ZX.spider .X n m (α + β) := by
   zx_rw [colour_change_X_Z]
   zx_rw [colour_change_X_Z]
-  zx_rw [compose_assoc]
-  zx_rw [compose_assoc (ZX.nHadamard (k + 1))]
-  zx_rw [← compose_assoc (ZX.nHadamard (k + 1))]
-  zx_rw [hadamard_hadamard_n]
-  zx_rw [nWire_compose]
-  zx_rw [compose_assoc]
-  zx_rw [← compose_assoc (ZX.spider AlgSpColor.Z n (k + 1) α)]
+  repeat grw [compose_assoc]
+  grw [← compose_assoc (ZX.nHadamard (k + 1)) (ZX.nHadamard (k + 1))]
+  zx_rw [hadamard_hadamard_n, nWire_compose]
+  grw [← compose_assoc (ZX.spider AlgSpColor.Z n (k + 1) α)]
   zx_rw [spider_fusion_Z]
-  zx_rw [← compose_assoc]
   zx_rw [← colour_change_X_Z]
 
 end SpLean.Algebraic
