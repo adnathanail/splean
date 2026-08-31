@@ -30,6 +30,9 @@ https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/FieldSimp.ht
 Tactic to 'normalise' (simplify) numerical expressions
 https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/NormNum/Core.html
 
+`congr`
+Removes parts common to both sides
+
 ### Casting
 
 - `norm_cast` moves casts as far outwards as possible
