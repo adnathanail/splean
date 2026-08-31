@@ -66,3 +66,21 @@ https://github.com/leanprover-community/physlib
 Things to ask the Chicagoans:
 - When indicator function vs dirac notation
 - Do hypergraphs only work for symmetric diagrams? Do we need port graphs for W nodes
+	
+To do:
+- https://arxiv.org/pdf/1812.09114
+    - Minimal axiomatisation of ZX
+    - Has complete inductive definition of diagrams
+    - Nice statement of theora
+    - Published 2018 - investigate what has changed in the field
+    - Different shortcodes for rules
+- Play with Quantomatic
+- Sums of ZX diagrams
+    - https://link.springer.com/chapter/10.1007/978-3-031-57228-9_7
+        - Full book: Enriching Diagrams with Algebraic Operations
+    - https://arxiv.org/pdf/2204.01307v2
+        - Notation for linear combinations of diagrams
+        - Different shortcodes for rules
+- https://quantum-journal.org/papers/q-2024-10-04-1491/pdf/
+    - Integrating and differentiating ZX
+- John's thesis
