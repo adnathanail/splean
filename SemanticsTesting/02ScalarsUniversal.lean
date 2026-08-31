@@ -50,26 +50,24 @@ abbrev scalarDiagCosTheta (θ : AlgPhase) :=
 lemma scalar_uni_cos_theta (θ : AlgPhase) (f g : Wires 0) :
     (scalarDiagCosTheta θ).sem f g = Complex.cos θ.angle := by
   -- Replace diagram semantics with scalars from previous lemmas
-  rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_one_over_sqrt_two]
+  rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_sqrt_two_e_i_alpha]
   rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_one_over_sqrt_two]
   rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_alpha]
-  rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_one_over_sqrt_two, scalar_sem_sqrt_two_e_i_alpha]
+  rw [ZX.sem, Finset.univ_unique, Finset.sum_singleton, scalar_sem_one_over_sqrt_two,
+    scalar_sem_one_over_sqrt_two]
   unfold rootTwo
-  -- Rewrite cos in terms of exp
-  rw [Complex.cos]
-  -- Shuffle expressions around
-  nth_rw 4 [mul_right_comm]
-  rw [mul_one_div_cancel]
-  on_goal 2 => norm_num
-  rw [one_mul, mul_add]
-  -- Put both sides in terms of `expI`
+  -- Rewrite cos in terms of exp, and put both sides in terms of `expI`.
   -- `expI_eq_exp_angle` is the bridge back.
-  rw [← AlgPhase.expI_eq_exp_angle, neg_mul, Complex.exp_neg,
+  rw [Complex.cos, ← AlgPhase.expI_eq_exp_angle, neg_mul, Complex.exp_neg,
     ← AlgPhase.expI_eq_exp_angle, AlgPhase.expI_zsmul]
   -- `θ + -2θ = -θ` is now `z * z⁻² = z⁻¹`, plain field arithmetic
+  have h2 : (Real.sqrt 2 : ℂ) ≠ 0 := by simp
+  have hsq : ((Real.sqrt 2 : ℝ) : ℂ) ^ 2 = 2 := by
+    norm_cast
+    exact Real.sq_sqrt (by norm_num)
   field_simp
-  norm_cast
-  norm_num
+  rw [hsq]
+  ring
 
 -- TODO complete proof
 --   our phases are rationals, so they cannot be used to construct ℝ and therefore ℂ

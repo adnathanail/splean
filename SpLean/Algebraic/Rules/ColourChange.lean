@@ -15,8 +15,8 @@ theorem colour_change_X_Z_one_wire (α : AlgPhase) :
   simp only [ZX.sem, xSpiderSem]
   nth_rw 3 [Finset.univ_unique]
   rw [Finset.prod_singleton']
-  simp only [Fin.isValue, Fin.default_eq_zero, Finset.univ_unique, Finset.prod_singleton, Finset.sum_mul]
-  rw [Finset.sum_comm]
+  simp only [Fin.isValue, Fin.default_eq_zero, Finset.univ_unique, Finset.prod_singleton]
+  simp only [Finset.mul_sum, mul_assoc]
 
 /-- Colour change (arity 1 1): swap Z spider for H X H -/
 theorem colour_change_Z_X_one_wire (α : AlgPhase) :
@@ -36,8 +36,7 @@ theorem colour_change_X_Z (n m : ℕ) (α : AlgPhase) :
   refine ⟨1, one_ne_zero, fun f g => ?_⟩
   rw [one_mul]
   simp only [ZX.sem, xSpiderSem, n_hadamard_sem]
-  simp only [Finset.sum_mul]
-  rw [Finset.sum_comm]
+  simp only [Finset.mul_sum, mul_assoc]
 
 /-- Colour change (arity n m): an X spider with a Hadamard on every leg is a Z spider. -/
 theorem colour_change_Z_X (n m : ℕ) (α : AlgPhase) :
