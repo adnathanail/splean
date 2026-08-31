@@ -19,9 +19,9 @@ inductive ZX : Nat → Nat → Type
   | compose  {n m k : Nat} : ZX n m → ZX m k → ZX n k
 
 /-- Sequential composition: `a ≫ b` feeds the outputs of `a` into the inputs of `b`. -/
-scoped infixr:55 " ≫ " => ZX.compose -- type as \gg
+scoped infixr:80 " ≫ " => ZX.compose -- type as \gg
 
 /-- Parallel composition (stacking): `a ⊗ b` puts `a` and `b` side by side. -/
-scoped infixl:60 " ⊗ " => ZX.stack
+scoped infixr:70 " ⊗ " => ZX.stack
 
 end SpLean.Algebraic
