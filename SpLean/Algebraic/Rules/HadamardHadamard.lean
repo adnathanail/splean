@@ -1,7 +1,7 @@
 import SpLean.Algebraic.ZX
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Rules.Lemmas
-import SpLean.Algebraic.Combinators
+import SpLean.Algebraic.Rules.Structural
 
 namespace SpLean.Algebraic
 
@@ -17,7 +17,7 @@ theorem hadamard_hadamard_n (n : ℕ):
   refine ⟨1, one_ne_zero, fun f g => ?_⟩
   rw [one_mul]
   simp only [ZX.sem]
-  simp only [n_hadamard_sem, hadSem, n_wire_sem]
+  simp only [nHadamard_sem, hadSem, nWire_sem]
   -- Split into f = g and ¬(f = g)
   split; rename_i h
   -- On f = g

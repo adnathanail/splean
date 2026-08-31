@@ -2,6 +2,41 @@ import SpLean.Algebraic.ZX
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Rules.Lemmas
 import SpLean.Algebraic.Combinators
+import SpLean.Algebraic.Tactics
+
+open SpLean.Algebraic
+
+/-!
+# Combinator semantics
+-/
+
+theorem nWire_sem (k : ℕ) (u v : Wires k) :
+    (ZX.nWire k).sem u v = if u = v then 1 else 0 := by
+  induction k with
+  | zero =>
+    simp only [ZX.nWire, ZX.nStack, ZX.sem]
+    trivial
+  | succ k ih =>
+    simp only [ZX.nWire, ZX.nStack, ZX.sem]
+    rw [ih]
+    simp only [Fin.isValue, mul_ite, mul_one, mul_zero]
+    rw [← ite_and]
+    refine if_congr ?_ rfl rfl
+    rw [funext_iff, funext_iff]
+    rw [Fin.forall_fin_succ', and_comm]
+    rfl
+
+theorem nHadamard_sem (k : ℕ) (u v : Wires k) :
+    (ZX.nHadamard k).sem u v = ∏ i, hadSem (u i) (v i) := by
+  induction k with
+  | zero =>
+    simp only [ZX.nHadamard, ZX.nStack, ZX.sem]
+    norm_num
+  | succ k ih =>
+    simp only [ZX.nHadamard, ZX.nStack, ZX.sem]
+    rw [ih]
+    exact Eq.symm (Fin.prod_univ_castSucc fun i => hadSem (u i) (v i))
+
 
 /-!
 # Structural laws for `≫`
@@ -54,7 +89,7 @@ theorem compose_wire {n : ℕ} (a : ZX n 1) : (a ≫ ZX.wire) ≈zx a := by
 theorem nWire_compose {n m : ℕ} (a : ZX n m) : (ZX.nWire n ≫ a) ≈zx a := by
   refine ⟨1, one_ne_zero, fun f g => ?_⟩
   rw [one_mul]
-  simp only [ZX.sem, n_wire_sem]
+  simp only [ZX.sem, nWire_sem]
   have h : ∀ x : Wires n,
     (if f = x then 1 else 0) * a.sem x g = if f = x then a.sem f g else 0 := by
       simp_all only [ite_mul, one_mul, zero_mul, implies_true]
@@ -65,11 +100,15 @@ theorem nWire_compose {n m : ℕ} (a : ZX n m) : (ZX.nWire n ≫ a) ≈zx a := b
 theorem compose_nWire {n m : ℕ} (a : ZX n m) : (a ≫ ZX.nWire m) ≈zx a := by
   refine ⟨1, one_ne_zero, fun f g => ?_⟩
   rw [one_mul]
-  simp only [ZX.sem, n_wire_sem]
+  simp only [ZX.sem, nWire_sem]
   have h : ∀ x : Wires m,
     (a.sem f x * if x = g then 1 else 0) = if x = g then a.sem f g else 0 := by
       simp_all only [mul_ite, mul_one, mul_zero, implies_true]
   simp only [h]
   norm_num
+
+/-- Stacking the empty diagram on the right does nothing. -/
+theorem stack_empty {n m : ℕ} (a : ZX n m) : (a ⊗ .empty) ≈zx a := by
+  sorry
 
 end SpLean.Algebraic

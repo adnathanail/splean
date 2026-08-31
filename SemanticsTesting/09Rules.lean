@@ -72,17 +72,24 @@ example :
   zx_normalize
 
 -- pqs p123
--- TODO finish once we have pi copy
 -- euler_decomp1
 example :
-    Gate.S ≫ ZX.hadamard ≫ Gate.S ≈zx Gate.Z ≫ ZX.spider .X 1 1 (π/2) ≫ Gate.Z := by
-  unfold Gate.S Gate.Z
+    Gate.S ≫ ZX.hadamard ≫ Gate.S ≈zx ZX.spider .X 1 1 (-π/2) := by
   zx_rw [euler_decomp_ZXZ]
   repeat grw [compose_assoc]
   -- Fuse the trailing pair, then regroup to expose the leading one
   zx_rw [spider_fusion_Z_one_wire]
   grw [← compose_assoc]
   zx_rw [spider_fusion_Z_one_wire]
+  zx_normalize
+  zx_rw [← compose_assoc]
+  zx_rw [pi_copy_X]
+  zx_rw [nStack_one]
+  zx_rw [compose_assoc]
+  zx_rw [spider_fusion_Z]
+  zx_normalize
+  zx_rw [identity_removal_Z_two_pi]
+  zx_rw [compose_wire]
 
 -- big_fusion
 example :
