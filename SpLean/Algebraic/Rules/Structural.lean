@@ -10,6 +10,23 @@ open SpLean.Algebraic
 # Combinator semantics
 -/
 
+theorem nStack_sem (k : ℕ) (d : ZX 1 1) (u v : Wires k) :
+    (ZX.nStack k d).sem u v = ∏ j, d.sem (fun _ => u j) (fun _ => v j) := by
+  induction k with
+  | zero =>
+    simp only [ZX.nStack, ZX.sem]
+    trivial
+  | succ k ih =>
+    simp only [ZX.nStack]
+    rw [ZX.sem]
+    rw [ih]
+    have hlast : ∀ i : Fin 1, Fin.natAdd k i = Fin.last k := by
+      intro i
+      rw [Subsingleton.elim i 0]
+      rfl
+    rw [Fin.prod_univ_castSucc (f := fun j => d.sem (fun _ => u j) (fun _ => v j))]
+    simp only [hlast, Fin.castSucc]
+
 theorem nWire_sem (k : ℕ) (u v : Wires k) :
     (ZX.nWire k).sem u v = if u = v then 1 else 0 := by
   induction k with
@@ -28,15 +45,13 @@ theorem nWire_sem (k : ℕ) (u v : Wires k) :
 
 theorem nHadamard_sem (k : ℕ) (u v : Wires k) :
     (ZX.nHadamard k).sem u v = ∏ i, hadSem (u i) (v i) := by
-  induction k with
-  | zero =>
-    simp only [ZX.nHadamard, ZX.nStack, ZX.sem]
-    norm_num
-  | succ k ih =>
-    simp only [ZX.nHadamard, ZX.nStack, ZX.sem]
-    rw [ih]
-    exact Eq.symm (Fin.prod_univ_castSucc fun i => hadSem (u i) (v i))
+  rw [nStack_sem]
+  simp only [ZX.sem]
 
+theorem nStack_pi_sem (k : ℕ) (u v : Wires k) :
+    (ZX.nStack k (ZX.spider .X 1 1 π)).sem u v = ∏ i : Fin k, xSpiderSem π ((fun _ => u i) : Wires 1) ((fun _ => v i) : Wires 1) := by
+  rw [nStack_sem]
+  simp only [ZX.sem]
 
 /-!
 # Structural laws for `≫`
