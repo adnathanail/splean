@@ -144,4 +144,31 @@ theorem nStack_one (d : ZX 1 1) :
   zx_rw [← ZX.cast_self _ _ (ZX.empty ⊗ d)]
   zx_rw [empty_stack]
 
+theorem nStack_compose (n : ℕ) (a b : ZX 1 1) :
+    (ZX.nStack n (a ≫ b) = (ZX.nStack n a) ≫ (ZX.nStack n b)) := by
+  sorry
+
+theorem nHadamard_one :
+    (ZX.nHadamard 1) ≈zx ZX.hadamard := by
+  sorry
+
+/-! ### Congruence for the `nStack` combinators
+
+Allows `zx_rw` to work inside `nStack`
+Tagged here rather than `Tactics.lean` to prevent circular import -/
+
+@[gcongr]
+theorem nStack_congr {k : ℕ} {a b : ZX 1 1} (h : a ≈zx b) :
+    ZX.nStack k a ≈zx ZX.nStack k b := by
+  induction k with
+  | zero => rfl
+  | succ k ih => exact ZX.Equiv.stack_congr ih h
+
+@[gcongr]
+theorem nStackState_congr {k : ℕ} {a b : ZX 0 1} (h : a ≈zx b) :
+    ZX.nStackState k a ≈zx ZX.nStackState k b := by
+  induction k with
+  | zero => rfl
+  | succ k ih => exact ZX.Equiv.stack_congr ih h
+
 end SpLean.Algebraic
