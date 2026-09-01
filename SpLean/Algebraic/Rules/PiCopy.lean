@@ -2,6 +2,7 @@ import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Combinators
 import SpLean.Algebraic.Rules.Lemmas
 import SpLean.Algebraic.Rules.Structural
+import SpLean.Algebraic.Rules.ColourChange
 
 /-!
 # π-commutation ("π-copy")
@@ -71,6 +72,41 @@ theorem pi_copy_Z (m : ℕ) (α : AlgPhase) :
 theorem pi_copy_X (m : ℕ) (α : AlgPhase) :
     (ZX.spider .Z 1 1 π ≫ ZX.spider .X 1 m α)
       ≈zx (ZX.spider .X 1 m (-α) ≫ ZX.nStack m (ZX.spider .Z 1 1 π)) := by
-  sorry
+  -- Colour change LHS Z spider
+  nth_zx_rw 1 [colour_change_Z_X_one_wire]
+  -- Colour change LHS X spider
+  zx_rw [colour_change_X_Z 1 m α]
+  zx_rw [nHadamard_one]
+  zx_rw [← compose_assoc _ _ ZX.hadamard]
+  zx_rw [compose_assoc _ ZX.hadamard]
+  zx_rw [← compose_assoc ZX.hadamard]
+  -- Cancel Hadamards between LHS spiders
+  zx_rw [hadamard_hadamard, wire_compose]
+  zx_rw [compose_assoc ZX.hadamard]
+  zx_rw [← compose_assoc _ _ (ZX.nHadamard m)]
+  -- Use Z version of π copy rule
+  zx_rw [pi_copy_Z]
+  -- Colour change LHS X spider back to Z
+  zx_rw [colour_change_X_Z_one_wire]
+  -- Colour change LHS Z spider back to X
+  zx_rw [colour_change_Z_X 1 m (-α)]
+  zx_rw [nHadamard_one]
+  zx_rw [compose_assoc]
+  zx_rw [compose_assoc]
+  zx_rw [← compose_assoc]
+  -- Cancel Hadamards
+  zx_rw [hadamard_hadamard, wire_compose]
+  zx_rw [nStack_compose, nStack_compose]
+  zx_rw [compose_assoc _ (ZX.nHadamard m)]
+  zx_rw [← compose_assoc (ZX.nHadamard m)]
+  zx_rw [← compose_assoc (ZX.nHadamard m)]
+  -- Cancel Hadamards
+  zx_rw [hadamard_hadamard_n]
+  zx_rw [nWire_compose]
+  zx_rw [compose_assoc]
+  zx_rw [← ZX.nHadamard]
+  -- Cancel Hadamards
+  zx_rw [hadamard_hadamard_n, compose_nWire]
+
 
 end SpLean.Algebraic
