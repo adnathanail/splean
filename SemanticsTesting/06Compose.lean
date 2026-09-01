@@ -29,21 +29,12 @@ theorem two_z_gates_sem : twoZGates.sem = identityMatrix := by
 
 abbrev twoXGates : ZX 1 1 := (.spider .X 1 1 π) ≫ (.spider .X 1 1 π)
 #zx twoXGates
-/-- The X gate flips the bit: its amplitude is `1` off the diagonal, `0` on it.
-Proved separately so the composition below never unfolds `xSpiderSem`'s double
-sum twice over. -/
-lemma x_gate_ampl (f g : Wires 1) :
-    (ZX.spider .X 1 1 π).sem f g = if f 0 = g 0 then 0 else 1 := by
-  rw [ZX.sem, xSpiderSem]
-  simp only [sum_wires1, zSpiderSem, hadSem]
-  cases hf : f 0 <;> cases hg : g 0 <;>
-    norm_num [hf, hg, inv_root_two_mul_self_complex]
 theorem two_x_gates_sem : twoXGates.sem = identityMatrix := by
   unfold wiresMat2
   apply funext; intro f
   apply funext; intro g
   rw [ZX.sem, sum_wires1]
-  rw [x_gate_ampl, x_gate_ampl, x_gate_ampl, x_gate_ampl]
+  rw [x_gate_sem, x_gate_sem, x_gate_sem, x_gate_sem]
   cases f 0 <;> cases g 0 <;> norm_num
 
 -- ## Hadamard decomp (pqs 3.81)
