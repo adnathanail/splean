@@ -138,19 +138,34 @@ theorem empty_stack {n m : ℕ} (a : ZX n m) :
   simp only [ZX.sem, one_mul]
   congr 1 <;> funext i <;> congr 1 <;> (apply Fin.ext; simp)
 
+/-- Composing the empty diagram on the right does nothing. -/
+theorem empty_compose_empty_eq_empty : (ZX.empty ≫ ZX.empty) ≈zx ZX.empty := by
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
+  rw [one_mul]
+  simp only [ZX.sem, mul_one]
+  norm_num
+
 theorem nStack_one (d : ZX 1 1) :
     (ZX.nStack 1 d) ≈zx d := by
   simp only [ZX.nStack]
   zx_rw [← ZX.cast_self _ _ (ZX.empty ⊗ d)]
   zx_rw [empty_stack]
 
-theorem nStack_compose (n : ℕ) (a b : ZX 1 1) :
-    (ZX.nStack n (a ≫ b) = (ZX.nStack n a) ≫ (ZX.nStack n b)) := by
-  sorry
+theorem nStack_compose (k : ℕ) (a b : ZX 1 1) :
+    (ZX.nStack k (a ≫ b) ≈zx (ZX.nStack k a) ≫ (ZX.nStack k b)) := by
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
+  rw [one_mul]
+  have hsum1 : ∀ F : Wires 1 → ℂ, ∑ x : Wires 1, F x = ∑ c : Bool, F (fun _ => c) := by
+    intro F
+    rw [sum_wires1, Fintype.sum_bool]
+    exact add_comm _ _
+  simp only [nStack_sem, ZX.sem, hsum1, ← Finset.prod_mul_distrib]
+  rw [Fintype.prod_sum]
 
 theorem nHadamard_one :
     (ZX.nHadamard 1) ≈zx ZX.hadamard := by
-  sorry
+  rw [ZX.nHadamard]
+  zx_rw [nStack_one]
 
 /-! ### Congruence for the `nStack` combinators
 
