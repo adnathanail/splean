@@ -89,7 +89,6 @@ lemma sum_bool_endpoints₂ {n m : ℕ} {M : Type*} [AddCommMonoid M]
   simp only [all_wires_false, all_wires_true, ite_and, Finset.sum_add_distrib]
   simp
 
-
 /-! ### `√2` arithmetic -/
 
 lemma inv_root_two_add_self : (√2)⁻¹ + (√2)⁻¹ = √2 := by
@@ -118,5 +117,20 @@ theorem inv_root_two_eq_div : ((√2 : ℝ))⁻¹ = √2 / 2 := by
   rw [eq_div_iff (by norm_num : (2:ℝ) ≠ 0), inv_mul_eq_div,
     div_eq_iff (Real.sqrt_ne_zero'.2 (by norm_num))]
   exact (Real.mul_self_sqrt (by norm_num)).symm
+
+/--!
+# X gate semantics
+-/
+
+lemma x_gate_xSpiderSem_entries (f g : Wires 1) :
+    xSpiderSem π f g = if f 0 = g 0 then 0 else 1 := by
+  simp only [xSpiderSem, sum_wires1, zSpiderSem, hadSem]
+  cases hf : f 0 <;> cases hg : g 0 <;>
+    norm_num [hf, hg, inv_root_two_mul_self_complex]
+
+-- Copied from SemanticsTesting.06Compose.lean
+lemma x_gate_sem (f g : Wires 1) :
+    (ZX.spider .X 1 1 π).sem f g = if f 0 = g 0 then 0 else 1 := by
+  rw [ZX.sem, x_gate_xSpiderSem_entries]
 
 end SpLean.Algebraic
