@@ -53,7 +53,49 @@ theorem state_copy_Z_zero (m : ℕ) (β : AlgPhase) :
 /-- A π-phase X state is copied by a Z spider of any phase. -/
 theorem state_copy_Z_pi (m : ℕ) (β : AlgPhase) :
     (ZX.spider .X 0 1 π ≫ ZX.spider .Z 1 m β) ≈zx ZX.nStackState m (ZX.spider .X 0 1 π) := by
-  sorry
+  refine ⟨stateCopyScalar 1 m β, stateCopyScalar_ne_zero 1 m β, fun f g => ?_⟩
+  simp only [ZX.sem, nStackState_sem, xSpiderSem, zSpiderSem, hadSem, sum_wires1]
+  simp
+  split
+  · rename_i h
+    simp [h]
+    field_simp
+    have h1 : ((1 + 1) / (√2 : ℂ)) ^ m = √2^m := by
+      norm_cast
+      ring_nf
+      rw [← mul_pow]
+      rw [inv_mul_eq_div]
+      norm_num
+    have h2 : (√2 : ℂ) * (√2 : ℂ)^m = (√2 : ℂ)^(m + 1) := by
+      norm_cast
+      ring_nf
+    have h3 : (√2 : ℂ)^(m + 1) * (√2 : ℂ) ^ (1 - (m : ℤ)) = 2 := by
+      have h3a : (√2 : ℂ)^(m + 1) = (√2 : ℂ)^(m + 1 : ℤ) := by trivial
+      rw [h3a]
+      rw [← zpow_add']
+      on_goal 2 =>
+        have h3b :
+            ((√2 : ℂ) ≠ 0) = true := by
+          norm_cast
+          rw [← ne_eq]
+          simp
+        rw [h3b]
+        simp
+      ring_nf
+      norm_cast
+      norm_num
+    simp only [h1]
+    simp only [Fin.val_one, pow_one]
+    ring_nf
+    field_simp
+    simp only [h2]
+    simp only [h3]
+  · rename_i h
+    push_neg at h
+    obtain ⟨j, hj⟩ := h
+    have hj' : g j = false := by simpa using hj
+    rw [Finset.prod_eq_zero (Finset.mem_univ j), mul_zero]
+    simp [hj']
 
 /-- An X state with phase equivalent to `0` or `π` is copied by a Z spider of any phase. -/
 theorem state_copy_Z_mod_pi (m : ℕ) {α : AlgPhase} (β : AlgPhase)
