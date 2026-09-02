@@ -118,7 +118,7 @@ theorem inv_root_two_eq_div : ((√2 : ℝ))⁻¹ = √2 / 2 := by
     div_eq_iff (Real.sqrt_ne_zero'.2 (by norm_num))]
   exact (Real.mul_self_sqrt (by norm_num)).symm
 
-/--!
+/-!
 # X gate semantics
 -/
 
