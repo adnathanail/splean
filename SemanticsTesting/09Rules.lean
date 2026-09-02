@@ -124,3 +124,17 @@ example (α β : AlgPhase) :
   zx_rw [colour_change_X_Z_one_wire (3π/2)]
   grw [← compose_assoc ZX.hadamard ZX.hadamard]
   zx_rw [hadamard_hadamard, wire_compose]
+
+def pushMe := ZX.spider .X 0 1 ≫ ZX.spider .Z 1 5
+#zx pushMe
+def imPushed := ZX.spider .X 0 1 ⊗ ZX.spider .X 0 1 ⊗ ZX.spider .X 0 1 ⊗ ZX.spider .X 0 1 ⊗ ZX.spider .X 0 1
+#zx imPushed
+example :
+    pushMe ≈zx imPushed := by
+  unfold pushMe imPushed
+  zx_rw [state_copy_Z_zero]
+  simp only [ZX.nStackState]
+  -- Reassociate
+  repeat zx_rw [← stack_assoc]
+  -- Drop the `ZX.empty` that `nStackState 0` left at the bottom of the stack.
+  zx_rw [empty_stack']
