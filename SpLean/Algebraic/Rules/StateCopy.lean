@@ -1,6 +1,7 @@
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Combinators
 import SpLean.Algebraic.Rules.Structural
+import SpLean.Algebraic.Rules.ColourChange
 
 /-!
 # The copy rule
@@ -101,22 +102,36 @@ theorem state_copy_Z_pi (m : ℕ) (β : AlgPhase) :
 theorem state_copy_Z_mod_pi (m : ℕ) {α : AlgPhase} (β : AlgPhase)
     (h : AlgPhase.equiv α 0 ∨ AlgPhase.equiv α π) :
     (ZX.spider .X 0 1 α ≫ ZX.spider .Z 1 m β) ≈zx ZX.nStackState m (ZX.spider .X 0 1 α) := by
-  sorry
-
-/-- A phase-free Z state is copied by an X spider of any phase. -/
-theorem state_copy_X_zero (m : ℕ) (β : AlgPhase) :
-    (ZX.spider .Z 0 1 ≫ ZX.spider .X 1 m β) ≈zx ZX.nStackState m (ZX.spider .Z 0 1) := by
-  sorry
-
-/-- A π-phase Z state is copied by an X spider of any phase. -/
-theorem state_copy_X_pi (m : ℕ) (β : AlgPhase) :
-    (ZX.spider .Z 0 1 π ≫ ZX.spider .X 1 m β) ≈zx ZX.nStackState m (ZX.spider .Z 0 1 π) := by
-  sorry
+  cases h <;> rename_i hh <;> zx_rw [ZX.Equiv.spider_congr _ _ _ hh]
+  · zx_rw [state_copy_Z_zero]
+  · zx_rw [state_copy_Z_pi]
 
 /-- A Z state with phase equivalent to `0` or `π` is copied by an X spider of any phase. -/
 theorem state_copy_X_mod_pi (m : ℕ) {α : AlgPhase} (β : AlgPhase)
     (h : AlgPhase.equiv α 0 ∨ AlgPhase.equiv α π) :
     (ZX.spider .Z 0 1 α ≫ ZX.spider .X 1 m β) ≈zx ZX.nStackState m (ZX.spider .Z 0 1 α) := by
-  sorry
+  nth_zx_rw 1 [colour_change_Z_X_state]
+  nth_zx_rw 2 [colour_change_X_Z]
+  zx_rw [nHadamard_one]
+  zx_rw [compose_assoc]
+  zx_rw [← compose_assoc (ZX.hadamard)]
+  zx_rw [hadamard_hadamard, wire_compose]
+  zx_rw [← compose_assoc]
+  zx_rw [state_copy_Z_mod_pi _ _ h]
+  rw [ZX.nHadamard]
+  zx_rw [colour_change_Z_X_state, nHadamard_one]
+  zx_rw [nStackState_compose_nStack]
+
+/-- A phase-free Z state is copied by an X spider of any phase. -/
+theorem state_copy_X_zero (m : ℕ) (β : AlgPhase) :
+    (ZX.spider .Z 0 1 ≫ ZX.spider .X 1 m β) ≈zx ZX.nStackState m (ZX.spider .Z 0 1) := by
+  zx_rw [state_copy_X_mod_pi]
+  simp [AlgPhase.equiv]
+
+/-- A π-phase Z state is copied by an X spider of any phase. -/
+theorem state_copy_X_pi (m : ℕ) (β : AlgPhase) :
+    (ZX.spider .Z 0 1 π ≫ ZX.spider .X 1 m β) ≈zx ZX.nStackState m (ZX.spider .Z 0 1 π) := by
+  zx_rw [state_copy_X_mod_pi]
+  simp [AlgPhase.equiv]
 
 end SpLean.Algebraic
