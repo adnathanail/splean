@@ -53,6 +53,28 @@ theorem nStack_pi_sem (k : ℕ) (u v : Wires k) :
   rw [nStack_sem]
   simp only [ZX.sem]
 
+theorem nStackState_sem (k : ℕ) (d : ZX 0 1) (u : Wires 0) (v : Wires k) :
+    (ZX.nStackState k d).sem u v = ∏ j, d.sem u (fun _ => v j) := by
+  induction k with
+  | zero =>
+    simp only [ZX.nStackState, ZX.sem]
+    trivial
+  | succ k ih =>
+    simp only [ZX.nStackState]
+    rw [ZX.sem]
+    have hu :
+      (fun i => u (Fin.castAdd 0 i)) = u := by trivial
+    rw [hu, ih]
+    have hu' :
+      (fun i => u (Fin.natAdd 0 i)) = u := by norm_num
+    rw [hu']
+    rw [Fin.prod_univ_castSucc (f := fun j => d.sem u (fun _ => v j))]
+    have hcastSucc :
+      ∀ i : Fin k, i.castSucc = Fin.castAdd 1 i := by exact fun i => Fin.eq_of_val_eq rfl
+    have hlastk :
+      ∀ j : Fin 1, Fin.natAdd k j = Fin.last k := by grind
+    simp only [hcastSucc, hlastk]
+
 /-!
 # Structural laws for `≫`
 
