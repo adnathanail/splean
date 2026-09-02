@@ -17,6 +17,8 @@ abbrev greenAlphaCircle (α : Phase) : ZX 0 0 := .spider .Z 0 0 α
 
 ## Tactics
 
+https://lean-lang.org/doc/reference/latest/Tactic-Proofs/Tactic-Reference/
+
 `simp`
 - Very general; anyone can define theorems to be used in simps
 - The simp set should aim to reach a normal form
@@ -113,6 +115,17 @@ set_option trace.Meta.Tactic.simp.rewrite true
   - `|- _ * _ = _ * _`
 - [Moogle](https://www.moogle.ai) - natural-language semantic search over Mathlib.
 - `#leansearch` and `#loogle` commands
+
+### Hypothesis naming conventions
+
+<!-- https://blog.lambdaclass.com/the-hitchhikers-guide-to-reading-lean-4-theorems/ -->
+- `h`: hypothesis
+- `ha`: a hypothesis about `a`
+- `h₁`/`h₂`/`ha₂`: multiple hypotheses about the same variable
+- `ih`: inductive hypothesis
+- `hne`: non-equality
+- `hlt`: less than
+- `this`: short-lived locally relevant hypotheses
 
 ### Theorem highlighting
 

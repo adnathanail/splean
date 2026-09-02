@@ -66,7 +66,7 @@ https://github.com/leanprover-community/physlib
 Things to ask the Chicagoans:
 - When indicator function vs dirac notation
 - Do hypergraphs only work for symmetric diagrams? Do we need port graphs for W nodes
-	
+
 To do:
 - https://arxiv.org/pdf/1812.09114
     - Minimal axiomatisation of ZX
