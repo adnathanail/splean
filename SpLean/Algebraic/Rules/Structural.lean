@@ -182,6 +182,18 @@ theorem nStack_compose (k : ℕ) (a b : ZX 1 1) :
   simp only [nStack_sem, ZX.sem, hsum1, ← Finset.prod_mul_distrib]
   rw [Fintype.prod_sum]
 
+theorem nStackState_compose_nStack (k : ℕ) (a : ZX 0 1) (b : ZX 1 1) :
+    (ZX.nStackState k a ≫ ZX.nStack k b ≈zx (ZX.nStackState k (a ≫ b))) := by
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
+  rw [one_mul]
+  simp only [ZX.sem, nStack_sem, nStackState_sem]
+  have hsum1 : ∀ F : Wires 1 → ℂ, ∑ x : Wires 1, F x = ∑ c : Bool, F (fun _ => c) := by
+    intro F
+    rw [sum_wires1, Fintype.sum_bool]
+    exact add_comm _ _
+  simp only [hsum1, ← Finset.prod_mul_distrib]
+  rw [Fintype.prod_sum]
+
 theorem nHadamard_one :
     (ZX.nHadamard 1) ≈zx ZX.hadamard := by
   rw [ZX.nHadamard]
