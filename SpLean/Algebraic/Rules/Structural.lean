@@ -142,6 +142,28 @@ theorem compose_nWire {n m : ℕ} (a : ZX n m) : (a ≫ ZX.nWire m) ≈zx a := b
   simp only [h]
   norm_num
 
+/-- Stacking is associative up to `≈zx`;
+the cast is needed because `(n + p) + r` and `n + (p + r)` are different arities -/
+theorem stack_assoc {n m p q r s : ℕ} (a : ZX n m) (b : ZX p q) (c : ZX r s) :
+    ZX.cast (Nat.add_assoc n p r) (Nat.add_assoc m q s) ((a ⊗ b) ⊗ c)
+      ≈zx (a ⊗ (b ⊗ c)) := by
+  have hll : ∀ {x y z : ℕ} (i : Fin x),
+      Fin.cast (Nat.add_assoc x y z) (Fin.castAdd z (Fin.castAdd y i))
+        = Fin.castAdd (y + z) i := by
+    intro x y z i; apply Fin.ext; simp
+  have hlr : ∀ {x y z : ℕ} (i : Fin y),
+      Fin.cast (Nat.add_assoc x y z) (Fin.castAdd z (Fin.natAdd x i))
+        = Fin.natAdd x (Fin.castAdd z i) := by
+    intro x y z i; apply Fin.ext; simp
+  have hr : ∀ {x y z : ℕ} (i : Fin z),
+      Fin.cast (Nat.add_assoc x y z) (Fin.natAdd (x + y) i)
+        = Fin.natAdd x (Fin.natAdd y i) := by
+    intro x y z i; apply Fin.ext; simp [Nat.add_assoc]
+  refine ⟨1, one_ne_zero, fun f g => ?_⟩
+  rw [one_mul, ZX.sem_cast]
+  simp only [ZX.sem, mul_assoc, hll, hlr, hr]
+
+
 /-- Stacking the empty diagram on the right does nothing. -/
 theorem stack_empty {n m : ℕ} (a : ZX n m) : (a ⊗ .empty) ≈zx a := by
   refine ⟨1, one_ne_zero, fun f g => ?_⟩
@@ -157,6 +179,15 @@ theorem empty_stack {n m : ℕ} (a : ZX n m) :
   rw [one_mul, ZX.sem_cast]
   simp only [ZX.sem, one_mul]
   congr 1 <;> funext i <;> congr 1 <;> (apply Fin.ext; simp)
+
+/--
+`empty_stack` with the cast on the other side,
+  so `zx_rw` can fire it on an `ZX.empty ⊗ a` sitting inside a diagram.
+The rewrite leaves a `ZX.cast` where the subterm was,
+  which `ZX.cast_self` clears whenever the arities are concrete. -/
+theorem empty_stack' {n m : ℕ} (a : ZX n m) :
+    (ZX.empty ⊗ a) ≈zx ZX.cast (Nat.zero_add n).symm (Nat.zero_add m).symm a :=
+  (ZX.Equiv.cast_iff _ _ _ _).mp (empty_stack a)
 
 /-- Composing the empty diagram on the right does nothing. -/
 theorem empty_compose_empty_eq_empty : (ZX.empty ≫ ZX.empty) ≈zx ZX.empty := by
