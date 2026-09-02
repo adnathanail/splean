@@ -4,7 +4,7 @@ import SpLean.Algebraic.Rules.Lemmas
 import SpLean.Algebraic.Combinators
 import SpLean.Algebraic.Tactics
 
-open SpLean.Algebraic
+namespace SpLean.Algebraic
 
 /-!
 # Combinator semantics
@@ -65,8 +65,6 @@ theorem nStack_pi_sem (k : ℕ) (u v : Wires k) :
 `wire_compose`/`compose_wire` then clear away the `wire` such a cancellation
 leaves behind.
 -/
-
-namespace SpLean.Algebraic
 
 /-- Composition is associative up to `≈zx`.
 
