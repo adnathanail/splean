@@ -45,8 +45,7 @@ diagram. See the root `CLAUDE.md` for how `zx_rw` uses them.
 `Rules/SpiderFusion.lean` has Z and X fusion; both come out with `c = 1`, and X
 fusion goes through the Hadamard-conjugated definition of `xSpiderSem` rather
 than being proved from scratch. Note that fusion is stated only for
-`(n,1) ≫ (1,m)` — spiders joined by *k* parallel wires do not follow from it,
-and that is the shape the axiomatic rule actually covers.
+`(n,1) ≫ (1,m)` — spiders joined by *k* parallel wires do not follow from it.
 `Rules/Structural.lean` has the laws that let the *other* rules fire:
 `compose_assoc` (needed because `≫` is a constructor, so `(a ≫ b) ≫ c` and
 `a ≫ (b ≫ c)` are different terms and a rule only matches the grouping it was
@@ -56,15 +55,6 @@ particular grouping: `zx_rw [← compose_assoc ZX.hadamard ZX.hadamard]`.
 `Rules/Lemmas.lean` holds the shared sum-collapsing machinery (`sum_wires1`,
 the `sum_bool_*` endpoint lemmas, the `√2` arithmetic), moved here out of
 `SemanticsTesting/Utils.lean` when the rules started needing it.
-
-### What is not here yet
-
-Nothing connects this module to `SpLean/Axiomatic/`: `≈z` there is still
-syntactic equality after compaction, which is too weak to prove rewrite-rule
-soundness, so every rule in `SpLean/Axiomatic/Rules/` remains axiomatised.
-Proving those rules instead of assuming them is the *reason* this module
-exists, and the machinery is now in place on this side, but the bridge is not
-built — check what the tree actually contains before writing about it.
 
 ### `SemanticsTesting/`
 
@@ -217,12 +207,3 @@ overwritten.
 
 Changing how any of that *looks* means changing zxcc and releasing a new
 version, not editing anything here.
-
-## Not proved
-
-There is no proof that the lowering to `Wire` draws anything faithful — it is
-rendering, and there is nothing to prove it against. There used to be a
-`ZX.toZXDiagram` producing a graph-style diagram; it had no callers and was
-the last arrow from here into `Axiomatic/`, so it is gone. If a real
-`ZX → ZXDiagram` translation is ever wanted it should be written as its own
-thing, with a semantics to justify it, not as a by-product of the renderer.

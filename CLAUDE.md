@@ -2,6 +2,10 @@
 
 Lean 4 project for ZX-calculus diagrams with interactive visualization via ProofWidgets.
 
+`SpLean/Axiomatic/` is a sort of 'reference implementation', not fully complete in terms of desired functionality, but showing the level of ergonomics we hope to be able to achieve in terms of writing proofs.
+
+`SpLean/Algebraic/` is the main focus now, trying to create fully proven methods to work with ZX diagrams in Lean.
+
 ## Committing
 
 Sometimes this repository is managed with GitButler.
