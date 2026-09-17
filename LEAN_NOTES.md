@@ -113,8 +113,9 @@ set_option trace.Meta.Tactic.simp.rewrite true
 - [Loogle](https://loogle.lean-lang.org)
   - `Loogle "Finset.sum, tsum"`
   - `|- _ * _ = _ * _`
-- [Moogle](https://www.moogle.ai) - natural-language semantic search over Mathlib.
+- [Moogle](https://www.moogle.ai) - natural-language semantic search over Mathlib. (broken?)
 - `#leansearch` and `#loogle` commands
+- [LeanExplore](https://www.leanexplore.com) - natural-language theorem search
 
 ### Hypothesis naming conventions
 
