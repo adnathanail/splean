@@ -11,8 +11,9 @@ renders through its own lowering.
 This module holds the `ZX n m` ADT (`ZX.lean`), its phase type (`AlgPhase/`),
 a denotational semantics (`Semantics.lean`), the equivalence proved against it
 (`Equiv.lean` + `Rules/`) and the tactic that rewrites with it
-(`Tactics.lean`), a handful of named gates (`Gate.lean`), and the rendering
-path (`Visualize.lean` + `Render.lean`).
+(`Tactics.lean`), a handful of named gates (`Gate.lean`), a
+`CategoryTheory.MonoidalCategory` instance built on top of `≈zx`
+(`Category.lean`), and the rendering path (`Visualize.lean` + `Render.lean`).
 
 ### The semantics
 
@@ -55,6 +56,46 @@ particular grouping: `zx_rw [← compose_assoc ZX.hadamard ZX.hadamard]`.
 `Rules/Lemmas.lean` holds the shared sum-collapsing machinery (`sum_wires1`,
 the `sum_bool_*` endpoint lemmas, the `√2` arithmetic), moved here out of
 `SemanticsTesting/Utils.lean` when the rules started needing it.
+
+### The category (`Category.lean`)
+
+`ZX n m` itself isn't a `Category` — `≫`/`⊗` are constructors, so
+`(a ≫ b) ≫ c` and `a ≫ (b ≫ c)` are different terms, only `≈zx`-equal, not
+`Eq`-equal, and likewise for `⊗`'s arities under `Nat.add`. So the instance
+lives on `ZXCat` (a type synonym for `ℕ`, kept separate so this can't collide
+with some other category structure on `ℕ` itself), with
+`Hom n m := Quotient (ZX.equivSetoid n m)` — `≈zx` quotiented into actual
+`Eq`. `compose_congr`/`stack_congr` are exactly what's needed to descend
+`≫`/`⊗` to the quotient, and `compose_assoc`/`wire_compose`/`compose_wire`
+(from `Rules/Structural.lean`) become the `Category` laws via `Quotient.sound`.
+
+The `MonoidalCategory` instance is built via `ofTensorHom` (`tensorHom` is
+`ZX.stack`, matching the constructor directly, rather than `whiskerLeft`/
+`whiskerRight` as primitive). Its harder obligations:
+- **`tensorHom_comp_tensorHom`** (the interchange law, `(a⊗b)≫(c⊗d) ≈zx
+  (a≫c)⊗(b≫d)`) isn't a consequence of anything in `Rules/` — it's proved
+  fresh from `ZX.sem`, splitting the sum over the shared `Wires (m+q)`
+  boundary into independent sums via the `Fin (m+q) ≃ Fin m ⊕ Fin q`
+  equivalence (`ZX.sum_stack_split`).
+- **The associator/unitors** are `ZX.castHom h` — the identity, cast along an
+  arity equation (`Nat.add_assoc`/`Nat.zero_add`) — since those equations are
+  *not* `rfl` for general arguments (`Nat.add` recurses on its second
+  argument, so only `Nat.add_zero` reduces outright; this is also why
+  `stack_empty` needs no cast but `empty_stack` does). Their naturality
+  squares reduce to `stack_assoc`/`empty_stack` via `compose_castHom`/
+  `castHom_compose` (composing with a `castHom` = casting one side) plus
+  `ZX.Equiv.cast_iff` to move the cast across `≈zx`.
+- **`pentagon`/`triangle`** involve only identities and associators — no
+  general morphism — so every term collapses to a single `castHom` via
+  `castHom_trans`/`castHom_stack_left`/`castHom_stack_right`, and two
+  `castHom`s of *the same* arity equation are equal outright
+  (`castHom_proof_irrel`, by `rfl`): `ZX.castHom` only pattern-matches on its
+  proof's type via `▸`, and `Prop` is proof-irrelevant, so it doesn't matter
+  which proof of a given equation is supplied. No induction needed once both
+  sides land on the same equation.
+
+Not done: `SymmetricCategory`/`BraidedCategory` — that needs a wire-crossing
+(`swap`) primitive `ZX` doesn't have. Nothing here touches `Axiomatic/`.
 
 ### `SemanticsTesting/`
 

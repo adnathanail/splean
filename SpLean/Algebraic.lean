@@ -7,4 +7,5 @@ import SpLean.Algebraic.Semantics
 import SpLean.Algebraic.Equiv
 import SpLean.Algebraic.Rules
 import SpLean.Algebraic.Tactics
+import SpLean.Algebraic.Category
 import SpLean.Algebraic.Gate
