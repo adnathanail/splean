@@ -84,3 +84,20 @@ To do:
 - https://quantum-journal.org/papers/q-2024-10-04-1491/pdf/
     - Integrating and differentiating ZX
 - John's thesis
+
+## Mathlib.CategoryTheory
+
+https://leanprover-community.github.io/mathlib4_docs/Mathlib/CategoryTheory/Monoidal/Category.html
+Proving a `MonoidalCategory` instance gives:
+- Whiskering and interchange laws
+- `coherence`/`pure_coherence` tactic
+    - closes goals with different bracketing of same composite
+    - Mac Lane coherence
+    - Only associators, unitors, whiskering. Not braiding.
+- `ZX.sem` can be marked as a `MonoidalFunctor`/`LaxMonoidalFunctor` into a Mathlib `MonoidalCategory` of linear maps
+- `Mathlib.Tactic.Widget.StringDiagram` renders monoidal-category goals as string diagrams
+
+Symmetry (swap/permutation of wires) needs `BraidedCategory`/`SymmetricCategory`, with less builtins from Mathlib
+
+Nothing provided for Dagger
+
