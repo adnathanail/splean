@@ -114,3 +114,12 @@ info: Hyp 2 2 with 12 wires
 -/
 #guard_msgs in
 #eval Gate.CZ.toHyp
+
+/-! ### Drawing
+
+CNOT vs CNOT'
+They only differ by wire ID -/
+
+#zx Gate.CNOT.toHyp
+
+#zx Gate.CNOT'.toHyp

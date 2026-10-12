@@ -101,7 +101,10 @@ has got, is in `Hypergraph/PLAN.md`. The hypergraph types reuse `AlgSpColor`,
 `AlgPhase` and `Wires` directly. `Hypergraph/Display.lean` gives `Hyp` a
 `Repr`, so `#eval a.toHyp` prints the edges, identified pairs and boundary;
 `SemanticsTesting/10Hypergraphs.lean` uses it to show what each constructor
-lowers to.
+lowers to. `Hypergraph/Visualize.lean` lowers a `Hyp` to the zxcc wire format
+(`Hyp.toWire`), merging each identified pair into one dot and computing a
+simple layout itself, since `<zx-hypergraph>` does none; `Hypergraph/Render.lean`
+evaluates a `Hyp` term for `#zx`.
 
 ### `SemanticsTesting/`
 

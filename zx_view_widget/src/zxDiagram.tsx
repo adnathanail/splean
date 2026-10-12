@@ -1,5 +1,6 @@
 import { type DiagramData, ZxDiagramElement } from '@adnathanail/zxcc'
 import * as React from 'react'
+import { IdsButton, usePersistedShowIds } from './shared/showIds'
 
 // Side-effect: touching the class ensures <zx-diagram> is registered even
 // if rollup tree-shakes the named export.
@@ -16,37 +17,6 @@ const LAYOUTS: Layout[] = ['horizontal', 'vertical', 'goal_hidden']
 
 function isLayout(v: unknown): v is Layout {
   return v === 'horizontal' || v === 'vertical' || v === 'goal_hidden'
-}
-
-const SHOW_IDS_KEY = 'zx-widget-show-ids'
-
-function usePersistedShowIds(): [boolean, (v: boolean) => void] {
-  const [showIds, setShowIdsState] = React.useState<boolean>(() => {
-    try {
-      return localStorage.getItem(SHOW_IDS_KEY) === 'true'
-    } catch {
-      return false
-    }
-  })
-
-  React.useEffect(() => {
-    const handler = (e: StorageEvent) => {
-      if (e.key === SHOW_IDS_KEY) setShowIdsState(e.newValue === 'true')
-    }
-    window.addEventListener('storage', handler)
-    return () => window.removeEventListener('storage', handler)
-  }, [])
-
-  const setShowIds = React.useCallback((v: boolean) => {
-    setShowIdsState(v)
-    try {
-      localStorage.setItem(SHOW_IDS_KEY, String(v))
-    } catch {
-      /* ignore */
-    }
-  }, [])
-
-  return [showIds, setShowIds]
 }
 
 function usePersistedLayout(): [Layout, (l: Layout) => void] {
@@ -112,15 +82,7 @@ export default function ZXDiagram({ diagram, goal }: ZXWidgetProps) {
   const [layout, setLayout] = usePersistedLayout()
   const [showIds, setShowIds] = usePersistedShowIds()
 
-  const idsButton = (
-    <button
-      type="button"
-      onClick={() => setShowIds(!showIds)}
-      style={{ cursor: 'pointer', fontSize: '12px' }}
-    >
-      {showIds ? '# Hide IDs' : '# Show IDs'}
-    </button>
-  )
+  const idsButton = <IdsButton showIds={showIds} setShowIds={setShowIds} />
 
   if (!goal) {
     return (

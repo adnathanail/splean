@@ -101,6 +101,50 @@ structure Diagram where
   boxes : List Box := []
   deriving Repr, Inhabited
 
+/-! ## Hypergraphs
+
+A mirror of zxcc's `HypergraphInput`, which `<zx-hypergraph>` draws exactly as
+given: zxcc lays nothing out here, so every dot carries its position. -/
+
+/-- zxcc's `HyperedgeKind`: which shape and colour a blob is drawn with. -/
+inductive HyperedgeKind where
+  | zSpider | xSpider | hadamard | boundary
+  deriving Repr, DecidableEq, Inhabited
+
+def HyperedgeKind.name : HyperedgeKind → String
+  | .zSpider => "z-spider" | .xSpider => "x-spider"
+  | .hadamard => "hadamard" | .boundary => "boundary"
+
+/-- One entry of `wires`, drawn as a dot on the column/qubit grid. Grid
+    coordinates may be fractional, and are read relative to the lowest. -/
+structure HypWire where
+  /-- What `show-labels` writes under the dot. Must be unique. -/
+  id : Nat
+  col : Float
+  qubit : Float
+  deriving Repr, Inhabited
+
+/-- One entry of `hyperedges`, drawn as a blob around the dots it holds. -/
+structure Hyperedge where
+  /-- Must be unique among the hyperedges. -/
+  id : Nat
+  kind : HyperedgeKind
+  /-- Positions in `Hypergraph.wires` (not wire ids). A position listed twice is a self-loop. -/
+  wires : List Nat
+  /-- What `show-labels` writes beside the blob. zxcc defaults it to the letter
+      for the kind, and to nothing for a boundary. -/
+  name : Option String := none
+  /-- Display-ready phase text, as for `Node.phase`. -/
+  phase : Option String := none
+  deriving Repr, Inhabited
+
+/-- zxcc's `HypergraphInput`. Every wire must be held by one or two hyperedge
+    ends; zxcc draws an error in place of the picture otherwise. -/
+structure Hypergraph where
+  wires : List HypWire
+  hyperedges : List Hyperedge
+  deriving Repr, Inhabited
+
 -- == JSON ==
 
 private def natJson (n : Nat) : Json := .num { mantissa := (n : Int), exponent := 0 }
@@ -123,6 +167,18 @@ def Edge.toJson (e : Edge) : Json :=
 def Box.toJson (b : Box) : Json :=
   .mkObj [("kind", .str b.kind.name), ("nodeIds", .arr (b.nodeIds.map natJson).toArray)]
 
+def HypWire.toJson (w : HypWire) : Json :=
+  .mkObj [("id", natJson w.id), ("col", Lean.toJson w.col), ("qubit", Lean.toJson w.qubit)]
+
+def Hyperedge.toJson (h : Hyperedge) : Json :=
+  .mkObj ([("id", natJson h.id), ("kind", .str h.kind.name),
+           ("wires", .arr (h.wires.map natJson).toArray)] ++
+    someFields [("name", h.name.map .str), ("phase", h.phase.map .str)])
+
+def Hypergraph.toJson (h : Hypergraph) : Json :=
+  .mkObj [("wires", .arr (h.wires.map HypWire.toJson).toArray),
+          ("hyperedges", .arr (h.hyperedges.map Hyperedge.toJson).toArray)]
+
 def Diagram.toJson (d : Diagram) : Json :=
   .mkObj ([("nodes", .arr (d.nodes.map Node.toJson).toArray),
            ("edges", .arr (d.edges.map Edge.toJson).toArray)] ++
@@ -144,5 +200,17 @@ def ZXWidget : Component ZXWidgetProps where
 /-- Draw a diagram in the InfoView, optionally beside a goal diagram. -/
 def Diagram.toHtml (d : Diagram) (goal? : Option Diagram := none) : Html :=
   Html.ofComponent ZXWidget ⟨d.toJson, goal?.elim .null Diagram.toJson⟩ #[]
+
+structure ZXHypergraphWidgetProps where
+  hypergraph : Json
+  deriving RpcEncodable
+
+@[widget_module]
+def ZXHypergraphWidget : Component ZXHypergraphWidgetProps where
+  javascript := include_str ".." / ".lake" / "build" / "js" / "zxHypergraph.js"
+
+/-- Draw a hypergraph in the InfoView. -/
+def Hypergraph.toHtml (h : Hypergraph) : Html :=
+  Html.ofComponent ZXHypergraphWidget ⟨h.toJson⟩ #[]
 
 end SpLean.Wire
