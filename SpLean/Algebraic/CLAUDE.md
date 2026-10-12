@@ -98,7 +98,10 @@ hyperedges (`Hyp.Edge`). `Hyp.sem` gives it a denotation in the same boundary-te
 `ZX.sem`. Two terms whose hypergraphs are isomorphic can then be shown
 equivalent without a chain of structural rewrites. The plan, and how far it
 has got, is in `Hypergraph/PLAN.md`. The hypergraph types reuse `AlgSpColor`,
-`AlgPhase` and `Wires` directly.
+`AlgPhase` and `Wires` directly. `Hypergraph/Display.lean` gives `Hyp` a
+`Repr`, so `#eval a.toHyp` prints the edges, identified pairs and boundary;
+`SemanticsTesting/10Hypergraphs.lean` uses it to show what each constructor
+lowers to.
 
 ### `SemanticsTesting/`
 
