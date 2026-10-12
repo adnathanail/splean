@@ -1,5 +1,6 @@
 import SpLean.Axiomatic.Render
 import SpLean.Algebraic.Render
+import SpLean.Algebraic.Hypergraph.Render
 import ProofWidgets.Component.OfRpcMethod
 import ProofWidgets.Component.Panel.Basic
 import ProofWidgets.Presentation.Expr
@@ -47,6 +48,7 @@ def zxPresenter : ExprPresenter where
     if let some html ← equivHtml? e then return html
     if let some html ← softly (zxDiagramHtml? e) then return html
     if let some html ← softly (Algebraic.zxTermHtml? e) then return html
+    if let some html ← softly (Algebraic.Hypergraph.hypHtml? e) then return html
     throwError "Not a ZX diagram or ZX equivalence goal."
 
 /-- How many goals to draw at once. A case split can leave many goals live, and a
@@ -104,6 +106,7 @@ def ZXPanel : Component PanelWidgetProps :=
     #zx zHadX          -- graph-style `ZXDiagram`
     #zx algCnot        -- algebraic `ZX n m`
     #zx greenAlpha     -- `(α : AlgPhase) → ZX 0 0`, drawn with `α` on the spider
+    #zx algCnot.toHyp  -- a `Hyp n m`, drawn as a hypergraph
     ```
 
     Both representations are accepted, so `#zx` replaces ProofWidgets'
@@ -112,7 +115,8 @@ def ZXPanel : Component PanelWidgetProps :=
     it is walked at the `Expr` level, so a phase it cannot evaluate is drawn
     as its own source text, and any leading `∀`s are instantiated with their
     own binders — which is what makes a phase-parameterized diagram
-    displayable at all.
+    displayable at all. A `Hyp` is evaluated, like a `ZXDiagram`, so it too
+    must be closed.
 
     Unlike the `ZXDiagram`-only form this had before, the argument is
     elaborated without an expected type — `ZX n m` is arity-indexed, so
@@ -135,13 +139,14 @@ def elabZxCmd : CommandElab := fun
       -- a term of the right type that cannot be walked reports that itself.
       if let some html ← softly (zxDiagramHtml? e) then return html
       if let some html ← Algebraic.zxTermHtml? e then return html
+      if let some html ← Algebraic.Hypergraph.hypHtml? e then return html
       -- Neither branch fired: either the term has the wrong type entirely, or
       -- it is a `ZXDiagram` that could not be evaluated (an open term). An
       -- algebraic term that is the right type but cannot be walked reports
       -- that itself, from `zxTermHtml?`. Report the type so the cases are
       -- told apart.
-      throwError "#zx expects a `ZXDiagram` or an algebraic `ZX n m` term, \
-        and a `ZXDiagram` has to be closed enough to evaluate. Got{indentExpr e}\
+      throwError "#zx expects a `ZXDiagram`, an algebraic `ZX n m` term or a \
+        `Hyp n m`, and a `ZXDiagram` has to be closed enough to evaluate. Got{indentExpr e}\
         \nof type{indentExpr (← inferType e)}"
     liftCoreM <| Widget.savePanelWidgetInfo
       (hash HtmlDisplay.javascript)

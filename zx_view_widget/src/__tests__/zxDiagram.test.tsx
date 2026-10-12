@@ -1,7 +1,10 @@
 import { render as rtlRender } from '@testing-library/react'
 import { beforeEach, expect, test, vi } from 'vitest'
 
-vi.mock('@adnathanail/zxcc', () => ({ ZxDiagramElement: class {} }))
+vi.mock('@adnathanail/zxcc', () => ({
+  ZxDiagramElement: class {},
+  ZxHypergraphElement: class {},
+}))
 
 const diagram = {
   nodes: [
@@ -46,4 +49,20 @@ test('panels are labelled LHS/RHS, not Current/Goal', async () => {
   expect(container.textContent).toContain('LHS')
   expect(container.textContent).toContain('RHS')
   expect(container.textContent).not.toContain('Current')
+})
+
+test('ZXHypergraph renders one <zx-hypergraph> with the hypergraph forwarded', async () => {
+  const { default: ZXHypergraph } = await import('../zxHypergraph')
+  const hypergraph = {
+    wires: [{ col: 0.5, qubit: 0 }],
+    hyperedges: [
+      { kind: 'boundary' as const, name: 'in0', wires: [0] },
+      { kind: 'boundary' as const, name: 'out0', wires: [0] },
+    ],
+  }
+  const { container } = rtlRender(<ZXHypergraph hypergraph={hypergraph} />)
+  const els = container.querySelectorAll('zx-hypergraph')
+  expect(els).toHaveLength(1)
+  expect((els[0] as HTMLElement & { hypergraph: unknown }).hypergraph).toBe(hypergraph)
+  expect(container.textContent).toContain('Show IDs')
 })
